@@ -9,15 +9,67 @@ function when(iso) {
 }
 
 function nums(e) {
-  return [e.actual !== "" && e.actual != null ? "act " + e.actual : "upcoming", e.forecast !== "" && e.forecast != null ? "fcst " + e.forecast : "", e.previous !== "" && e.previous != null ? "prev " + e.previous : ""].filter(Boolean).join(" · ");
+  return [
+    e.actual !== "" && e.actual != null ? "act " + e.actual : "upcoming",
+    e.forecast !== "" && e.forecast != null ? "fcst " + e.forecast : "",
+    e.previous !== "" && e.previous != null ? "prev " + e.previous : ""
+  ].filter(Boolean).join(" · ");
+}
+
+/**
+ * Calculates Delta (Surprise Factor) and Confluence Score based on Fed weights
+ */
+function calculateConfluenceScore(bias) {
+  let score = 0;
+  if (typeof bias.score === 'number') {
+    score = bias.score;
+  } else if (typeof bias.score === 'string') {
+    const parsed = parseInt(bias.score, 10);
+    score = isNaN(parsed) ? 0 : parsed;
+  }
+  
+  // Clamp score between -10 and +10
+  score = Math.max(-10, Math.min(10, score));
+  
+  // Position pointer on meter (0% at -10, 50% at 0, 100% at +10)
+  const pointerPercent = ((score + 10) / 20) * 100;
+  const pointerEl = document.getElementById("confluence-pointer");
+  if (pointerEl) {
+    pointerEl.style.left = `${pointerPercent}%`;
+  }
+
+  // Update Signal Action text based on score threshold
+  const actionEl = document.getElementById("signal-action");
+  if (actionEl) {
+    if (score >= 7) {
+      actionEl.textContent = "Signal State: HIGH CONFLUENCE - STRONG BUY USD / STRONG SELL GOLD";
+      actionEl.className = "signal-action strong-buy";
+    } else if (score <= -7) {
+      actionEl.textContent = "Signal State: HIGH CONFLUENCE - STRONG SELL USD / STRONG BUY GOLD";
+      actionEl.className = "signal-action strong-sell";
+    } else if (score >= 3) {
+      actionEl.textContent = "Signal State: MODERATE USD BUY / NO TRADE GOLD";
+      actionEl.className = "signal-action mod-buy";
+    } else if (score <= -3) {
+      actionEl.textContent = "Signal State: MODERATE USD SELL / NO TRADE GOLD";
+      actionEl.className = "signal-action mod-sell";
+    } else {
+      actionEl.textContent = "Signal State: NO TRADE ZONE - Low Confluence / Conflicting Prints";
+      actionEl.className = "signal-action neutral";
+    }
+  }
 }
 
 function render(data) {
   document.getElementById("updated").textContent =
     "Calendar pulled " + new Date(data.fetchedAt).toLocaleString() + " · next weekly refresh " + new Date(data.nextRefresh).toLocaleDateString();
-  document.getElementById("usd").textContent = data.bias.call;
-  document.getElementById("gold").textContent = data.bias.gold;
-  document.getElementById("score").textContent = data.bias.score;
+  
+  document.getElementById("usd").textContent = data.bias.call || "—";
+  document.getElementById("gold").textContent = data.bias.gold || "—";
+  document.getElementById("score").textContent = data.bias.score !== undefined ? data.bias.score : "—";
+
+  // Calculate and update confluence meter
+  calculateConfluenceScore(data.bias);
 
   const focus = data.majors.find((m) => m.next) || data.majors[0];
   document.getElementById("steps").innerHTML = (focus?.signal.steps || []).map((s, i) =>
@@ -39,7 +91,7 @@ function render(data) {
   monthsEl.innerHTML = Object.entries(data.months).map(([month, rows]) => `
     <article class="card">
       <p>${month}</p>
-      ${rows.map((e) => `<div class="lead"><div><strong>${e.title}</strong><br>${when(e.date)} · ${nums(e)}</div></div>`).join("")}
+      ${rows.map((e) => `<div class="lead"><div><strong>${e.title}</strong><br>${when(e.date)} ·${nums(e)}</div></div>`).join("")}
     </article>
   `).join("") || "<p>No high-impact events returned.</p>";
 }
@@ -56,18 +108,30 @@ async function load(force) {
 
 async function ticks() {
   const box = document.getElementById("ticks");
-  if (!box) return;
   try {
     const data = await (await fetch("/api/ticks")).json();
-    if (data.error) { box.textContent = data.error; return; }
-    box.innerHTML = data.quotes.map((q) => `<span><strong>${q.name}</strong> ${q.bid ?? "—"} / ${q.ask ?? "—"}</span>`).join("");
+    if (data.error) { if (box) box.textContent = data.error; return; }
+    
+    // Update live ticks block
+    if (box) {
+      box.innerHTML = data.quotes.map((q) => `<span><strong>${q.name}</strong> ${q.bid ?? "—"} / ${q.ask ?? "—"}</span>`).join("");
+    }
+
+    // Update Macro Dynamics Ticker in header
+    const dxyQuote = data.quotes.find(q => q.name.includes("DXY") || q.name.includes("USD"));
+    if (dxyQuote && document.getElementById("dxy-ticker")) {
+      document.getElementById("dxy-ticker").textContent = `DXY: ${dxyQuote.bid ?? "--"}`;
+    }
   } catch (err) {
-    box.textContent = "Exness feed not ready";
+    if (box) box.textContent = "Exness feed not ready";
   }
 }
+
 ticks();
 setInterval(ticks, 2000);
 load(false);
+
+document.getElementById("refresh").onclick = () => load(true);
 
 const titles = { board: "Event bias board", charts: "Market charts", calendar: "Market calendar", chat: "Event chat" };
 document.querySelectorAll(".tab").forEach((btn) => {
@@ -138,4 +202,3 @@ document.getElementById("ask").onsubmit = (e) => {
   document.getElementById("q").value = "";
   log.scrollTop = log.scrollHeight;
 };
-
