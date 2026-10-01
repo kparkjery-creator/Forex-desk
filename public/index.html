@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Forex Desk</title>
+  <title>Forex Desk - Macro Trading Terminal</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -14,32 +14,76 @@
     <button class="tab" data-tab="calendar">Market calendar</button>
     <button class="tab" data-tab="chat">Event chat</button>
   </aside>
+
   <main>
     <header>
       <div>
-        <p class="kicker">Personal forex desk</p>
-        <h1 id="title">Event bias board</h1>
+        <p class="kicker">Personal Forex Desk</p>
+        <h1 id="title">Event Bias & Signal Terminal</h1>
       </div>
       <div class="meta">
+        <!-- Live Market Dynamics Ticker -->
+        <div id="macro-ticker" class="ticker-box">
+          <span id="us10y-yield">US10Y: --</span>
+          <span id="real-yield">Real Yield: --</span>
+          <span id="dxy-ticker">DXY: --</span>
+        </div>
         <span id="updated">Loading…</span>
         <button id="refresh" type="button">Refresh</button>
       </div>
     </header>
 
     <section id="board" class="panel on">
+      <!-- High-Confluence Signal Output -->
       <div class="bias">
-        <article><p>USD bias</p><h2 id="usd">—</h2></article>
-        <article><p>Gold</p><h2 id="gold">—</h2></article>
-        <article><p>Score</p><h2 id="score">—</h2></article>
+        <article>
+          <p>USD Bias <span class="tooltip-icon" data-tooltip="Based on weighted delta deviation across leading prints">ⓘ</span></p>
+          <h2 id="usd">—</h2>
+        </article>
+        <article>
+          <p>Gold (XAU/USD) <span class="tooltip-icon" data-tooltip="Driven by U.S. Real Yields and Fed Rate Probability">ⓘ</span></p>
+          <h2 id="gold">—</h2>
+        </article>
+        <article>
+          <p>Confluence Score</p>
+          <h2 id="score">—</h2>
+        </article>
       </div>
-      <h3>Step-by-step signal into the next big event</h3>
+
+      <!-- Visual Confluence & Signal Strength Meter -->
+      <div class="signal-meter-container">
+        <div class="meter-labels">
+          <span>Strong Sell USD / Buy Gold (-10)</span>
+          <span>No Trade Zone (-2 to +2)</span>
+          <span>Strong Buy USD / Sell Gold (+10)</span>
+        </div>
+        <div class="meter-bar">
+          <div id="confluence-pointer" class="pointer" style="left: 50%;"></div>
+        </div>
+        <p id="signal-action" class="signal-action">Signal State: Calculating Confluence...</p>
+      </div>
+
+      <!-- Educational Delta Breakdown -->
+      <h3>Step-by-step Signal & Surprise Factor ($\Delta$)</h3>
+      <p class="section-desc">Calculated via Delta ($\Delta = \text{Actual} - \text{Forecast}$) weighted by Fed policy priority.</p>
       <div id="steps" class="list"></div>
+
+      <!-- Major Event Catalyst Breakdown -->
       <h3>Next NFP, CPI, PPI, FOMC, PCE</h3>
       <div class="grid" id="majors"></div>
+
+      <!-- Post-Event Educational Learning Loop -->
+      <div class="post-event-analysis">
+        <h3>Post-Event Replay & Narrative Check</h3>
+        <div id="replay-card" class="replay-card">
+          <p class="replay-status">Waiting for event release...</p>
+        </div>
+      </div>
     </section>
 
     <section id="charts" class="panel">
       <div id="ticks" class="ticks">Exness prices load after the token is live.</div>
+      <div class="chart-controls">
         <button class="sym on" data-sym="OANDA:XAUUSD">Gold</button>
         <button class="sym" data-sym="CAPITALCOM:DXY">DXY</button>
         <button class="sym" data-sym="TVC:USOIL">Oil</button>
@@ -51,7 +95,7 @@
     </section>
 
     <section id="calendar" class="panel">
-      <h3>High-impact USD events, next 6 months</h3>
+      <h3>High-Impact USD Events, Next 6 Months</h3>
       <div class="grid" id="months"></div>
     </section>
 
