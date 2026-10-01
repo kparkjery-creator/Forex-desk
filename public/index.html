@@ -7,56 +7,61 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <div>
-      <p class="kicker">Personal forex desk</p>
-      <h1>Event bias board</h1>
-    </div>
-    <div class="meta">
-      <span id="updated">Loading…</span>
-      <button id="refresh" type="button">Refresh</button>
-    </div>
-  </header>
+  <aside>
+    <p class="kicker">Desk</p>
+    <button class="tab on" data-tab="board">Bias board</button>
+    <button class="tab" data-tab="charts">Market charts</button>
+    <button class="tab" data-tab="calendar">Market calendar</button>
+    <button class="tab" data-tab="chat">Event chat</button>
+  </aside>
+  <main>
+    <header>
+      <div>
+        <p class="kicker">Personal forex desk</p>
+        <h1 id="title">Event bias board</h1>
+      </div>
+      <div class="meta">
+        <span id="updated">Loading…</span>
+        <button id="refresh" type="button">Refresh</button>
+      </div>
+    </header>
 
-  <section class="bias" id="bias">
-    <article>
-      <p>USD bias</p>
-      <h2 id="usd">—</h2>
-    </article>
-    <article>
-      <p>Gold</p>
-      <h2 id="gold">—</h2>
-    </article>
-    <article>
-      <p>Score</p>
-      <h2 id="score">—</h2>
-    </article>
-  </section>
+    <section id="board" class="panel on">
+      <div class="bias">
+        <article><p>USD bias</p><h2 id="usd">—</h2></article>
+        <article><p>Gold</p><h2 id="gold">—</h2></article>
+        <article><p>Score</p><h2 id="score">—</h2></article>
+      </div>
+      <h3>Step-by-step signal into the next big event</h3>
+      <div id="steps" class="list"></div>
+      <h3>Next NFP, CPI, PPI, FOMC, PCE</h3>
+      <div class="grid" id="majors"></div>
+    </section>
 
-  <section>
-    <h3>Step-by-step signal into the next big event</h3>
-    <div id="steps" class="list"></div>
-  </section>
-  <section>
-    <h3>Next NFP, CPI, PPI, FOMC, PCE</h3>
-    <div class="grid" id="majors"></div>
-  </section>
+    <section id="charts" class="panel">
+      <div class="chart-tabs">
+        <button class="sym on" data-sym="OANDA:XAUUSD">Gold</button>
+        <button class="sym" data-sym="TVC:DXY">DXY</button>
+        <button class="sym" data-sym="TVC:USOIL">Oil</button>
+        <button class="sym" data-sym="FX:EURUSD">EURUSD</button>
+      </div>
+      <div id="tv"></div>
+    </section>
 
-  <section>
-    <h3>Every high-impact USD event, next 6 months · refreshed weekly</h3>
-    <div class="grid" id="months"></div>
-  </section>
+    <section id="calendar" class="panel">
+      <h3>High-impact USD events, next 6 months</h3>
+      <div class="grid" id="months"></div>
+    </section>
 
-  <section>
-    <h3>How to read it</h3>
-    <ul class="rules">
-      <li>NFP direction is surprise vs forecast, then wages and revisions. ADP, claims, ISM employment and JOLTS are the small prints.</li>
-      <li>CPI and PPI: core beats the headline. Hot core = USD up, gold down.</li>
-      <li>FOMC follows CPI, PCE and NFP. Do not fade a hot inflation stack.</li>
-      <li>Do not buy gold before NFP unless wages print soft (about 0.2% or lower) and jobs miss.</li>
-    </ul>
-  </section>
-
+    <section id="chat" class="panel">
+      <p class="rules">Ask what happens if the print misses or beats the forecast. Example: NFP 50k vs 90k forecast, wages 0.2.</p>
+      <div id="log" class="log"></div>
+      <form id="ask">
+        <input id="q" placeholder="NFP comes in soft, wages 0.2 instead of 0.3" />
+        <button type="submit">Ask</button>
+      </form>
+    </section>
+  </main>
   <script src="app.js"></script>
 </body>
 </html>

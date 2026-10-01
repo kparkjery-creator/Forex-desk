@@ -56,3 +56,60 @@ async function load(force) {
 
 document.getElementById("refresh").onclick = () => load(true);
 load(false);
+
+const titles = { board: "Event bias board", charts: "Market charts", calendar: "Market calendar", chat: "Event chat" };
+document.querySelectorAll(".tab").forEach((btn) => {
+  btn.onclick = () => {
+    document.querySelectorAll(".tab").forEach((b) => b.classList.remove("on"));
+    document.querySelectorAll(".panel").forEach((p) => p.classList.remove("on"));
+    btn.classList.add("on");
+    document.getElementById(btn.dataset.tab).classList.add("on");
+    document.getElementById("title").textContent = titles[btn.dataset.tab];
+    if (btn.dataset.tab === "charts") showChart(currentSym);
+  };
+});
+
+let currentSym = "OANDA:XAUUSD";
+function showChart(sym) {
+  currentSym = sym;
+  document.getElementById("tv").innerHTML =
+    `<iframe title="chart" src="https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(sym)}&interval=60&theme=dark&style=1&hideideas=1" style="width:100%;height:100%;border:0"></iframe>`;
+}
+document.querySelectorAll(".sym").forEach((btn) => {
+  btn.onclick = () => {
+    document.querySelectorAll(".sym").forEach((b) => b.classList.remove("on"));
+    btn.classList.add("on");
+    showChart(btn.dataset.sym);
+  };
+});
+
+function reply(q) {
+  const text = q.toLowerCase();
+  const soft = /miss|soft|weak|lower|below|cool|dip/.test(text);
+  const hot = /beat|hot|strong|higher|above|firm/.test(text);
+  const wages = /wage|ahe|hourly/.test(text);
+  const nfp = /nfp|payroll|jobs/.test(text);
+  const cpi = /cpi|inflation|pce|ppi/.test(text);
+  const fomc = /fomc|fed|rate/.test(text);
+  if (nfp && (soft || /0\.2/.test(text))) {
+    return "If NFP misses and wages are 0.2% or lower, the dollar dip is the clean case. Gold can be bought after the print holds, not before. A jobs miss with wages still 0.3% is mixed: first spike fades, do not chase gold.";
+  }
+  if (nfp && hot) return "If NFP beats and wages hold 0.3% or higher, USD up and gold down. Sell gold rallies. DXY can test 102. EURUSD usually falls with a firm dollar.";
+  if (cpi && hot) return "Hot CPI or core CPI is USD up, gold down, oil only helped if the beat is energy-driven. FOMC stays hawkish. Do not buy gold into a hot core print.";
+  if (cpi && soft) return "Soft core CPI is the gold-buy case. USD down, EURUSD up. Headline-only soft with hot core does not count.";
+  if (fomc && hot) return "A hawkish FOMC, or a hike held open, lifts DXY and hurts gold. A cut or soft guidance does the opposite.";
+  if (soft) return "A softer-than-forecast print usually means USD down and gold up. Claims are the exception: lower claims are tighter labor, which is USD up.";
+  if (hot) return "A hotter-than-forecast print usually means USD up and gold down. Oil follows only if the surprise is energy or growth, not wages.";
+  return "Name the event and say if it beats or misses the forecast. Example: CPI core 0.2 vs 0.3 forecast. Wages decide NFP. Core decides CPI.";
+}
+
+const log = document.getElementById("log");
+document.getElementById("ask").onsubmit = (e) => {
+  e.preventDefault();
+  const q = document.getElementById("q").value.trim();
+  if (!q) return;
+  log.innerHTML += `<div class="msg me">${q}</div><div class="msg">${reply(q)}</div>`;
+  document.getElementById("q").value = "";
+  log.scrollTop = log.scrollHeight;
+};
+
