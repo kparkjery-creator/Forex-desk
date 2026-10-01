@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Forex Desk</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div>
+      <p class="kicker">Personal forex desk</p>
+      <h1>Event bias board</h1>
+    </div>
+    <div class="meta">
+      <span id="updated">Loading…</span>
+      <button id="refresh" type="button">Refresh</button>
+    </div>
+  </header>
+
+  <section class="bias" id="bias">
+    <article>
+      <p>USD bias</p>
+      <h2 id="usd">—</h2>
+    </article>
+    <article>
+      <p>Gold</p>
+      <h2 id="gold">—</h2>
+    </article>
+    <article>
+      <p>Score</p>
+      <h2 id="score">—</h2>
+    </article>
+  </section>
+
+  <section>
+    <h3>Step-by-step signal into the next big event</h3>
+    <div id="steps" class="list"></div>
+  </section>
+  <section>
+    <h3>Next NFP, CPI, PPI, FOMC, PCE</h3>
+    <div class="grid" id="majors"></div>
+  </section>
+
+  <section>
+    <h3>Every high-impact USD event, next 6 months · refreshed weekly</h3>
+    <div class="grid" id="months"></div>
+  </section>
+
+  <section>
+    <h3>How to read it</h3>
+    <ul class="rules">
+      <li>NFP direction is surprise vs forecast, then wages and revisions. ADP, claims, ISM employment and JOLTS are the small prints.</li>
+      <li>CPI and PPI: core beats the headline. Hot core = USD up, gold down.</li>
+      <li>FOMC follows CPI, PCE and NFP. Do not fade a hot inflation stack.</li>
+      <li>Do not buy gold before NFP unless wages print soft (about 0.2% or lower) and jobs miss.</li>
+    </ul>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

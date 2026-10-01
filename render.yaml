@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: forex-desk
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+  - type: cron
+    name: forex-desk-weekly
+    runtime: node
+    schedule: "0 6 * * 1"
+    buildCommand: npm install
+    startCommand: node -e "fetch(process.env.APP_URL+'/api/desk?refresh=1').then(r=>r.text()).then(console.log)"

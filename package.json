@@ -1,0 +1,16 @@
+{
+  "name": "forex-desk",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal forex desk: major events, leading prints, USD/gold bias",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
