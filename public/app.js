@@ -73,8 +73,13 @@ let currentSym = "OANDA:XAUUSD";
 function showChart(sym) {
   currentSym = sym;
   document.getElementById("tv").innerHTML =
-    `<iframe title="chart" src="https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(sym)}&interval=60&theme=dark&style=1&hideideas=1" style="width:100%;height:100%;border:0"></iframe>`;
+    `<iframe title="chart" src="https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(sym)}&interval=60&theme=dark&style=1&hideideas=1&symboledit=1" style="width:100%;height:100%;border:0" allowfullscreen></iframe>`;
 }
+document.getElementById("full").onclick = () => {
+  const box = document.getElementById("tv");
+  if (document.fullscreenElement) document.exitFullscreen();
+  else box.requestFullscreen();
+};
 document.querySelectorAll(".sym").forEach((btn) => {
   btn.onclick = () => {
     document.querySelectorAll(".sym").forEach((b) => b.classList.remove("on"));
