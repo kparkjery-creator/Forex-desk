@@ -54,7 +54,19 @@ async function load(force) {
   render(data);
 }
 
-document.getElementById("refresh").onclick = () => load(true);
+async function ticks() {
+  const box = document.getElementById("ticks");
+  if (!box) return;
+  try {
+    const data = await (await fetch("/api/ticks")).json();
+    if (data.error) { box.textContent = data.error; return; }
+    box.innerHTML = data.quotes.map((q) => `<span><strong>${q.name}</strong> ${q.bid ?? "—"} / ${q.ask ?? "—"}</span>`).join("");
+  } catch (err) {
+    box.textContent = "Exness feed not ready";
+  }
+}
+ticks();
+setInterval(ticks, 2000);
 load(false);
 
 const titles = { board: "Event bias board", charts: "Market charts", calendar: "Market calendar", chat: "Event chat" };
@@ -70,11 +82,20 @@ document.querySelectorAll(".tab").forEach((btn) => {
 });
 
 let currentSym = "OANDA:XAUUSD";
+let chartTheme = "dark";
 function showChart(sym) {
   currentSym = sym;
+  const src = "https://s.tradingview.com/widgetembed/?symbol=" + encodeURIComponent(sym) +
+    "&interval=1&hidesidetoolbar=0&hidetoptoolbar=0&symboledit=1&saveimage=1&withdateranges=1&details=1&hotlist=1&calendar=1&theme=" +
+    chartTheme + "&style=1&timezone=Africa%2FJohannesburg&hideideas=1";
   document.getElementById("tv").innerHTML =
-    `<iframe title="chart" src="https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(sym)}&interval=60&theme=dark&style=1&hideideas=1&symboledit=1" style="width:100%;height:100%;border:0" allowfullscreen></iframe>`;
+    `<iframe title="chart" src="${src}" style="width:100%;height:100%;border:0" allowfullscreen></iframe>`;
 }
+document.getElementById("theme").onclick = () => {
+  chartTheme = chartTheme === "dark" ? "light" : "dark";
+  document.getElementById("theme").textContent = chartTheme === "light" ? "Dark chart" : "White chart";
+  showChart(currentSym);
+};
 document.getElementById("full").onclick = () => {
   const box = document.getElementById("tv");
   if (document.fullscreenElement) document.exitFullscreen();

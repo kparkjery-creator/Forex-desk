@@ -28,7 +28,8 @@ button.on, .tab.on, .sym.on, #refresh, form button { background: var(--gold); co
 .list, .log { display: flex; flex-direction: column; gap: 8px; }
 .row { display: flex; justify-content: space-between; gap: 12px; }
 .tag { color: var(--gold); font-weight: 700; }
-.chart-tabs { display: flex; gap: 8px; margin: 16px 0; }
+.ticks { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.ticks span { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
 #tv { height: 640px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
 .log { min-height: 280px; margin: 12px 0; }
 .msg { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
