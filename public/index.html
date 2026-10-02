@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Forex Desk - Macro Trading Terminal</title>
   <script>
-    // Apply saved theme before paint to avoid flash
     (function () {
       try {
         var t = localStorage.getItem("deskTheme");
@@ -21,20 +20,29 @@
   <aside>
     <p class="kicker">Desk</p>
     <button class="tab on" data-tab="board">Bias board</button>
+    <button class="tab" data-tab="cross">Cross assets</button>
+    <button class="tab" data-tab="rates">Rates &amp; Fed</button>
     <button class="tab" data-tab="charts">Market charts</button>
     <button class="tab" data-tab="sessions">Sessions</button>
     <button class="tab" data-tab="calendar">Market calendar</button>
+    <button class="tab" data-tab="surprise">Surprise &amp; heat</button>
+    <button class="tab" data-tab="corr">Correlations</button>
+    <button class="tab" data-tab="journal">Trade journal</button>
+    <button class="tab" data-tab="risk">Risk &amp; size</button>
+    <button class="tab" data-tab="alerts">Alerts</button>
+    <button class="tab" data-tab="news">News</button>
     <button class="tab" data-tab="chat">Event chat</button>
+    <button class="tab" data-tab="settings">Settings</button>
   </aside>
 
   <main>
     <header>
       <div>
         <p class="kicker">Personal Forex Desk</p>
-        <h1 id="title">Event Bias & Signal Terminal</h1>
+        <h1 id="title">Event Bias &amp; Signal Terminal</h1>
       </div>
       <div class="meta">
-        <!-- Live Market Dynamics Ticker -->
+        <div id="next-event" class="countdown-chip" title="Next high-impact print">Next: —</div>
         <div id="macro-ticker" class="ticker-box">
           <span id="us10y-yield">US10Y: --</span>
           <span id="real-yield">Real Yield: --</span>
@@ -53,8 +61,8 @@
       </div>
     </header>
 
+    <!-- Bias board -->
     <section id="board" class="panel on">
-      <!-- High-Confluence Signal Output -->
       <div class="bias">
         <article>
           <p>USD Bias <span class="tooltip-icon" data-tooltip="Based on weighted delta deviation across leading prints">ⓘ</span></p>
@@ -69,8 +77,6 @@
           <h2 id="score">—</h2>
         </article>
       </div>
-
-      <!-- Visual Confluence & Signal Strength Meter -->
       <div class="signal-meter-container">
         <div class="meter-labels">
           <span>Strong Sell USD / Buy Gold (-10)</span>
@@ -82,25 +88,70 @@
         </div>
         <p id="signal-action" class="signal-action">Signal State: Calculating Confluence...</p>
       </div>
-
-      <!-- Educational Delta Breakdown -->
-      <h3>Step-by-step Signal & Surprise Factor ($\Delta$)</h3>
-      <p class="section-desc">Calculated via Delta ($\Delta = \text{Actual} - \text{Forecast}$) weighted by Fed policy priority.</p>
+      <h3>Step-by-step Signal &amp; Surprise Factor (Δ)</h3>
+      <p class="section-desc">Calculated via Delta (Δ = Actual − Forecast) weighted by Fed policy priority.</p>
       <div id="steps" class="list"></div>
-
-      <!-- Major Event Catalyst Breakdown -->
       <h3>Next NFP, CPI, PPI, FOMC, PCE</h3>
       <div class="grid" id="majors"></div>
-
-      <!-- Post-Event Educational Learning Loop -->
       <div class="post-event-analysis">
-        <h3>Post-Event Replay & Narrative Check</h3>
+        <h3>Post-Event Replay &amp; Narrative Check</h3>
         <div id="replay-card" class="replay-card">
           <p class="replay-status">Waiting for event release...</p>
         </div>
       </div>
     </section>
 
+    <!-- Cross assets -->
+    <section id="cross" class="panel">
+      <p class="section-desc">Major FX, yields proxy, gold, oil and equities in one grid. Risk flag is a simple rule from DXY + gold + yields direction.</p>
+      <div id="cross-grid" class="asset-grid">Loading…</div>
+      <div id="risk-flag" class="risk-flag card">Risk regime: calculating…</div>
+    </section>
+
+    <!-- Rates & Fed -->
+    <section id="rates" class="panel">
+      <h3>US yields &amp; curve</h3>
+      <p class="section-desc">2Y / 10Y / 30Y, 2s10s slope, real yield. Gold tends to struggle when real yields rise.</p>
+      <div id="rates-grid" class="asset-grid">Loading yields…</div>
+      <div class="grid two-col">
+        <article class="card">
+          <p>Curve</p>
+          <h4 id="curve-label">2s10s —</h4>
+          <p id="curve-note" class="primer">—</p>
+        </article>
+        <article class="card">
+          <p>Real yield (10Y − ~2.5% inflation proxy)</p>
+          <h4 id="real-label">—</h4>
+          <p id="real-note" class="primer">—</p>
+        </article>
+      </div>
+      <h3>Fed policy path</h3>
+      <p class="section-desc">Next FOMC, funds rate, and a simple “cuts priced” sketch. Update from CME FedWatch when you have live data.</p>
+      <div id="fed-panel" class="grid two-col">
+        <article class="card">
+          <p>Next FOMC</p>
+          <h4 id="fomc-date">—</h4>
+          <p id="fomc-countdown" class="countdown">—</p>
+        </article>
+        <article class="card">
+          <p>Fed funds (upper bound)</p>
+          <h4 id="ff-rate">—</h4>
+          <p id="ff-note" class="primer">—</p>
+        </article>
+        <article class="card">
+          <p>Implied path (sketch)</p>
+          <h4 id="path-label">—</h4>
+          <div id="path-bars" class="path-bars"></div>
+        </article>
+        <article class="card">
+          <p>Policy tone</p>
+          <h4 id="tone-label">Data dependent</h4>
+          <p class="primer">Hot CPI / strong NFP → higher for longer. Soft PCE → cut odds rise. Gold tracks the real yield more than the headline funds rate.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Charts -->
     <section id="charts" class="panel">
       <p class="section-desc">Bid is the sell price. Ask is the buy price. The gap is the spread. Numbers tick every 2 seconds.</p>
       <div id="book" class="book">Loading bid / ask…</div>
@@ -110,51 +161,162 @@
         <button class="sym" data-sym="CAPITALCOM:DXY">DXY</button>
         <button class="sym" data-sym="TVC:USOIL">Oil</button>
         <button class="sym" data-sym="FX:EURUSD">EURUSD</button>
+        <button class="sym" data-sym="TVC:US10Y">US10Y</button>
+        <button class="sym" data-sym="SP:SPX">S&amp;P 500</button>
         <button id="theme" type="button">White chart</button>
         <button id="full" type="button">Full screen</button>
       </div>
       <div id="tv"></div>
     </section>
 
+    <!-- Sessions (enhanced) -->
     <section id="sessions" class="panel">
-      <h3>Dollar drivers by session · Friday 2 Oct</h3>
-      <p class="section-desc">Day-trade context, not only the calendar. Red means dollar supported. Green means dollar offered.</p>
+      <div id="session-clocks" class="session-clocks"></div>
+      <h3>Dollar drivers by session</h3>
+      <p class="section-desc">Day-trade context. Red means dollar supported. Green means dollar offered. Clocks use your Settings timezone.</p>
       <div class="grid">
-        <article class="card">
+        <article class="card" data-session="asia">
           <p>Asia · 00:00–08:00 CAT</p>
           <h4>Yields and oil set the tone</h4>
-          <div class="event"><strong>US 10-year</strong><span class="neg">5.25% after a 5.34% spike</span><span>Dollar bid</span></div>
-          <div class="event"><strong>Shares</strong><span class="neg">Nikkei down 0.7%</span><span>Risk off</span></div>
-          <div class="event"><strong>China</strong><span>Closed through next Wednesday</span><span>Thin liquidity</span></div>
-          <div class="event"><strong>Oil</strong><span class="neg">Brent back above $100</span><span>Gulf tension</span></div>
+          <div class="event"><strong>US 10-year</strong><span class="neg">Watch overnight yield moves</span><span>Dollar bid if up</span></div>
+          <div class="event"><strong>Shares</strong><span>Asia risk tone</span><span>Risk off → USD</span></div>
+          <div class="event"><strong>China</strong><span>Liquidity / holidays</span><span>Thin books</span></div>
+          <div class="event"><strong>Oil</strong><span>Brent / WTI</span><span>Sticky yields if high</span></div>
         </article>
-        <article class="card">
+        <article class="card" data-session="london">
           <p>London · 09:00–15:00 CAT</p>
           <h4>Euro and franc vs the dollar</h4>
-          <div class="event"><strong>DXY</strong><span class="neg">102.09, 17-month high</span><span>Third up week</span></div>
-          <div class="event"><strong>EURUSD</strong><span class="neg">Low 1.12s</span><span>French fiscal worry</span></div>
-          <div class="event"><strong>Gold</strong><span class="neg">Failed to hold the PCE bounce</span><span>Sell rallies</span></div>
-          <div class="event"><strong>Do this</strong><span>Trade the London range, not a new bias</span><span>Wait for 14:30</span></div>
+          <div class="event"><strong>DXY</strong><span>European open flow</span><span>Range first</span></div>
+          <div class="event"><strong>EURUSD</strong><span>ECB / fiscal headlines</span><span>Main pair</span></div>
+          <div class="event"><strong>Gold</strong><span>London AM fix zone</span><span>Respect levels</span></div>
+          <div class="event"><strong>Do this</strong><span>Trade the range until NY data</span><span>Wait for 14:30</span></div>
         </article>
-        <article class="card">
+        <article class="card" data-session="ny">
           <p>New York · 14:00–22:00 CAT</p>
-          <h4>NFP is the session</h4>
-          <div class="event"><strong>14:30</strong><span>NFP, wages, unemployment</span><span>Only real driver</span></div>
-          <div class="event"><strong>Wages 0.3%+</strong><span class="neg">Dollar up, sell gold</span><span>Red sell</span></div>
-          <div class="event"><strong>Wages 0.2% and miss</strong><span class="pos">Dollar dip, gold buy after it holds</span><span>Flip only then</span></div>
-          <div class="event"><strong>Oil</strong><span>Above $100 keeps yields sticky</span><span>Do not fade the dollar on a headline miss alone</span></div>
+          <h4>US data is the session</h4>
+          <div class="event"><strong>14:30</strong><span>NFP, CPI, claims window</span><span>Only real driver</span></div>
+          <div class="event"><strong>Hot print</strong><span class="neg">Dollar up, sell gold</span><span>Red sell</span></div>
+          <div class="event"><strong>Soft print</strong><span class="pos">Dollar dip, gold buy after hold</span><span>Confirm first</span></div>
+          <div class="event"><strong>Oil / yields</strong><span>Keep yields sticky if oil firm</span><span>Do not fade USD on headline alone</span></div>
         </article>
       </div>
       <h3>Live session headlines</h3>
-      <p class="section-desc">Asia, London, New York. Each card is one story. Red headline supports the dollar. Green fights it.</p>
-      <div id="news" class="news-grid"></div>
+      <div id="news-sessions" class="news-grid"></div>
     </section>
 
+    <!-- Calendar -->
     <section id="calendar" class="panel">
       <h3>High-Impact USD Events, Next 6 Months</h3>
       <div class="grid" id="months"></div>
     </section>
 
+    <!-- Surprise & heat -->
+    <section id="surprise" class="panel">
+      <h3>Economic surprise index</h3>
+      <p class="section-desc">Simple score from recent actual vs forecast on leading prints. Positive = hotter than expected (USD lean).</p>
+      <div class="bias">
+        <article>
+          <p>Surprise score</p>
+          <h2 id="surprise-score">—</h2>
+        </article>
+        <article>
+          <p>Sample size</p>
+          <h2 id="surprise-n">—</h2>
+        </article>
+        <article>
+          <p>Read</p>
+          <h2 id="surprise-read">—</h2>
+        </article>
+      </div>
+      <div id="surprise-list" class="list"></div>
+      <h3>Pair heat map</h3>
+      <p class="section-desc">Day-style moves (illustrative when live feed unavailable). Green = pair up, red = pair down.</p>
+      <div id="heat-map" class="heat-map"></div>
+    </section>
+
+    <!-- Correlations -->
+    <section id="corr" class="panel">
+      <h3>Rolling correlation sketch</h3>
+      <p class="section-desc">Typical relationships: Gold vs DXY (usually negative), Gold vs real yields (usually negative), DXY vs yields (often positive). Values update from local history buffers when ticks are available.</p>
+      <div id="corr-grid" class="corr-grid"></div>
+      <p id="corr-note" class="section-desc"></p>
+    </section>
+
+    <!-- Journal -->
+    <section id="journal" class="panel">
+      <h3>Trade journal</h3>
+      <p class="section-desc">Log event → call → result. Stored in this browser only.</p>
+      <form id="journal-form" class="journal-form">
+        <input id="j-event" placeholder="Event (e.g. NFP Oct)" required />
+        <select id="j-side">
+          <option value="USD up">USD up</option>
+          <option value="USD down">USD down</option>
+          <option value="Buy gold">Buy gold</option>
+          <option value="Sell gold">Sell gold</option>
+          <option value="Flat">Flat / no trade</option>
+        </select>
+        <input id="j-result" placeholder="Result (e.g. Gold -40 pips)" required />
+        <input id="j-notes" placeholder="Notes (optional)" />
+        <button type="submit">Add entry</button>
+      </form>
+      <div class="bias" style="margin-top:12px">
+        <article><p>Entries</p><h2 id="j-count">0</h2></article>
+        <article><p>Wins (if marked)</p><h2 id="j-wins">—</h2></article>
+        <article><p>Hit rate</p><h2 id="j-rate">—</h2></article>
+      </div>
+      <div id="journal-list" class="list"></div>
+    </section>
+
+    <!-- Risk -->
+    <section id="risk" class="panel">
+      <h3>Position size calculator</h3>
+      <p class="section-desc">Risk $ = balance × risk%. Lots ≈ risk $ / (stop pips × $ per pip). Default $10/pip for 1.00 lot on gold-style quoting — adjust for your broker.</p>
+      <div class="risk-form card">
+        <label>Account balance ($) <input id="r-bal" type="number" value="10000" min="0" step="100"></label>
+        <label>Risk % <input id="r-pct" type="number" value="1" min="0.1" max="10" step="0.1"></label>
+        <label>Stop (pips) <input id="r-stop" type="number" value="30" min="1" step="1"></label>
+        <label>$ per pip (1.00 lot) <input id="r-pip" type="number" value="10" min="0.1" step="0.1"></label>
+        <label>Reward : risk <input id="r-rr" type="number" value="2" min="0.5" step="0.5"></label>
+      </div>
+      <div class="bias">
+        <article><p>Risk amount</p><h2 id="r-risk">—</h2></article>
+        <article><p>Position size</p><h2 id="r-lots">—</h2></article>
+        <article><p>Take profit (pips)</p><h2 id="r-tp">—</h2></article>
+      </div>
+      <p id="r-summary" class="primer"></p>
+    </section>
+
+    <!-- Alerts -->
+    <section id="alerts" class="panel">
+      <h3>Watchlist alerts</h3>
+      <p class="section-desc">Checked every few seconds against header/ticker values when available. Browser notifications need permission.</p>
+      <form id="alert-form" class="journal-form">
+        <select id="a-metric">
+          <option value="US10Y">US10Y yield</option>
+          <option value="DXY">DXY</option>
+          <option value="XAU">Gold (XAU)</option>
+          <option value="Real">Real yield</option>
+        </select>
+        <select id="a-op">
+          <option value="gt">above</option>
+          <option value="lt">below</option>
+        </select>
+        <input id="a-level" type="number" step="0.01" placeholder="Level" required />
+        <button type="submit">Add alert</button>
+        <button type="button" id="a-permission">Allow notifications</button>
+      </form>
+      <div id="alert-list" class="list"></div>
+      <div id="alert-banner" class="alert-banner" hidden></div>
+    </section>
+
+    <!-- News -->
+    <section id="news" class="panel">
+      <h3>What’s moving the dollar</h3>
+      <p class="section-desc">Headlines from public RSS (Asia / London / New York queries). Not a substitute for a primary news feed.</p>
+      <div id="news-main" class="news-grid">Loading…</div>
+    </section>
+
+    <!-- Chat -->
     <section id="chat" class="panel">
       <p class="rules">Argue the call. The desk corrects you if the leads do not agree. Tap a chip or type the print.</p>
       <div class="chips" id="chips">
@@ -171,8 +333,46 @@
         <button type="submit">Ask</button>
       </form>
     </section>
+
+    <!-- Settings -->
+    <section id="settings" class="panel">
+      <h3>Settings</h3>
+      <div class="settings-grid card">
+        <label>Timezone
+          <select id="s-zone">
+            <option value="Africa/Lusaka">CAT (Lusaka)</option>
+            <option value="Africa/Johannesburg">SAST (Johannesburg)</option>
+            <option value="America/New_York">New York</option>
+            <option value="Europe/London">London</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </label>
+        <label>Default chart
+          <select id="s-chart">
+            <option value="OANDA:XAUUSD">Gold</option>
+            <option value="CAPITALCOM:DXY">DXY</option>
+            <option value="FX:EURUSD">EURUSD</option>
+            <option value="TVC:USOIL">Oil</option>
+            <option value="TVC:US10Y">US10Y</option>
+          </select>
+        </label>
+        <label>NFP weight <input id="s-w-nfp" type="number" step="0.1" value="1.2"></label>
+        <label>CPI weight <input id="s-w-cpi" type="number" step="0.1" value="1.4"></label>
+        <label>Theme
+          <select id="s-theme">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </label>
+        <button type="button" id="s-save">Save settings</button>
+        <button type="button" id="s-clear-journal">Clear journal</button>
+        <button type="button" id="s-clear-alerts">Clear alerts</button>
+      </div>
+      <p id="s-status" class="section-desc"></p>
+    </section>
   </main>
   <script src="app.js"></script>
+  <script src="tabs.js"></script>
   <script src="desk-extra.js"></script>
 </body>
 </html>

@@ -441,3 +441,215 @@ input {
 @media (max-width: 800px) {
   .book, .news-grid { grid-template-columns: 1fr; }
 }
+
+/* —— Expanded desk components —— */
+aside { overflow-y: auto; max-height: 100vh; }
+
+.countdown-chip {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.asset-tile {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.asset-tile .name {
+  color: var(--gold);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.asset-tile .px {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+
+.asset-tile .chg { font-size: 13px; margin-top: 2px; }
+.asset-tile.up { box-shadow: inset 3px 0 0 var(--green); }
+.asset-tile.down { box-shadow: inset 3px 0 0 var(--red); }
+
+.risk-flag { margin-top: 8px; font-weight: 700; }
+
+.two-col { grid-template-columns: 1fr 1fr; display: grid; gap: 12px; }
+@media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+
+.path-bars {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  height: 64px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.path-bars span {
+  flex: 1;
+  background: var(--gold);
+  border-radius: 4px 4px 0 0;
+  min-height: 8px;
+  opacity: 0.85;
+  position: relative;
+}
+
+.path-bars span small {
+  position: absolute;
+  bottom: -18px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.session-clocks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.session-clock {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.session-clock.active {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+.session-clock .t {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  margin: 4px 0;
+}
+
+.session-clock .liq { font-size: 12px; color: var(--muted); }
+.session-clock .liq.hot { color: var(--green); }
+.session-clock .liq.thin { color: var(--red); }
+
+.heat-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.heat-cell {
+  border-radius: 10px;
+  padding: 14px 10px;
+  text-align: center;
+  color: #fff;
+  font-weight: 700;
+  border: 1px solid var(--line);
+}
+
+.heat-cell small {
+  display: block;
+  font-weight: 400;
+  font-size: 12px;
+  margin-top: 4px;
+  opacity: 0.9;
+}
+
+.corr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.corr-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.corr-card .pair { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.corr-card .val { font-size: 24px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+.journal-form, .risk-form, .settings-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+  margin: 12px 0;
+}
+
+.journal-form input, .journal-form select,
+.risk-form input, .settings-grid input, .settings-grid select {
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.risk-form label, .settings-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.risk-form label input, .settings-grid label input, .settings-grid label select {
+  min-width: 120px;
+}
+
+.alert-banner {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #5c3d12;
+  color: #ffe6a8;
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  font-weight: 700;
+}
+
+.j-row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 1.4fr auto;
+  gap: 8px;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.j-row button { padding: 6px 10px; font-size: 12px; }
+
+@media (max-width: 800px) {
+  .session-clocks { grid-template-columns: 1fr; }
+  .j-row { grid-template-columns: 1fr; }
+}
+

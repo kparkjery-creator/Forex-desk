@@ -87,6 +87,10 @@ function calculateConfluenceScore(bias) {
 }
 
 function render(data) {
+  window.__lastDeskData = data;
+  if (typeof window.deskPaintSurprise === "function") window.deskPaintSurprise(data);
+  if (typeof window.deskNextEvent === "function") window.deskNextEvent(data);
+
   document.getElementById("updated").textContent =
     "Calendar pulled " + new Date(data.fetchedAt).toLocaleString() + " · next weekly refresh " + new Date(data.nextRefresh).toLocaleDateString();
   
@@ -231,36 +235,39 @@ ticks();
 setInterval(ticks, 2000);
 load(false);
 
-async function news() {
-  const box = document.getElementById("news");
-  if (!box) return;
-  try {
-    const data = await (await fetch("/api/news")).json();
-    box.innerHTML = (data.items || []).map((n) => {
-      const session = (n.session || "Desk").replace(/\s/g, "");
-      return `<article class="story ${session}"><div class="pic">${n.session}</div><p>${n.title}</p>${n.link ? `<a href="${n.link}" target="_blank" rel="noopener">Read</a>` : ""}</article>`;
-    }).join("") || "<div class='event'>No headlines</div>";
-  } catch (err) {
-    box.textContent = "News feed not ready. Upload server.js.";
-  }
-}
-news();
-setInterval(news, 300000);
+/* News is handled by tabs.js into #news-main and #news-sessions */
 
-const titles = { board: "Event bias board", charts: "Market charts", sessions: "Session dollar drivers", calendar: "Market calendar", chat: "Event chat" };
+const titles = {
+  board: "Event bias board",
+  cross: "Cross-asset dashboard",
+  rates: "Rates & Fed path",
+  charts: "Market charts",
+  sessions: "Session clocks & drivers",
+  calendar: "Market calendar",
+  surprise: "Surprise index & heat map",
+  corr: "Correlations",
+  journal: "Trade journal",
+  risk: "Risk & position size",
+  alerts: "Alerts & watchlist",
+  news: "News & narrative",
+  chat: "Event chat",
+  settings: "Settings"
+};
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.onclick = () => {
     document.querySelectorAll(".tab").forEach((b) => b.classList.remove("on"));
     document.querySelectorAll(".panel").forEach((p) => p.classList.remove("on"));
     btn.classList.add("on");
-    document.getElementById(btn.dataset.tab).classList.add("on");
-    document.getElementById("title").textContent = titles[btn.dataset.tab];
+    const panel = document.getElementById(btn.dataset.tab);
+    if (panel) panel.classList.add("on");
+    document.getElementById("title").textContent = titles[btn.dataset.tab] || btn.textContent;
     if (btn.dataset.tab === "charts") showChart(currentSym);
   };
 });
 
-let currentSym = "OANDA:XAUUSD";
-let chartTheme = "dark";
+let currentSym = localStorage.getItem("deskChart") || "OANDA:XAUUSD";
+let chartTheme = (document.documentElement.getAttribute("data-theme") === "light") ? "light" : "dark";
+
 function showChart(sym) {
   currentSym = sym;
   const src = "https://s.tradingview.com/widgetembed/?symbol=" + encodeURIComponent(sym) +
