@@ -142,4 +142,62 @@ app.get("/api/desk", async (req, res) => {
   }
 });
 
+app.get("/api/ticks", async (_req, res) => {
+  const token = process.env.METAAPI_TOKEN;
+  if (!token) return res.status(400).json({ error: "METAAPI_TOKEN is not set on Render" });
+  try {
+    const headers = { "auth-token": token, Accept: "application/json" };
+    const accountsRes = await fetch("https://mt-provisioning-api-v1.agiliumtrade.agiliumtrade.ai/users/current/accounts", { headers });
+    if (!accountsRes.ok) return res.status(502).json({ error: "MetaApi accounts " + accountsRes.status });
+    const accounts = await accountsRes.json();
+    const account = accounts.find((a) => a._id === process.env.METAAPI_ACCOUNT_ID) || accounts[0];
+    if (!account) return res.status(404).json({ error: "No MetaApi account" });
+    const region = account.region || "new-york";
+    const base = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${account._id}`;
+    const wanted = [
+      ["Gold", ["XAUUSD", "XAUUSDm"]],
+      ["EURUSD", ["EURUSD", "EURUSDm"]],
+      ["Oil", ["USOIL", "XTIUSD", "UKOIL", "USOILm"]],
+      ["DXY", ["DXY", "USDX", "USDINDEX"]]
+    ];
+    const quotes = [];
+    for (const [name, symbols] of wanted) {
+      let hit = null;
+      for (const symbol of symbols) {
+        const q = await fetch(`${base}/symbols/${symbol}/current-price?keepSubscription=true`, { headers });
+        if (!q.ok) continue;
+        hit = { name, symbol, ...(await q.json()) };
+        break;
+      }
+      quotes.push(hit || { name, symbol: symbols[0], error: "not on this Exness account" });
+    }
+    res.json({ account: account.name || account._id, state: account.state, quotes, time: new Date().toISOString() });
+  } catch (err) {
+    res.status(502).json({ error: String(err.message || err) });
+  }
+});
+
+app.get("/api/news", async (_req, res) => {
+  const feeds = [
+    ["Asia", "https://news.google.com/rss/search?q=dollar+OR+Treasury+yields+when:1d&hl=en-US&gl=US&ceid=US:en"],
+    ["London", "https://news.google.com/rss/search?q=euro+OR+ECB+OR+gold+when:1d&hl=en-GB&gl=GB&ceid=GB:en"],
+    ["New York", "https://news.google.com/rss/search?q=NFP+OR+Fed+OR+oil+dollar+when:1d&hl=en-US&gl=US&ceid=US:en"]
+  ];
+  const items = [];
+  for (const [session, url] of feeds) {
+    try {
+      const xml = await (await fetch(url, { headers: { "User-Agent": "forex-desk" } })).text();
+      const blocks = xml.split("<item>").slice(1, 6);
+      for (const block of blocks) {
+        const title = (block.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/) || [])[1] || "";
+        const link = (block.match(/<link>([\s\S]*?)<\/link>/) || [])[1] || "";
+        if (title) items.push({ session, title: title.replace(/&/g, "&").trim(), link: link.trim() });
+      }
+    } catch (err) {
+      items.push({ session, title: "Feed failed: " + err.message, link: "" });
+    }
+  }
+  res.json({ updated: new Date().toISOString(), items });
+});
+
 app.listen(PORT, () => console.log("forex-desk on " + PORT));
