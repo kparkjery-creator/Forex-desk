@@ -1,3 +1,29 @@
+/* —— UI theme (dark / light) —— */
+(function initTheme() {
+  const saved = localStorage.getItem("deskTheme");
+  const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+  const theme = saved || (prefersLight ? "light" : "dark");
+  document.documentElement.setAttribute("data-theme", theme);
+  const btn = document.getElementById("theme-toggle");
+  if (btn) btn.textContent = theme === "light" ? "Light" : "Dark";
+})();
+
+document.getElementById("theme-toggle")?.addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme") || "dark";
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("deskTheme", next);
+  const btn = document.getElementById("theme-toggle");
+  if (btn) btn.textContent = next === "light" ? "Light" : "Dark";
+  // Keep TradingView chart in sync with UI theme
+  if (typeof chartTheme !== "undefined" && typeof showChart === "function") {
+    chartTheme = next === "light" ? "light" : "dark";
+    const chartBtn = document.getElementById("theme");
+    if (chartBtn) chartBtn.textContent = chartTheme === "light" ? "Dark chart" : "White chart";
+    if (document.getElementById("charts")?.classList.contains("on")) showChart(currentSym);
+  }
+});
+
 const majorsEl = document.getElementById("majors");
 const monthsEl = document.getElementById("months");
 
