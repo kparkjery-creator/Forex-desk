@@ -12,6 +12,7 @@
     <p class="kicker">Desk</p>
     <button class="tab on" data-tab="board">Bias board</button>
     <button class="tab" data-tab="charts">Market charts</button>
+    <button class="tab" data-tab="sessions">Sessions</button>
     <button class="tab" data-tab="calendar">Market calendar</button>
     <button class="tab" data-tab="chat">Event chat</button>
   </aside>
@@ -93,6 +94,39 @@
         <button id="full" type="button">Full screen</button>
       </div>
       <div id="tv"></div>
+    </section>
+
+    <section id="sessions" class="panel">
+      <h3>Dollar drivers by session · Friday 2 Oct</h3>
+      <p class="section-desc">Day-trade context, not only the calendar. Red means dollar supported. Green means dollar offered.</p>
+      <div class="grid">
+        <article class="card">
+          <p>Asia · 00:00–08:00 CAT</p>
+          <h4>Yields and oil set the tone</h4>
+          <div class="event"><strong>US 10-year</strong><span class="neg">5.25% after a 5.34% spike</span><span>Dollar bid</span></div>
+          <div class="event"><strong>Shares</strong><span class="neg">Nikkei down 0.7%</span><span>Risk off</span></div>
+          <div class="event"><strong>China</strong><span>Closed through next Wednesday</span><span>Thin liquidity</span></div>
+          <div class="event"><strong>Oil</strong><span class="neg">Brent back above $100</span><span>Gulf tension</span></div>
+        </article>
+        <article class="card">
+          <p>London · 09:00–15:00 CAT</p>
+          <h4>Euro and franc vs the dollar</h4>
+          <div class="event"><strong>DXY</strong><span class="neg">102.09, 17-month high</span><span>Third up week</span></div>
+          <div class="event"><strong>EURUSD</strong><span class="neg">Low 1.12s</span><span>French fiscal worry</span></div>
+          <div class="event"><strong>Gold</strong><span class="neg">Failed to hold the PCE bounce</span><span>Sell rallies</span></div>
+          <div class="event"><strong>Do this</strong><span>Trade the London range, not a new bias</span><span>Wait for 14:30</span></div>
+        </article>
+        <article class="card">
+          <p>New York · 14:00–22:00 CAT</p>
+          <h4>NFP is the session</h4>
+          <div class="event"><strong>14:30</strong><span>NFP, wages, unemployment</span><span>Only real driver</span></div>
+          <div class="event"><strong>Wages 0.3%+</strong><span class="neg">Dollar up, sell gold</span><span>Red sell</span></div>
+          <div class="event"><strong>Wages 0.2% and miss</strong><span class="pos">Dollar dip, gold buy after it holds</span><span>Flip only then</span></div>
+          <div class="event"><strong>Oil</strong><span>Above $100 keeps yields sticky</span><span>Do not fade the dollar on a headline miss alone</span></div>
+        </article>
+      </div>
+      <h3>Live session headlines</h3>
+      <div id="news" class="list"></div>
     </section>
 
     <section id="calendar" class="panel">

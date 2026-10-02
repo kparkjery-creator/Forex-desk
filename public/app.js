@@ -93,9 +93,9 @@ function render(data) {
   `).join("");
 
   monthsEl.innerHTML = Object.entries(data.months).map(([month, rows]) => `
-    <article class="card">
+    <article class="card month">
       <p>${month}</p>
-      ${rows.map((e) => `<div class="lead"><div><strong>${e.title}</strong><br>${when(e.date)} ·${nums(e)}</div></div>`).join("")}
+      ${rows.map((e) => `<div class="event"><strong>${e.title}</strong><span>${when(e.date)}</span><span>${nums(e)}</span></div>`).join("")}
     </article>
   `).join("") || "<p>No high-impact events returned.</p>";
 }
@@ -135,9 +135,22 @@ ticks();
 setInterval(ticks, 2000);
 load(false);
 
-document.getElementById("refresh").onclick = () => load(true);
+async function news() {
+  const box = document.getElementById("news");
+  if (!box) return;
+  try {
+    const data = await (await fetch("/api/news")).json();
+    box.innerHTML = (data.items || []).map((n) =>
+      `<div class="event"><strong>${n.session}</strong><span>${n.title}</span><a href="${n.link}" target="_blank" rel="noopener">Open</a></div>`
+    ).join("") || "<div class='event'>No headlines</div>";
+  } catch (err) {
+    box.textContent = "News feed not ready. Upload server.js.";
+  }
+}
+news();
+setInterval(news, 300000);
 
-const titles = { board: "Event bias board", charts: "Market charts", calendar: "Market calendar", chat: "Event chat" };
+const titles = { board: "Event bias board", charts: "Market charts", sessions: "Session dollar drivers", calendar: "Market calendar", chat: "Event chat" };
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.onclick = () => {
     document.querySelectorAll(".tab").forEach((b) => b.classList.remove("on"));
