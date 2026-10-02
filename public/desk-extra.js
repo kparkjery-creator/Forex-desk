@@ -117,10 +117,18 @@
       card.appendChild(line);
       card.onclick = () => openModal(card.innerText);
     });
-    const nfp = new Date("2026-10-02T12:30:00Z");
+    const clocksFor = [
+      [/Nonfarm|NFP/i, "NFP", new Date("2026-10-02T12:30:00Z")],
+      [/CPI/i, "CPI", new Date("2026-10-14T12:30:00Z")],
+      [/PPI/i, "PPI", new Date("2026-10-15T12:30:00Z")],
+      [/FOMC/i, "FOMC", new Date("2026-10-28T18:00:00Z")],
+      [/PCE/i, "PCE", new Date("2026-10-30T12:30:00Z")]
+    ];
     document.querySelectorAll(".countdown").forEach((el) => {
-      const ms = nfp - Date.now();
-      el.textContent = ms > 0 ? "NFP countdown " + new Date(ms).toISOString().substring(11, 19) : "NFP window open";
+      const text = el.parentElement?.innerText || "";
+      const hit = clocksFor.find(([rx]) => rx.test(text)) || clocksFor[0];
+      const ms = hit[2] - Date.now();
+      el.textContent = ms > 0 ? hit[1] + " " + new Date(ms).toISOString().substring(11, 19) : hit[1] + " window open";
     });
     const score = Number(document.getElementById("score")?.textContent);
     if (Math.abs(score) >= 3 && Notification.permission === "granted" && !sessionStorage.getItem("alerted")) {

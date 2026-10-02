@@ -80,14 +80,22 @@ function render(data) {
     return `<div class="row"><strong>Step ${i + 1}. ${s.title}</strong><span class="${tone}">${label} · ${s.text}</span></div>`;
   }).join("") || "<div class='row'>No leading prints in the window yet.</div>";
 
+  const primers = {
+    NFP: "Jobs report. It counts how many jobs the US added. More jobs than forecast, and wages at 0.3% or higher, means the dollar is bid and gold is offered. A buy in gold needs wages at 0.2% and a jobs miss. Both.",
+    CPI: "Inflation report. It shows how fast shop prices rose. Hot CPI means the Fed stays tight, so the dollar rises and gold falls. Core CPI matters more than the headline, because food and energy jump around.",
+    PPI: "Factory prices. This prints before CPI and often leads it. Hot PPI means costs are still rising, so do not fade the dollar into CPI.",
+    FOMC: "The Fed rate decision. Higher for longer supports the dollar and weighs on gold. The statement and dots matter more than a hold that was already priced.",
+    PCE: "The Fed's own inflation gauge. A soft PCE eases hike pressure and can bounce gold. A hot PCE puts the sell back on."
+  };
   majorsEl.innerHTML = data.majors.map((m) => `
     <article class="card">
       <p>${m.key}</p>
       <h4>${m.next ? m.next.title : "No date in the next 6 months"}</h4>
+      <p class="primer">${primers[m.key] || ""}</p>
       <div>${m.next ? when(m.next.date) + " · " + nums(m.next) : ""}</div>
       <div class="lead"><div><span class="tag">signal</span> ${m.signal.call} ${m.signal.gold}</div>
         <div><span class="tag">later</span> ${m.later.length ? m.later.map((e) => when(e.date)).join(" · ") : "—"}</div>
-        ${(m.leads.length ? m.leads : [{ title: "Leads show once they enter the window" }]).map((e) => `<div><span class="tag">lead</span> ${e.date ? when(e.date) + " · " + e.title : e.title}</div>`).join("")}
+        ${(m.leads.length ? m.leads : [{ title: "Leads show once they enter the window" }]).map((e) => `<div><span class="tag">lead</span> ${e.title}${e.actual ? " · actual " + e.actual + " vs " + e.forecast : ""}</div>`).join("")}
       </div>
     </article>
   `).join("");
@@ -110,6 +118,68 @@ async function load(force) {
   render(data);
 }
 
+
+let lastBook = {};
+async function book() {
+  const box = document.getElementById("book");
+  if (!box) return;
+  try {
+    const data = await (await fetch("/api/book")).json();
+    box.innerHTML = (data.quotes || []).map((q) => {
+      const prev = lastBook[q.name];
+      const dir = prev == null || q.last == null ? "" : q.last > prev ? "up" : q.last < prev ? "down" : "";
+      if (q.last != null) lastBook[q.name] = q.last;
+      const chg = q.change > 0 ? "pos" : q.change < 0 ? "neg" : "flat";
+      return `<article class="quote ${dir}"><strong>${q.name}</strong><b>${q.bid ?? "—"}</b><small>bid ${q.bid ?? "—"} · ask ${q.ask ?? "—"}</small><small class="${chg}">${q.change > 0 ? "+" : ""}${q.change ?? "—"} vs prior close</small></article>`;
+    }).join("");
+  } catch (err) {
+    box.textContent = "Bid/ask feed not ready. Upload server.js.";
+  }
+}
+book();
+setInterval(book, 2000);
+
+const goldHist = [];
+let lastGold = null;
+function paintGold(q) {
+  const tape = document.getElementById("gold-tape");
+  const box = document.getElementById("gold-live");
+  if (!q || q.error || !q.price) {
+    if (tape) document.getElementById("gold-src").textContent = (q && q.error) || "feed down";
+    return;
+  }
+  const price = Number(q.price);
+  const dir = lastGold == null ? 0 : price - lastGold;
+  lastGold = price;
+  goldHist.push(price);
+  if (goldHist.length > 40) goldHist.shift();
+  if (tape) {
+    tape.classList.remove("up", "down");
+    if (dir > 0) tape.classList.add("up");
+    if (dir < 0) tape.classList.add("down");
+    document.getElementById("gold-px").textContent = price.toFixed(2);
+    const chg = q.change == null ? "" : (q.change >= 0 ? "+" : "") + Number(q.change).toFixed(2) + (q.changePct == null ? "" : " (" + (q.changePct >= 0 ? "+" : "") + Number(q.changePct).toFixed(2) + "%)");
+    document.getElementById("gold-chg").textContent = chg || (q.bid && q.ask ? q.bid + " / " + q.ask : "");
+    document.getElementById("gold-src").textContent = q.source || "live";
+  }
+  if (box) {
+    const min = Math.min(...goldHist), max = Math.max(...goldHist);
+    const pts = goldHist.map((v, i) => (i / Math.max(goldHist.length - 1, 1)) * 80 + "," + (20 - ((v - min) / (max - min || 1)) * 20)).join(" ");
+    box.innerHTML = `<span><strong>Gold</strong> ${price.toFixed(2)}</span><span>${q.source || ""}</span><svg class="spark" viewBox="0 0 80 20"><polyline fill="none" stroke="#e2b656" stroke-width="1.5" points="${pts}"/></svg>`;
+  }
+}
+function startGold() {
+  if (window.EventSource) {
+    const es = new EventSource("/api/gold/stream");
+    es.onmessage = (ev) => { try { paintGold(JSON.parse(ev.data)); } catch (err) {} };
+    es.onerror = () => { document.getElementById("gold-src") && (document.getElementById("gold-src").textContent = "reconnecting"); };
+    return;
+  }
+  const poll = async () => { try { paintGold(await (await fetch("/api/gold")).json()); } catch (err) { paintGold({ error: "feed down" }); } };
+  poll();
+  setInterval(poll, 2000);
+}
+startGold();
 async function ticks() {
   const box = document.getElementById("ticks");
   try {
@@ -140,9 +210,10 @@ async function news() {
   if (!box) return;
   try {
     const data = await (await fetch("/api/news")).json();
-    box.innerHTML = (data.items || []).map((n) =>
-      `<div class="event"><strong>${n.session}</strong><span>${n.title}</span><a href="${n.link}" target="_blank" rel="noopener">Open</a></div>`
-    ).join("") || "<div class='event'>No headlines</div>";
+    box.innerHTML = (data.items || []).map((n) => {
+      const session = (n.session || "Desk").replace(/\s/g, "");
+      return `<article class="story ${session}"><div class="pic">${n.session}</div><p>${n.title}</p>${n.link ? `<a href="${n.link}" target="_blank" rel="noopener">Read</a>` : ""}</article>`;
+    }).join("") || "<div class='event'>No headlines</div>";
   } catch (err) {
     box.textContent = "News feed not ready. Upload server.js.";
   }

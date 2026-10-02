@@ -30,6 +30,13 @@
           <span id="real-yield">Real Yield: --</span>
           <span id="dxy-ticker">DXY: --</span>
         </div>
+        <div id="gold-tape" class="gold-tape" title="Live gold">
+          <span class="dot"></span>
+          <strong>XAU</strong>
+          <span id="gold-px">—</span>
+          <span id="gold-chg">—</span>
+          <span id="gold-src">connecting</span>
+        </div>
         <span id="updated">Loading…</span>
         <button id="refresh" type="button">Refresh</button>
       </div>
@@ -84,7 +91,9 @@
     </section>
 
     <section id="charts" class="panel">
-      <div id="ticks" class="ticks">Exness prices load after the token is live.</div>
+      <p class="section-desc">Bid is the sell price. Ask is the buy price. The gap is the spread. Numbers tick every 2 seconds.</p>
+      <div id="book" class="book">Loading bid / ask…</div>
+      <div id="gold-live" class="ticks">Live gold loading…</div>
       <div class="chart-controls">
         <button class="sym on" data-sym="OANDA:XAUUSD">Gold</button>
         <button class="sym" data-sym="CAPITALCOM:DXY">DXY</button>
@@ -126,7 +135,8 @@
         </article>
       </div>
       <h3>Live session headlines</h3>
-      <div id="news" class="list"></div>
+      <p class="section-desc">Asia, London, New York. Each card is one story. Red headline supports the dollar. Green fights it.</p>
+      <div id="news" class="news-grid"></div>
     </section>
 
     <section id="calendar" class="panel">
@@ -135,7 +145,15 @@
     </section>
 
     <section id="chat" class="panel">
-      <p class="rules">Ask what happens if the print misses or beats the forecast. Example: NFP 50k vs 90k forecast, wages 0.2.</p>
+      <p class="rules">Argue the call. The desk corrects you if the leads do not agree. Tap a chip or type the print.</p>
+      <div class="chips" id="chips">
+        <button type="button" data-q="Buy gold before NFP">Buy gold now</button>
+        <button type="button" data-q="Sell gold into NFP">Sell gold</button>
+        <button type="button" data-q="NFP 50k wages 0.2">Jobs miss, wages 0.2</button>
+        <button type="button" data-q="NFP 160k wages 0.4">Jobs beat, wages 0.4</button>
+        <button type="button" data-q="Claims 220k is good for the dollar">Claims 220k</button>
+      </div>
+      <div id="desk-live" class="desk-live">Desk live: waiting for the next note.</div>
       <div id="log" class="log"></div>
       <form id="ask">
         <input id="q" placeholder="NFP comes in soft, wages 0.2 instead of 0.3" />
