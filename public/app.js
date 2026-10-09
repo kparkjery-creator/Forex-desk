@@ -73,12 +73,18 @@ function render(data) {
   // Calculate and update confluence meter
   calculateConfluenceScore(data.bias);
 
-  const focus = data.majors.find((m) => m.next) || data.majors[0];
-  document.getElementById("steps").innerHTML = (focus?.signal.steps || []).map((s, i) => {
+  const orderedMajors = (data.majors || []).filter((m) => m.next).sort((a, b) => new Date(a.next.date) - new Date(b.next.date));
+  const focus = orderedMajors.find((m) => m.key === "CORE") || orderedMajors.find((m) => m.key === "CPI") || orderedMajors[0] || data.majors[0];
+  const stepRows = (data.bias && data.bias.steps && data.bias.steps.length) ? data.bias.steps : (focus?.signal?.steps || []);
+  document.getElementById("steps").innerHTML = stepRows.map((s, i) => {
     const tone = s.status === "usd-up" ? "pos" : s.status === "usd-down" ? "neg" : "flat";
-    const label = s.status === "usd-up" ? "POSITIVE" : s.status === "usd-down" ? "NEGATIVE" : "WAITING";
+    const label = s.status === "usd-up" ? "USD UP" : s.status === "usd-down" ? "USD DOWN" : "WAITING";
     return `<div class="row"><strong>Step ${i + 1}. ${s.title}</strong><span class="${tone}">${label} · ${s.text}</span></div>`;
   }).join("") || "<div class='row'>No leading prints in the window yet.</div>";
+  const narr = document.getElementById("narrative");
+  if (narr) narr.textContent = (data.bias && data.bias.narrative) || "";
+  const pulse = document.getElementById("pulse");
+  if (pulse) pulse.textContent = "Pulse " + new Date((data.bias && data.bias.pulse) || Date.now()).toLocaleTimeString();
 
     const primers = {
     NFP: "Jobs report. It counts how many jobs the US added. More jobs than forecast, and wages at 0.3% or higher, means the dollar is bid and gold is offered. A buy in gold needs wages soft and a jobs miss. Both.",
@@ -205,6 +211,7 @@ async function ticks() {
 ticks();
 setInterval(ticks, 2000);
 load(false);
+setInterval(() => load(false), 45000);
 
 async function news() {
   const box = document.getElementById("news");
