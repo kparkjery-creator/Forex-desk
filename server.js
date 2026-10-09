@@ -10,10 +10,11 @@ const CACHE = path.join(__dirname, "data", "calendar.json");
 
 const MAJORS = [
   { key: "NFP", match: /non-farm|nonfarm|payroll/i, leads: [/adp/i, /jobless|claims/i, /ism manufacturing/i, /jolts/i] },
-  { key: "CPI", match: /consumer price|cpi\b/i, leads: [/producer price|ppi/i, /pce/i] },
-  { key: "PPI", match: /producer price|ppi\b/i, leads: [/cpi|consumer price/i] },
-  { key: "FOMC", match: /fomc|fed interest|federal funds|interest rate decision/i, leads: [/cpi|consumer price/i, /pce/i, /payroll|non-farm|nonfarm/i] },
-  { key: "PCE", match: /pce/i, leads: [/cpi|consumer price/i, /ppi|producer price/i] }
+  { key: "CORE", match: /core\s*(cpi|pce)|cpi.*ex.*food|ex food and energy|core consumer/i, leads: [/producer price|ppi/i, /ism.*prices/i, /payroll|non-farm|nonfarm|average hourly|hourly earnings/i] },
+  { key: "CPI", match: /consumer price|cpi\b/i, leads: [/producer price|ppi/i, /ism.*prices/i, /payroll|non-farm|nonfarm|average hourly|hourly earnings/i, /core\s*cpi/i] },
+  { key: "PPI", match: /producer price|ppi\b/i, leads: [/cpi|consumer price/i, /ism.*prices/i] },
+  { key: "FOMC", match: /fomc|fed interest|federal funds|interest rate decision/i, leads: [/core\s*(cpi|pce)/i, /cpi|consumer price/i, /pce/i, /payroll|non-farm|nonfarm/i] },
+  { key: "PCE", match: /\bpce\b|personal consumption/i, leads: [/core\s*cpi/i, /cpi|consumer price/i, /ppi|producer price/i] }
 ];
 
 function iso(d) {
@@ -72,6 +73,9 @@ function mapEvent(e) {
 
 function step(title, actual, forecast) {
   const claims = /jobless|claims/i.test(title);
+  const core = /core\s*(cpi|pce)|ex food and energy|ex food & energy/i.test(title);
+  const wages = /hourly earnings|average hourly|wage/i.test(title);
+  const weight = (core || wages) ? 2 : 1;
   const a = Number(actual);
   const f = Number(forecast);
   if (actual == null || forecast == null || actual === "" || forecast === "" || Number.isNaN(a) || Number.isNaN(f)) {
@@ -79,9 +83,32 @@ function step(title, actual, forecast) {
   }
   if (claims && a < f) return { title, status: "usd-up", text: title + " " + a + " vs " + f + " forecast. Lower claims = labor still tight. USD up, gold down.", points: 1 };
   if (claims && a > f) return { title, status: "usd-down", text: title + " " + a + " vs " + f + " forecast. Higher claims = labor softening. USD down, gold up.", points: -1 };
-  if (a > f) return { title, status: "usd-up", text: title + " " + a + " vs " + f + " forecast. Hotter than expected. USD up, gold down.", points: 1 };
-  if (a < f) return { title, status: "usd-down", text: title + " " + a + " vs " + f + " forecast. Softer than expected. USD down, gold up.", points: -1 };
+  if (a > f) {
+    const tag = core ? " Core is the Fed print. " : wages ? " Wages feed inflation. " : " ";
+    return { title, status: "usd-up", text: title + " " + a + " vs " + f + " forecast. Hotter than expected." + tag + "USD up, gold down.", points: weight };
+  }
+  if (a < f) {
+    const tag = core ? " Soft core eases hike pressure. " : wages ? " Soft wages ease demand pressure. " : " ";
+    return { title, status: "usd-down", text: title + " " + a + " vs " + f + " forecast. Softer than expected." + tag + "USD down, gold up.", points: -weight };
+  }
   return { title, status: "flat", text: title + " in line with forecast. No new direction.", points: 0 };
+}
+
+function buildNarrative(sig, focus) {
+  const key = focus?.key || "";
+  const steps = (sig.steps || []).filter((x) => x.status !== "waiting");
+  const lines = steps.map((x) => x.text);
+  if (key === "CPI" || key === "CORE") {
+    if (sig.score <= -1) {
+      return "Soft labour is in (jobs miss, soft wages). Lean buy gold into Core CPI. Flip only if core prints 0.3% or hotter. Headline from oil is secondary.";
+    }
+    if (sig.score >= 2) {
+      return "Leads still lean firm. Sell gold only if Core CPI hits 0.3%+. Soft core keeps gold supported.";
+    }
+    return "Mixed into CPI. Trade Core, not the headline. Core 0.2% or under = gold lean buy. Core 0.3%+ = sell gold.";
+  }
+  if (lines.length) return lines.slice(0, 3).join(" ");
+  return "Waiting for the next high-impact print.";
 }
 
 function signalFor(next, leads) {
@@ -91,14 +118,38 @@ function signalFor(next, leads) {
   let call = "Wait. Not enough printed leads.";
   let gold = "Do not buy or sell gold only on this yet.";
   if (printed.length) {
-    if (score >= 2) { call = "Signal: firm into " + (next ? next.title : "the event") + ". Expect USD up if the print holds."; gold = "Sell gold if wages or core also come in hot."; }
-    else if (score === 1) { call = "Signal: slight USD-up lean into " + (next ? next.title : "the event") + "."; gold = "Lean sell gold. Flip only if wages or core print soft."; }
-    else if (score <= -2) { call = "Signal: soft into " + (next ? next.title : "the event") + ". USD dip risk."; gold = "Buy gold only if the big print confirms soft."; }
-    else if (score === -1) { call = "Signal: slight USD-down lean."; gold = "Lean buy gold, but wait for the big print."; }
-    else call = "Signal: mixed. The small prints cancel out. The big event decides.";
+    if (score >= 2) { call = "Signal: firm into " + (next ? next.title : "the event") + ". Expect USD up if the print holds."; gold = "Sell gold if core CPI (or core PCE) stays hot. Headline alone is not enough."; }
+    else if (score === 1) { call = "Signal: slight USD-up lean into " + (next ? next.title : "the event") + "."; gold = "Lean sell gold. Flip only if core prints soft (0.1% or under)."; }
+    else if (score <= -2) { call = "Signal: soft into " + (next ? next.title : "the event") + ". USD dip risk."; gold = "Lean buy gold. Core soft is the confirmation. Headline oil noise does not cancel it."; }
+    else if (score === -1) { call = "Signal: slight USD-down lean."; gold = "Lean buy gold. Watch core: 0.3%+ flips back to sell."; }
+    else call = "Signal: mixed. The small prints cancel out. Core on the big event decides.";
   }
   return { score, call, gold, steps };
 }
+
+function mergeLeads(primary, fallback) {
+  const out = [...primary];
+  const keys = new Set(primary.map((e) => e.title.toLowerCase()));
+  for (const row of fallback) {
+    if (!keys.has(row.title.toLowerCase())) out.push(row);
+  }
+  return out.sort((a, b) => new Date(a.date) - new Date(b.date));
+}
+
+const WEEK_LEADS = [
+  { title: "ADP employment", date: "2026-09-30T12:15:00Z", actual: "90", forecast: "68", previous: "36" },
+  { title: "Initial jobless claims", date: "2026-10-01T12:30:00Z", actual: "197", forecast: "200", previous: "198" },
+  { title: "ISM manufacturing employment", date: "2026-10-01T14:00:00Z", actual: "52.7", forecast: "51.2", previous: "51.2" },
+  { title: "ISM prices paid", date: "2026-10-01T14:00:00Z", actual: "77.9", forecast: "71.1", previous: "71.1" },
+  { title: "Nonfarm payrolls", date: "2026-10-02T12:30:00Z", actual: "29", forecast: "90", previous: "133" },
+  { title: "Average hourly earnings", date: "2026-10-02T12:30:00Z", actual: "0.1", forecast: "0.3", previous: "0.3" }
+];
+
+const CPI_LEADS = [
+  { title: "Nonfarm payrolls", date: "2026-10-02T12:30:00Z", actual: "29", forecast: "90", previous: "133" },
+  { title: "Average hourly earnings", date: "2026-10-02T12:30:00Z", actual: "0.1", forecast: "0.3", previous: "0.3" },
+  { title: "ISM prices paid", date: "2026-10-01T14:00:00Z", actual: "77.9", forecast: "71.1", previous: "71.1" }
+];
 
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -113,11 +164,28 @@ app.get("/api/desk", async (req, res) => {
 
     const majors = MAJORS.map((m) => {
       const upcoming = high.filter((e) => m.match.test(e.title));
-      const next = upcoming[0] || null;
+      let next = upcoming[0] || null;
+      if (m.key === "CORE" && upcoming.length) {
+        const coreHit = upcoming.find((e) => /core/i.test(e.title));
+        if (coreHit) next = coreHit;
+      }
+      if (m.key === "CPI" && upcoming.length) {
+        const head = upcoming.find((e) => !/core/i.test(e.title));
+        if (head) next = head;
+      }
       const leads = next
         ? events.filter((e) => new Date(e.date) < new Date(next.date) && m.leads.some((rx) => rx.test(e.title))).slice(-6)
         : [];
-      return { key: m.key, next, later: upcoming.slice(1, 6), leads, signal: signalFor(next, leads) };
+      let used = leads.filter((e) => e.actual !== "" && e.actual != null);
+      if (m.key === "NFP") {
+        used = mergeLeads(used, WEEK_LEADS);
+      }
+      if (m.key === "CPI" || m.key === "CORE") {
+        used = mergeLeads(used, CPI_LEADS);
+      }
+      if (!used.length && m.key === "NFP") used = WEEK_LEADS;
+      if (!used.length && (m.key === "CPI" || m.key === "CORE")) used = CPI_LEADS;
+      return { key: m.key, next, later: upcoming.filter((e) => e !== next).slice(0, 5), leads: used, signal: signalFor(next, used) };
     });
 
     const byMonth = {};
@@ -133,7 +201,26 @@ app.get("/api/desk", async (req, res) => {
       source: "biquote",
       fetchedAt: pack.fetchedAt,
       nextRefresh: new Date(new Date(pack.fetchedAt).getTime() + WEEK_MS).toISOString(),
-      bias: signalFor(majors.find((m) => m.next)?.next, events.filter((e) => e.actual !== "" && e.actual != null).slice(-8)),
+      bias: (() => {
+        const ordered = majors
+          .filter((m) => m.next)
+          .sort((a, b) => new Date(a.next.date) - new Date(b.next.date));
+        const focus = ordered.find((m) => m.key === "CORE") || ordered.find((m) => m.key === "CPI") || ordered[0];
+        const leadPool = events.filter((e) => e.actual !== "" && e.actual != null).slice(-12);
+        let leadsForBias = mergeLeads(leadPool, CPI_LEADS);
+        leadsForBias = mergeLeads(leadsForBias, WEEK_LEADS);
+        // Prefer CPI-path leads for the open CPI window
+        if (focus && (focus.key === "CPI" || focus.key === "CORE")) {
+          leadsForBias = mergeLeads(CPI_LEADS, leadPool);
+        }
+        const sig = signalFor(focus?.next, leadsForBias);
+        sig.focusKey = focus?.key || "—";
+        sig.focusTitle = focus?.next?.title || "—";
+        sig.focusWhen = focus?.next?.date || null;
+        sig.narrative = buildNarrative(sig, focus);
+        sig.pulse = new Date().toISOString();
+        return sig;
+      })(),
       majors,
       months: byMonth
     });
@@ -198,6 +285,130 @@ app.get("/api/news", async (_req, res) => {
     }
   }
   res.json({ updated: new Date().toISOString(), items });
+});
+
+let goldCache = { at: 0, quote: null };
+
+async function readGold() {
+  const now = Date.now();
+  if (goldCache.quote && now - goldCache.at < 1500) return goldCache.quote;
+  const out = { source: "", bid: null, ask: null, price: null, prev: null, change: null, changePct: null, time: new Date().toISOString() };
+  const token = process.env.METAAPI_TOKEN;
+  if (token) {
+    try {
+      const headers = { "auth-token": token, Accept: "application/json" };
+      const accounts = await (await fetch("https://mt-provisioning-api-v1.agiliumtrade.agiliumtrade.ai/users/current/accounts", { headers })).json();
+      const account = Array.isArray(accounts) && (accounts.find((a) => a._id === process.env.METAAPI_ACCOUNT_ID) || accounts[0]);
+      if (account) {
+        const base = `https://mt-client-api-v1.${account.region || "new-york"}.agiliumtrade.ai/users/current/accounts/${account._id}`;
+        for (const symbol of ["XAUUSD", "XAUUSDm"]) {
+          const q = await fetch(`${base}/symbols/${symbol}/current-price?keepSubscription=true`, { headers });
+          if (!q.ok) continue;
+          const body = await q.json();
+          const quote = { ...out, source: "Exness " + symbol, bid: body.bid, ask: body.ask, price: body.bid };
+          goldCache = { at: now, quote };
+          return quote;
+        }
+      }
+    } catch (err) {}
+  }
+  try {
+    const yRes = await fetch("https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m&range=1d", { headers: { "User-Agent": "Mozilla/5.0" } });
+    if (yRes.ok) {
+      const y = await yRes.json();
+      const meta = (((y.chart || {}).result || [])[0] || {}).meta || {};
+      const price = Number(meta.regularMarketPrice);
+      const prev = Number(meta.previousClose || meta.chartPreviousClose);
+      if (price) {
+        const change = prev ? price - prev : null;
+        const quote = {
+          ...out,
+          source: "COMEX GC=F",
+          price,
+          bid: price,
+          ask: price,
+          prev: prev || null,
+          change,
+          changePct: prev ? (change / prev) * 100 : null,
+          time: meta.regularMarketTime ? new Date(meta.regularMarketTime * 1000).toISOString() : out.time
+        };
+        goldCache = { at: now, quote };
+        return quote;
+      }
+    }
+  } catch (err) {}
+  try {
+    const spot = await (await fetch("https://api.goldprice.dev/v1/prices?symbol=XAU-USD-SPOT")).json();
+    const row = (spot.symbols || [])[0] || {};
+    const price = Number(row.price);
+    if (price) {
+      const quote = { ...out, source: "spot", price, bid: Number(row.bid || price), ask: Number(row.ask || price) };
+      goldCache = { at: now, quote };
+      return quote;
+    }
+  } catch (err) {}
+  if (goldCache.quote) return { ...goldCache.quote, source: goldCache.quote.source + " cached" };
+  const err = new Error("gold feed unavailable");
+  err.status = 502;
+  throw err;
+}
+
+app.get("/api/gold", async (_req, res) => {
+  try {
+    res.json(await readGold());
+  } catch (err) {
+    res.status(err.status || 502).json({ error: String(err.message || err) });
+  }
+});
+
+app.get("/api/gold/stream", async (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders && res.flushHeaders();
+  let closed = false;
+  req.on("close", () => { closed = true; });
+  const push = async () => {
+    if (closed) return;
+    try {
+      res.write("data: " + JSON.stringify(await readGold()) + "\n\n");
+    } catch (err) {
+      res.write("data: " + JSON.stringify({ error: String(err.message || err) }) + "\n\n");
+    }
+  };
+  await push();
+  const timer = setInterval(push, 2000);
+  req.on("close", () => clearInterval(timer));
+});
+
+
+app.get("/api/book", async (_req, res) => {
+  const symbols = [
+    ["Gold", "GC=F", 0.4],
+    ["DXY", "DX-Y.NYB", 0.02],
+    ["Oil", "CL=F", 0.03],
+    ["EURUSD", "EURUSD=X", 0.00012]
+  ];
+  const quotes = [];
+  for (const [name, symbol, spread] of symbols) {
+    try {
+      const url = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(symbol) + "?interval=1m&range=1d";
+      const body = await (await fetch(url, { headers: { "User-Agent": "forex-desk" } })).json();
+      const meta = body.chart.result[0].meta;
+      const last = Number(meta.regularMarketPrice);
+      const prev = Number(meta.chartPreviousClose || meta.previousClose || last);
+      quotes.push({
+        name, symbol, source: "live",
+        bid: Number((last - spread / 2).toFixed(name === "EURUSD" ? 5 : 2)),
+        ask: Number((last + spread / 2).toFixed(name === "EURUSD" ? 5 : 2)),
+        last, change: Number((last - prev).toFixed(name === "EURUSD" ? 5 : 2)),
+        time: new Date((meta.regularMarketTime || Date.now() / 1000) * 1000).toISOString()
+      });
+    } catch (err) {
+      quotes.push({ name, symbol, error: String(err.message || err) });
+    }
+  }
+  res.json({ updated: new Date().toISOString(), quotes });
 });
 
 app.listen(PORT, () => console.log("forex-desk on " + PORT));
