@@ -75,7 +75,15 @@ function step(title, actual, forecast) {
   const claims = /jobless|claims/i.test(title);
   const core = /core\s*(cpi|pce)|ex food and energy|ex food & energy/i.test(title);
   const wages = /hourly earnings|average hourly|wage/i.test(title);
-  const weight = (core || wages) ? 2 : 1;
+  const labor = /payroll|non-?farm|claims|adp|jolts|employment/i.test(title);
+  const inflation = /cpi|pce|ppi|prices paid|inflation/i.test(title);
+  // regime set globally before scoring
+  let weight = 1;
+  if (core || wages) weight = 2;
+  if (global.DESK_REGIME === "inflation" && inflation) weight = Math.max(weight, 2);
+  if (global.DESK_REGIME === "inflation" && core) weight = 3;
+  if (global.DESK_REGIME === "labor" && labor) weight = Math.max(weight, 2);
+  if (global.DESK_REGIME === "labor" && wages) weight = 3;
   const a = Number(actual);
   const f = Number(forecast);
   if (actual == null || forecast == null || actual === "" || forecast === "" || Number.isNaN(a) || Number.isNaN(f)) {
@@ -92,6 +100,13 @@ function step(title, actual, forecast) {
     return { title, status: "usd-down", text: title + " " + a + " vs " + f + " forecast. Softer than expected." + tag + "USD down, gold up.", points: -weight };
   }
   return { title, status: "flat", text: title + " in line with forecast. No new direction.", points: 0 };
+}
+
+function isPolicyLead(title) {
+  const t = String(title || "");
+  if (/michigan|sentiment|current conditions|consumer expectations/i.test(t) && !/inflation expectation/i.test(t)) return false;
+  // Inflation expectations keep light weight via step(); still allow
+  return /payroll|non-?farm|hourly earnings|wage|jobless|claims|adp|jolts|ism.*prices|producer price|\bppi\b|core\s*(cpi|pce)|consumer price|\bcpi\b|pce|employment/i.test(t);
 }
 
 function buildNarrative(sig, focus) {
@@ -112,7 +127,8 @@ function buildNarrative(sig, focus) {
 }
 
 function signalFor(next, leads) {
-  const steps = leads.map((e) => step(e.title, e.actual, e.forecast));
+  const filtered = (leads || []).filter((e) => isPolicyLead(e.title));
+  const steps = filtered.map((e) => step(e.title, e.actual, e.forecast));
   const score = steps.reduce((n, s) => n + s.points, 0);
   const printed = steps.filter((s) => s.status !== "waiting");
   let call = "Wait. Not enough printed leads.";
@@ -207,11 +223,12 @@ app.get("/api/desk", async (req, res) => {
           .sort((a, b) => new Date(a.next.date) - new Date(b.next.date));
         const focus = ordered.find((m) => m.key === "CORE") || ordered.find((m) => m.key === "CPI") || ordered[0];
         const leadPool = events.filter((e) => e.actual !== "" && e.actual != null).slice(-12);
-        let leadsForBias = mergeLeads(leadPool, CPI_LEADS);
-        leadsForBias = mergeLeads(leadsForBias, WEEK_LEADS);
-        // Prefer CPI-path leads for the open CPI window
+        let leadsForBias = mergeLeads(leadPool, WEEK_LEADS);
+        // CPI window: start from soft NFP stack, then add policy leads only
         if (focus && (focus.key === "CPI" || focus.key === "CORE")) {
-          leadsForBias = mergeLeads(CPI_LEADS, leadPool);
+          leadsForBias = mergeLeads(CPI_LEADS, leadPool).filter((e) => isPolicyLead(e.title));
+        } else {
+          leadsForBias = leadsForBias.filter((e) => isPolicyLead(e.title));
         }
         const sig = signalFor(focus?.next, leadsForBias);
         sig.focusKey = focus?.key || "—";
@@ -382,7 +399,9 @@ app.get("/api/gold/stream", async (req, res) => {
 });
 
 
+let bookCache = { at: 0, body: null };
 app.get("/api/book", async (_req, res) => {
+  if (bookCache.body && Date.now() - bookCache.at < 20000) return res.json(bookCache.body);
   const symbols = [
     ["Gold", "GC=F", 0.4],
     ["DXY", "DX-Y.NYB", 0.02],
@@ -393,7 +412,10 @@ app.get("/api/book", async (_req, res) => {
   for (const [name, symbol, spread] of symbols) {
     try {
       const url = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(symbol) + "?interval=1m&range=1d";
-      const body = await (await fetch(url, { headers: { "User-Agent": "forex-desk" } })).json();
+      const raw = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 forex-desk" } });
+      const text = await raw.text();
+      if (!raw.ok || text.startsWith("Too Many")) throw new Error("rate limited");
+      const body = JSON.parse(text);
       const meta = body.chart.result[0].meta;
       const last = Number(meta.regularMarketPrice);
       const prev = Number(meta.chartPreviousClose || meta.previousClose || last);
@@ -408,7 +430,171 @@ app.get("/api/book", async (_req, res) => {
       quotes.push({ name, symbol, error: String(err.message || err) });
     }
   }
-  res.json({ updated: new Date().toISOString(), quotes });
+  // Fill gold from Exness/readGold if yahoo gold failed
+  const goldQ = quotes.find((q) => q.name === "Gold");
+  if (goldQ && goldQ.error) {
+    try {
+      const g = await readGold();
+      if (g.price) {
+        goldQ.error = undefined;
+        goldQ.bid = g.bid; goldQ.ask = g.ask; goldQ.last = g.price; goldQ.source = g.source;
+      }
+    } catch (err) {}
+  }
+  const body = { updated: new Date().toISOString(), quotes };
+  if (quotes.some((q) => q.last != null)) bookCache = { at: Date.now(), body };
+  res.json(body);
+});
+
+let macroCache = { at: 0, body: null };
+
+async function yahooChart(symbol, interval, range) {
+  const url = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(symbol) + "?interval=" + interval + "&range=" + range;
+  const raw = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 forex-desk" } });
+  const text = await raw.text();
+  if (!raw.ok || text.startsWith("Too Many")) throw new Error("yahoo " + symbol);
+  return JSON.parse(text);
+}
+
+function atr14(highs, lows, closes) {
+  const trs = [];
+  for (let i = 1; i < closes.length; i++) {
+    const h = highs[i], l = lows[i], pc = closes[i - 1];
+    if (h == null || l == null || pc == null || closes[i] == null) continue;
+    trs.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
+  }
+  if (trs.length < 14) return null;
+  const slice = trs.slice(-14);
+  return slice.reduce((a, b) => a + b, 0) / slice.length;
+}
+
+function sma(vals, n) {
+  const clean = vals.filter((v) => v != null);
+  if (clean.length < n) return null;
+  const s = clean.slice(-n);
+  return s.reduce((a, b) => a + b, 0) / s.length;
+}
+
+// Override macro with full curve
+app.get("/api/macro", async (_req, res) => {
+  if (macroCache.body && Date.now() - macroCache.at < 60000) return res.json(macroCache.body);
+  const out = { us10y: null, us5y: null, us3m: null, spread10_5: null, dxy: null, realYield: null, time: new Date().toISOString() };
+  try {
+    const y = await yahooChart("^TNX", "1d", "5d");
+    out.us10y = Number(y.chart.result[0].meta.regularMarketPrice);
+  } catch (err) {}
+  try {
+    const y = await yahooChart("^FVX", "1d", "5d");
+    out.us5y = Number(y.chart.result[0].meta.regularMarketPrice);
+  } catch (err) {}
+  try {
+    const y = await yahooChart("^IRX", "1d", "5d");
+    out.us3m = Number(y.chart.result[0].meta.regularMarketPrice);
+  } catch (err) {}
+  try {
+    const d = await yahooChart("DX-Y.NYB", "1d", "5d");
+    out.dxy = Number(d.chart.result[0].meta.regularMarketPrice);
+  } catch (err) {}
+  if (out.us10y != null && out.us5y != null) out.spread10_5 = Number((out.us10y - out.us5y).toFixed(3));
+  if (out.us10y != null && out.us3m != null) out.spread10_3m = Number((out.us10y - out.us3m).toFixed(3));
+  if (out.us10y != null) out.realYield = Number((out.us10y - 2.4).toFixed(2));
+  macroCache = { at: Date.now(), body: out };
+  res.json(out);
+});
+
+let instCache = { at: 0, body: null };
+app.get("/api/institutional", async (_req, res) => {
+  if (instCache.body && Date.now() - instCache.at < 90000) return res.json(instCache.body);
+  const out = {
+    time: new Date().toISOString(),
+    fedFunds: null,
+    impliedRate: null,
+    holdProb: null,
+    hikeProb: null,
+    cutProb: null,
+    meeting: "2026-10-28",
+    regime: global.DESK_REGIME || "mixed",
+    tech: { gold: null, dxy: null },
+    atr: { gold: null, goldPips: null },
+    speakers: [],
+    curve: null
+  };
+  try {
+    const zq = await yahooChart("ZQ=F", "1d", "5d");
+    const px = Number(zq.chart.result[0].meta.regularMarketPrice);
+    out.fedFunds = px;
+    out.impliedRate = Number((100 - px).toFixed(3));
+    // Rough split vs 3.875 mid of 3.75-4.00 target: above mid → hike odds, below → cut/hold
+    const mid = 3.875;
+    const gap = out.impliedRate - mid;
+    if (gap > 0.12) {
+      out.hikeProb = Math.min(85, Math.round(50 + gap * 200));
+      out.holdProb = 100 - out.hikeProb;
+      out.cutProb = 0;
+    } else if (gap < -0.12) {
+      out.cutProb = Math.min(85, Math.round(50 + Math.abs(gap) * 200));
+      out.holdProb = 100 - out.cutProb;
+      out.hikeProb = 0;
+    } else {
+      out.holdProb = Math.round(55 + (1 - Math.abs(gap) / 0.12) * 20);
+      out.hikeProb = Math.round((100 - out.holdProb) / 2);
+      out.cutProb = 100 - out.holdProb - out.hikeProb;
+    }
+  } catch (err) {
+    out.fedFundsError = String(err.message || err);
+  }
+  try {
+    const g = await yahooChart("GC=F", "1d", "3mo");
+    const q = g.chart.result[0].indicators.quote[0];
+    const closes = q.close || [];
+    const highs = q.high || [];
+    const lows = q.low || [];
+    const last = closes.filter((x) => x != null).slice(-1)[0];
+    const ma20 = sma(closes, 20);
+    const atr = atr14(highs, lows, closes);
+    out.tech.gold = {
+      last,
+      sma20: ma20 ? Number(ma20.toFixed(2)) : null,
+      vsSma: ma20 && last != null ? (last >= ma20 ? "above" : "below") : null
+    };
+    out.atr.gold = atr ? Number(atr.toFixed(2)) : null;
+    out.atr.goldPips = atr ? Number(atr.toFixed(0)) : null;
+  } catch (err) {}
+  try {
+    const d = await yahooChart("DX-Y.NYB", "1d", "3mo");
+    const closes = d.chart.result[0].indicators.quote[0].close || [];
+    const last = closes.filter((x) => x != null).slice(-1)[0];
+    const ma20 = sma(closes, 20);
+    out.tech.dxy = {
+      last,
+      sma20: ma20 ? Number(ma20.toFixed(2)) : null,
+      vsSma: ma20 && last != null ? (last >= ma20 ? "above" : "below") : null
+    };
+  } catch (err) {}
+  try {
+    const pack = await calendarWeekly(false);
+    const now = Date.now();
+    out.speakers = (pack.events || [])
+      .filter((e) => /fed|fomc|powell|williams|jefferson|waller|bowman|barr|collins|barkin|goolsbee|musalem/i.test(e.name || ""))
+      .filter((e) => new Date(e.time).getTime() >= now - 86400000)
+      .slice(0, 8)
+      .map((e) => ({
+        title: e.name,
+        date: e.time,
+        tone: /hike|tight|inflation|restrictive|higher/i.test(e.name || "") ? "hawkish" :
+              /cut|ease|dovish|slowdown|soft/i.test(e.name || "") ? "dovish" : "neutral"
+      }));
+  } catch (err) {}
+  try {
+    const m = macroCache.body || {};
+    out.curve = {
+      us3m: m.us3m, us5y: m.us5y, us10y: m.us10y,
+      spread10_5: m.spread10_5, spread10_3m: m.spread10_3m, realYield: m.realYield
+    };
+  } catch (err) {}
+  instCache = { at: Date.now(), body: out };
+  res.json(out);
 });
 
 app.listen(PORT, () => console.log("forex-desk on " + PORT));
+
