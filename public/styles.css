@@ -10,7 +10,33 @@
   --red: #e59886;
 }
 * { box-sizing: border-box; }
-body { margin: 0; display: flex; min-height: 100vh; font-family: Georgia, "Segoe UI", system-ui, sans-serif; background: radial-gradient(1200px 500px at 10% -10%, #3a2a1c, var(--bg)); color: var(--text); }
+body {
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+  background: radial-gradient(1200px 500px at 10% -10%, #3a2a1c, var(--bg));
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 {
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.kicker {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-weight: 500;
+}
+#gold-px, #gold-chg, .quote b, .ticks, .ticker-box, .event-cd, #score, #usd, #gold,
+.fed-bars b, .curve-box, #tech-box, #atr-box, #pulse, .book {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+button, .tab, .sym, input, select {
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+}
 aside { width: 200px; flex: 0 0 200px; border-right: 1px solid var(--line); padding: 20px 14px; display: flex; flex-direction: column; gap: 8px; }
 main { flex: 1; min-width: 0; padding: 20px 16px 32px; max-width: none; }
 .kicker { letter-spacing: .14em; text-transform: uppercase; color: var(--gold); font-size: 12px; margin: 0 0 12px; }
