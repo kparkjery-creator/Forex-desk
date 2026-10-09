@@ -119,6 +119,7 @@
     });
     const clocksFor = [
       [/Nonfarm|NFP/i, "NFP", new Date("2026-10-02T12:30:00Z")],
+      [/CORE|Core CPI/i, "CORE", new Date("2026-10-14T12:30:00Z")],
       [/CPI/i, "CPI", new Date("2026-10-14T12:30:00Z")],
       [/PPI/i, "PPI", new Date("2026-10-15T12:30:00Z")],
       [/FOMC/i, "FOMC", new Date("2026-10-28T18:00:00Z")],

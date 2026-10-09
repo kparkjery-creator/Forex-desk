@@ -1,29 +1,3 @@
-/* —— UI theme (dark / light) —— */
-(function initTheme() {
-  const saved = localStorage.getItem("deskTheme");
-  const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-  const theme = saved || (prefersLight ? "light" : "dark");
-  document.documentElement.setAttribute("data-theme", theme);
-  const btn = document.getElementById("theme-toggle");
-  if (btn) btn.textContent = theme === "light" ? "Light" : "Dark";
-})();
-
-document.getElementById("theme-toggle")?.addEventListener("click", () => {
-  const cur = document.documentElement.getAttribute("data-theme") || "dark";
-  const next = cur === "dark" ? "light" : "dark";
-  document.documentElement.setAttribute("data-theme", next);
-  localStorage.setItem("deskTheme", next);
-  const btn = document.getElementById("theme-toggle");
-  if (btn) btn.textContent = next === "light" ? "Light" : "Dark";
-  // Keep TradingView chart in sync with UI theme
-  if (typeof chartTheme !== "undefined" && typeof showChart === "function") {
-    chartTheme = next === "light" ? "light" : "dark";
-    const chartBtn = document.getElementById("theme");
-    if (chartBtn) chartBtn.textContent = chartTheme === "light" ? "Dark chart" : "White chart";
-    if (document.getElementById("charts")?.classList.contains("on")) showChart(currentSym);
-  }
-});
-
 const majorsEl = document.getElementById("majors");
 const monthsEl = document.getElementById("months");
 
@@ -87,10 +61,6 @@ function calculateConfluenceScore(bias) {
 }
 
 function render(data) {
-  window.__lastDeskData = data;
-  if (typeof window.deskPaintSurprise === "function") window.deskPaintSurprise(data);
-  if (typeof window.deskNextEvent === "function") window.deskNextEvent(data);
-
   document.getElementById("updated").textContent =
     "Calendar pulled " + new Date(data.fetchedAt).toLocaleString() + " · next weekly refresh " + new Date(data.nextRefresh).toLocaleDateString();
   
@@ -110,12 +80,13 @@ function render(data) {
     return `<div class="row"><strong>Step ${i + 1}. ${s.title}</strong><span class="${tone}">${label} · ${s.text}</span></div>`;
   }).join("") || "<div class='row'>No leading prints in the window yet.</div>";
 
-  const primers = {
-    NFP: "Jobs report. It counts how many jobs the US added. More jobs than forecast, and wages at 0.3% or higher, means the dollar is bid and gold is offered. A buy in gold needs wages at 0.2% and a jobs miss. Both.",
-    CPI: "Inflation report. It shows how fast shop prices rose. Hot CPI means the Fed stays tight, so the dollar rises and gold falls. Core CPI matters more than the headline, because food and energy jump around.",
+    const primers = {
+    NFP: "Jobs report. It counts how many jobs the US added. More jobs than forecast, and wages at 0.3% or higher, means the dollar is bid and gold is offered. A buy in gold needs wages soft and a jobs miss. Both.",
+    CORE: "Core CPI strips out food and energy. This is the print the Fed watches. Hot core (0.3%+) = dollar up, sell gold. Soft core (0.1% or under) = dollar soft, buy gold. Headline alone does not decide the trade.",
+    CPI: "Headline CPI includes food and oil. Energy can make the headline look hot while core stays calm. Trade the core number first. Headline noise from gasoline is secondary.",
     PPI: "Factory prices. This prints before CPI and often leads it. Hot PPI means costs are still rising, so do not fade the dollar into CPI.",
     FOMC: "The Fed rate decision. Higher for longer supports the dollar and weighs on gold. The statement and dots matter more than a hold that was already priced.",
-    PCE: "The Fed's own inflation gauge. A soft PCE eases hike pressure and can bounce gold. A hot PCE puts the sell back on."
+    PCE: "The Fed's own inflation gauge. Core PCE is the real target. Soft core PCE eases hike pressure and can bounce gold. Hot core PCE puts the sell back on."
   };
   majorsEl.innerHTML = data.majors.map((m) => `
     <article class="card">
@@ -235,39 +206,36 @@ ticks();
 setInterval(ticks, 2000);
 load(false);
 
-/* News is handled by tabs.js into #news-main and #news-sessions */
+async function news() {
+  const box = document.getElementById("news");
+  if (!box) return;
+  try {
+    const data = await (await fetch("/api/news")).json();
+    box.innerHTML = (data.items || []).map((n) => {
+      const session = (n.session || "Desk").replace(/\s/g, "");
+      return `<article class="story ${session}"><div class="pic">${n.session}</div><p>${n.title}</p>${n.link ? `<a href="${n.link}" target="_blank" rel="noopener">Read</a>` : ""}</article>`;
+    }).join("") || "<div class='event'>No headlines</div>";
+  } catch (err) {
+    box.textContent = "News feed not ready. Upload server.js.";
+  }
+}
+news();
+setInterval(news, 300000);
 
-const titles = {
-  board: "Event bias board",
-  cross: "Cross-asset dashboard",
-  rates: "Rates & Fed path",
-  charts: "Market charts",
-  sessions: "Session clocks & drivers",
-  calendar: "Market calendar",
-  surprise: "Surprise index & heat map",
-  corr: "Correlations",
-  journal: "Trade journal",
-  risk: "Risk & position size",
-  alerts: "Alerts & watchlist",
-  news: "News & narrative",
-  chat: "Event chat",
-  settings: "Settings"
-};
+const titles = { board: "Event bias board", charts: "Market charts", sessions: "Session dollar drivers", calendar: "Market calendar", chat: "Event chat" };
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.onclick = () => {
     document.querySelectorAll(".tab").forEach((b) => b.classList.remove("on"));
     document.querySelectorAll(".panel").forEach((p) => p.classList.remove("on"));
     btn.classList.add("on");
-    const panel = document.getElementById(btn.dataset.tab);
-    if (panel) panel.classList.add("on");
-    document.getElementById("title").textContent = titles[btn.dataset.tab] || btn.textContent;
+    document.getElementById(btn.dataset.tab).classList.add("on");
+    document.getElementById("title").textContent = titles[btn.dataset.tab];
     if (btn.dataset.tab === "charts") showChart(currentSym);
   };
 });
 
-let currentSym = localStorage.getItem("deskChart") || "OANDA:XAUUSD";
-let chartTheme = (document.documentElement.getAttribute("data-theme") === "light") ? "light" : "dark";
-
+let currentSym = "OANDA:XAUUSD";
+let chartTheme = "dark";
 function showChart(sym) {
   currentSym = sym;
   const src = "https://s.tradingview.com/widgetembed/?symbol=" + encodeURIComponent(sym) +
@@ -299,29 +267,40 @@ function reply(q) {
   const wantsBuy = /buy gold|long gold|gold buy|buy xau/.test(text);
   const wantsSell = /sell gold|short gold|gold sell/.test(text);
   const nfp = /nfp|payroll|jobs/.test(text);
-  const soft = /miss|soft|weak|0\.2|lower|below/.test(text);
-  const hot = /beat|hot|0\.3|strong|higher|above|firm/.test(text);
+  const cpi = /cpi|inflation|core/.test(text);
+  const soft = /miss|soft|weak|0\.1|0\.2|lower|below/.test(text);
+  const hot = /beat|hot|0\.3|0\.4|strong|higher|above|firm/.test(text);
   const claims = /claims|jobless/.test(text);
+  const core = /core/.test(text);
 
-  if (wantsBuy && nfp && !soft) {
-    return "Correction: that buy is against the stack. ADP beat, claims 197k, ISM employment 52.7 and ISM prices 77.9 are firm. JOLTS was the only soft lead. Tomorrow is a red sell on gold unless wages print 0.2% or lower and jobs miss. Do not buy gold before 14:30.";
+  if (cpi && wantsBuy && hot && !soft) {
+    return "Correction: do not buy gold into a hot core. Core 0.3%+ is dollar up, gold down. Headline from oil is noise. Sell the gold spike if core is hot.";
   }
-  if (wantsSell && nfp) {
-    return "Agreed, with a limit. Sell gold is the call only if jobs hold near or above 100k and wages stay 0.3% or higher. If wages slip to 0.2% and payrolls miss, the sell is wrong and gold can be bought after the print holds.";
+  if (cpi && wantsSell && soft) {
+    return "Correction: soft core is not a sell. Core 0.1% or under eases hike pressure. Lean buy gold after the print holds. Headline alone does not make the sell.";
+  }
+  if (cpi && core && soft) {
+    return "Soft core is the gold-friendly print. Jobs already missed and wages printed 0.1%. Soft core confirms. Buy gold after it holds, not on the first tick.";
+  }
+  if (cpi && core && hot) {
+    return "Hot core flips the lean. Core 0.3%+ means the Fed stays tight. Dollar up, sell gold. Ignore a soft headline if core is hot.";
+  }
+  if (cpi && /headline/.test(text) && hot) {
+    return "Headline can look hot from gasoline and still leave gold supported if core stays 0.2% or under. Trade core first.";
+  }
+  if (nfp) {
+    return "NFP already printed: jobs +29k vs 90k, wages +0.1% vs 0.3%. That was the soft miss. Focus is now Core CPI on 14 Oct. Soft core keeps the gold lean. Hot core (0.3%+) sells gold.";
   }
   if (claims && /higher claims.*strong|claims up.*usd up/.test(text)) {
-    return "Correction: higher claims are not dollar-positive. More claims mean more layoffs, so that print is red for the dollar and green for gold. Lower claims are the green dollar print.";
-  }
-  if (nfp && soft) {
-    return "A soft NFP only flips the sell if wages are soft too. Jobs miss with wages still 0.3% is a fake gold buy: first spike, then the dollar comes back. Both have to miss.";
-  }
-  if (nfp && hot) {
-    return "That supports the red sell. Hot jobs and hot wages mean dollar up, gold down. Sell the gold rally. Do not argue it into a buy because JOLTS was weak.";
+    return "Correction: higher claims are not dollar-positive. More claims mean more layoffs, so that print is red for the dollar and green for gold.";
   }
   if (wantsBuy) {
-    return "I will not agree to a gold buy on hope. Name the print that beats the forecast the wrong way. Until wages or core CPI actually miss, the bias stays sell gold.";
+    return "Lean buy gold into Core CPI only while core is expected near 0.2% or softer. Flip to sell if core prints 0.3%+. Do not trade headline oil noise alone.";
   }
-  return "Argue the call. Say buy or sell, and the event. I will correct it if it fights the leads: firm labor and hot prices are dollar-up, gold-down. A buy needs a real miss, not a mixed headline.";
+  if (wantsSell) {
+    return "Sell gold is the call only if Core CPI hits 0.3% or higher. Soft NFP already cut the old red stack. Wait for core.";
+  }
+  return "Argue the call. Say buy or sell, and name core or headline. Core decides. Soft NFP (29k, wages 0.1%) is already in. Hot core = sell gold. Soft core = buy gold.";
 }
 
 const log = document.getElementById("log");
