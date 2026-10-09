@@ -151,11 +151,11 @@ let lastGold = null;
 function paintGold(q) {
   const tape = document.getElementById("gold-tape");
   const box = document.getElementById("gold-live");
-  if (!q || q.error || !q.price) {
+  if (!q || q.error || (q.price == null && q.bid == null)) {
     if (tape) document.getElementById("gold-src").textContent = (q && q.error) || "feed down";
     return;
   }
-  const price = Number(q.price);
+  const price = Number(q.price != null ? q.price : q.bid);
   const dir = lastGold == null ? 0 : price - lastGold;
   lastGold = price;
   goldHist.push(price);
@@ -177,16 +177,36 @@ function paintGold(q) {
 }
 function startGold() {
   if (window.EventSource) {
-    const es = new EventSource("/api/gold/stream");
-    es.onmessage = (ev) => { try { paintGold(JSON.parse(ev.data)); } catch (err) {} };
-    es.onerror = () => { document.getElementById("gold-src") && (document.getElementById("gold-src").textContent = "reconnecting"); };
-    return;
+    try {
+      const es = new EventSource("/api/gold/stream");
+      es.onmessage = (ev) => { try { paintGold(JSON.parse(ev.data)); } catch (err) {} };
+      es.onerror = () => {};
+    } catch (err) {}
   }
-  const poll = async () => { try { paintGold(await (await fetch("/api/gold")).json()); } catch (err) { paintGold({ error: "feed down" }); } };
+  const poll = async () => {
+    try {
+      const q = await (await fetch("/api/gold")).json();
+      if (q && (q.price || q.bid)) paintGold(q);
+    } catch (err) {}
+  };
   poll();
-  setInterval(poll, 2000);
+  setInterval(poll, 2500);
 }
 startGold();
+
+async function macro() {
+  try {
+    const m = await (await fetch("/api/macro")).json();
+    const y = document.getElementById("us10y-yield");
+    const r = document.getElementById("real-yield");
+    const d = document.getElementById("dxy-ticker");
+    if (y && m.us10y != null) y.textContent = "US10Y: " + Number(m.us10y).toFixed(2) + "%";
+    if (r && m.realYield != null) r.textContent = "Real Yield: " + m.realYield + "%";
+    if (d && m.dxy != null) d.textContent = "DXY: " + Number(m.dxy).toFixed(2);
+  } catch (err) {}
+}
+macro();
+setInterval(macro, 60000);
 async function ticks() {
   const box = document.getElementById("ticks");
   try {
@@ -229,7 +249,7 @@ async function news() {
 news();
 setInterval(news, 300000);
 
-const titles = { board: "Event bias board", charts: "Market charts", sessions: "Session dollar drivers", calendar: "Market calendar", chat: "Event chat" };
+const titles = { board: "Event bias board", charts: "Market charts", sessions: "Session dollar drivers", calendar: "Market calendar", chat: "Event chat", inst: "Institutional desk" };
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.onclick = () => {
     document.querySelectorAll(".tab").forEach((b) => b.classList.remove("on"));

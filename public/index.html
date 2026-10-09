@@ -15,6 +15,7 @@
     <button class="tab" data-tab="sessions">Sessions</button>
     <button class="tab" data-tab="calendar">Market calendar</button>
     <button class="tab" data-tab="chat">Event chat</button>
+    <button class="tab" data-tab="inst">Institutional</button>
   </aside>
 
   <main>
@@ -38,6 +39,7 @@
           <span id="gold-src">connecting</span>
         </div>
         <span id="updated">Loading…</span>
+        <span id="event-cd" class="event-cd">Next event —</span>
         <button id="refresh" type="button">Refresh</button>
       </div>
     </header>
@@ -150,6 +152,54 @@
       <div class="grid" id="months"></div>
     </section>
 
+    <section id="inst" class="panel">
+      <h3>Institutional desk</h3>
+      <p class="section-desc">Fed path, curve, tech wall-check, ATR size, Fed speak. Numbers refresh about every 90 seconds.</p>
+      <div class="inst-grid">
+        <article class="card">
+          <p>Fed path (futures implied)</p>
+          <h4 id="fed-meeting">Next FOMC</h4>
+          <div class="fed-bars">
+            <div><span>Cut</span><div class="bar"><i id="bar-cut"></i></div><b id="prob-cut">—</b></div>
+            <div><span>Hold</span><div class="bar"><i id="bar-hold"></i></div><b id="prob-hold">—</b></div>
+            <div><span>Hike</span><div class="bar"><i id="bar-hike"></i></div><b id="prob-hike">—</b></div>
+          </div>
+          <small id="fed-implied">Implied rate —</small>
+        </article>
+        <article class="card">
+          <p>Yield curve</p>
+          <div id="curve-box" class="curve-box">Loading curve…</div>
+        </article>
+        <article class="card">
+          <p>Tech wall-check</p>
+          <div id="tech-box">Loading…</div>
+        </article>
+        <article class="card">
+          <p>ATR risk size · Gold</p>
+          <div id="atr-box">Loading…</div>
+          <label class="risk-line">Balance <input id="inst-bal" type="number" value="1000"> Risk % <input id="inst-risk" type="number" value="1" step="0.1"></label>
+          <p id="atr-size" class="primer"></p>
+        </article>
+      </div>
+      <h3>Fed speak</h3>
+      <div id="speakers" class="list"></div>
+      <h3>Trade log</h3>
+      <p class="section-desc">Local only. Logs win/loss per event type for your hit rate.</p>
+      <form id="trade-log-form" class="trade-form">
+        <select id="tl-event"><option>Core CPI</option><option>NFP</option><option>PPI</option><option>FOMC</option><option>PCE</option><option>Other</option></select>
+        <select id="tl-side"><option>Buy gold</option><option>Sell gold</option><option>Buy USD</option><option>Sell USD</option></select>
+        <select id="tl-result"><option>Win</option><option>Loss</option><option>BE</option></select>
+        <input id="tl-rr" placeholder="R multiple e.g. 1.5" />
+        <button type="submit">Log</button>
+      </form>
+      <div id="trade-stats" class="primer"></div>
+      <div id="trade-rows" class="list"></div>
+      <h3>Alerts</h3>
+      <p class="section-desc">Browser notify when desk score flips. Optional webhook (Discord/Telegram) on actual print change.</p>
+      <label class="risk-line"><input type="checkbox" id="alert-on"> Enable browser alerts</label>
+      <input id="webhook-url" placeholder="Webhook URL (optional)" style="width:100%;margin-top:8px" />
+    </section>
+
     <section id="chat" class="panel">
       <p class="rules">Argue the call. The desk corrects you if the leads do not agree. Tap a chip or type the print.</p>
       <div class="chips" id="chips">
@@ -169,5 +219,6 @@
   </main>
   <script src="app.js"></script>
   <script src="desk-extra.js"></script>
+  <script src="institutional.js"></script>
 </body>
 </html>
