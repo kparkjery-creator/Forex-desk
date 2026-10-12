@@ -172,7 +172,7 @@ input { flex: 1; background: #12171e; color: var(--text); border: 1px solid var(
 #gold-src { color: var(--muted); font-size: 11px; }
 .spark { width: 80px; height: 20px; }
 
-.book { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 8px 0 12px; }
+.book { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 8px 0 12px; }
 .quote { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
 .quote strong { display: block; color: var(--gold); font-size: 12px; letter-spacing: .08em; }
 .quote b { font-size: 22px; font-variant-numeric: tabular-nums; }
@@ -241,3 +241,48 @@ input { flex: 1; background: #12171e; color: var(--text); border: 1px solid var(
 .tone-dovish { color: var(--green); font-weight: 700; }
 .tone-neutral { color: var(--muted); }
 @media (max-width: 800px) { .inst-grid { grid-template-columns: 1fr; } }
+
+.lockout-banner {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #8a4b2e;
+  background: #3a2218;
+  color: #f0c4a8;
+  font-weight: 600;
+}
+.lockout-banner.clear {
+  border-color: #2d5a40;
+  background: #1a2e24;
+  color: #a8e0c0;
+}
+.fakeout-banner {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #a67c2d;
+  background: #3a2e14;
+  color: #f0d78c;
+  font-weight: 600;
+}
+.fakeout-banner.info {
+  border-color: #2d5a40;
+  background: #1a2e24;
+  color: #a8e0c0;
+}
+.delta-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1.2fr;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  margin-bottom: 8px;
+}
+.delta-row.red { border-left: 4px solid var(--red); }
+.delta-row.green { border-left: 4px solid var(--green); }
+.level-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.level-table td { padding: 4px 0; }
+.level-table td:last-child { text-align: right; font-family: "IBM Plex Mono", monospace; }

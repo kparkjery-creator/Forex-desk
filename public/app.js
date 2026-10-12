@@ -165,9 +165,11 @@ function paintGold(q) {
     if (dir > 0) tape.classList.add("up");
     if (dir < 0) tape.classList.add("down");
     document.getElementById("gold-px").textContent = price.toFixed(2);
+    const tag = document.querySelector("#gold-tape strong");
+    if (tag) tag.textContent = q.weekend247 || /247/.test(q.source || "") ? "XAU247" : "XAU";
     const chg = q.change == null ? "" : (q.change >= 0 ? "+" : "") + Number(q.change).toFixed(2) + (q.changePct == null ? "" : " (" + (q.changePct >= 0 ? "+" : "") + Number(q.changePct).toFixed(2) + "%)");
     document.getElementById("gold-chg").textContent = chg || (q.bid && q.ask ? q.bid + " / " + q.ask : "");
-    document.getElementById("gold-src").textContent = q.source || "live";
+    document.getElementById("gold-src").textContent = (q.source || "live") + (q.weekend247 ? " · 24/7" : "");
   }
   if (box) {
     const min = Math.min(...goldHist), max = Math.max(...goldHist);
@@ -249,7 +251,7 @@ async function news() {
 news();
 setInterval(news, 300000);
 
-const titles = { board: "Event bias board", charts: "Market charts", sessions: "Session dollar drivers", calendar: "Market calendar", chat: "Event chat", inst: "Institutional desk" };
+const titles = { board: "Event bias board", charts: "Market charts", sessions: "Session dollar drivers", calendar: "Market calendar", chat: "Event chat", inst: "Institutional desk", confluence: "Macro–technical confluence" };
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.onclick = () => {
     document.querySelectorAll(".tab").forEach((b) => b.classList.remove("on"));

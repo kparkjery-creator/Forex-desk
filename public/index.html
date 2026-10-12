@@ -19,6 +19,7 @@
     <button class="tab" data-tab="calendar">Market calendar</button>
     <button class="tab" data-tab="chat">Event chat</button>
     <button class="tab" data-tab="inst">Institutional</button>
+    <button class="tab" data-tab="confluence">Confluence</button>
   </aside>
 
   <main>
@@ -48,6 +49,8 @@
     </header>
 
     <section id="board" class="panel on">
+      <div id="board-lockout" class="lockout-banner" hidden></div>
+      <div id="board-fakeout" class="fakeout-banner" hidden></div>
       <!-- High-Confluence Signal Output -->
       <div class="bias">
         <article>
@@ -102,14 +105,17 @@
     </section>
 
     <section id="charts" class="panel">
-      <p class="section-desc">Bid is the sell price. Ask is the buy price. The gap is the spread. Numbers tick every 2 seconds.</p>
+      <p class="section-desc">Bid is the sell price. Ask is the buy price. <strong>24/7 Gold</strong> is Exness XAUUSD247 (trades weekends; special price offset). Spot XAUUSD is Mon–Fri. Futures is COMEX continuous.</p>
       <div id="book" class="book">Loading bid / ask…</div>
       <div id="gold-live" class="ticks">Live gold loading…</div>
       <div class="chart-controls">
         <button class="sym on" data-sym="OANDA:XAUUSD">Gold</button>
+        <button class="sym" data-sym="TVC:GOLD">24/7 Gold</button>
+        <button class="sym" data-sym="COMEX:GC1!">Gold futures</button>
         <button class="sym" data-sym="CAPITALCOM:DXY">DXY</button>
         <button class="sym" data-sym="TVC:USOIL">Oil</button>
         <button class="sym" data-sym="FX:EURUSD">EURUSD</button>
+        <button class="sym" data-sym="FX:GBPUSD">GBPUSD</button>
         <button id="theme" type="button">White chart</button>
         <button id="full" type="button">Full screen</button>
       </div>
@@ -203,6 +209,42 @@
       <input id="webhook-url" placeholder="Webhook URL (optional)" style="width:100%;margin-top:8px" />
     </section>
 
+    <section id="confluence" class="panel">
+      <div id="lockout-banner" class="lockout-banner">Checking guardrails…</div>
+      <div id="fakeout-banner" class="fakeout-banner" hidden></div>
+      <h3>Macro → technical confluence</h3>
+      <p class="section-desc">ATR expected-move boundaries, surprise Δ overlays, session profile, ORB box for the next Tier-1 print, and mechanical lockouts.</p>
+      <div class="inst-grid">
+        <article class="card">
+          <p>Session liquidity</p>
+          <h4 id="cf-session">—</h4>
+          <p id="cf-session-note" class="primer"></p>
+        </article>
+        <article class="card">
+          <p>Score & lockout</p>
+          <h4 id="cf-score">—</h4>
+          <p id="cf-lock" class="primer"></p>
+        </article>
+        <article class="card">
+          <p>Gold key levels (ATR)</p>
+          <div id="cf-levels" class="curve-box">Loading…</div>
+        </article>
+        <article class="card">
+          <p>Event position size</p>
+          <div id="cf-size" class="curve-box">Loading…</div>
+          <label class="risk-line">Balance <input id="cf-bal" type="number" value="1000"> Base risk % <input id="cf-risk" type="number" value="1" step="0.1"></label>
+          <p id="cf-size-out" class="primer"></p>
+        </article>
+      </div>
+      <h3>Opening range breakout (ORB)</h3>
+      <div id="cf-orb" class="card primer">Loading ORB…</div>
+      <h3>Surprise factor Δ overlays</h3>
+      <p class="section-desc">Red = USD up / gold down. Green = USD down / gold up. Map these as vertical event markers on your chart.</p>
+      <div id="cf-deltas" class="list"></div>
+      <h3>Cross-asset divergence</h3>
+      <div id="cf-div" class="card primer">Loading…</div>
+    </section>
+
     <section id="chat" class="panel">
       <p class="rules">Argue the call. The desk corrects you if the leads do not agree. Tap a chip or type the print.</p>
       <div class="chips" id="chips">
@@ -223,5 +265,6 @@
   <script src="app.js"></script>
   <script src="desk-extra.js"></script>
   <script src="institutional.js"></script>
+  <script src="confluence.js"></script>
 </body>
 </html>
