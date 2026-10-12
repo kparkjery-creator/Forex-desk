@@ -259,8 +259,10 @@ app.get("/api/ticks", async (_req, res) => {
     const region = account.region || "new-york";
     const base = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${account._id}`;
     const wanted = [
-      ["Gold", ["XAUUSD", "XAUUSDm"]],
+      ["Gold 24/7", ["XAUUSD247"]],
+      ["Gold", ["XAUUSD", "XAUUSDm", "XAUUSDr", "XAUUSDz"]],
       ["EURUSD", ["EURUSD", "EURUSDm"]],
+      ["GBPUSD", ["GBPUSD", "GBPUSDm"]],
       ["Oil", ["USOIL", "XTIUSD", "UKOIL", "USOILm"]],
       ["DXY", ["DXY", "USDX", "USDINDEX"]]
     ];
@@ -318,11 +320,24 @@ async function readGold() {
       const account = Array.isArray(accounts) && (accounts.find((a) => a._id === process.env.METAAPI_ACCOUNT_ID) || accounts[0]);
       if (account) {
         const base = `https://mt-client-api-v1.${account.region || "new-york"}.agiliumtrade.ai/users/current/accounts/${account._id}`;
-        for (const symbol of ["XAUUSD", "XAUUSDm"]) {
+        // XAUUSD247 = Exness 7-day gold (weekend tradeable). Normal XAUUSD Mon–Fri.
+        const goldSyms = ["XAUUSD247", "XAUUSD", "XAUUSDm", "XAUUSDr", "XAUUSDz"];
+        for (const symbol of goldSyms) {
           const q = await fetch(`${base}/symbols/${symbol}/current-price?keepSubscription=true`, { headers });
           if (!q.ok) continue;
           const body = await q.json();
-          const quote = { ...out, source: "Exness " + symbol, bid: body.bid, ask: body.ask, price: body.bid };
+          if (body.bid == null && body.ask == null) continue;
+          const bid = body.bid != null ? body.bid : body.ask;
+          const ask = body.ask != null ? body.ask : body.bid;
+          const quote = {
+            ...out,
+            source: "Exness " + symbol,
+            symbol,
+            bid,
+            ask,
+            price: bid,
+            weekend247: /247/.test(symbol)
+          };
           goldCache = { at: now, quote };
           return quote;
         }
@@ -406,7 +421,8 @@ app.get("/api/book", async (_req, res) => {
     ["Gold", "GC=F", 0.4],
     ["DXY", "DX-Y.NYB", 0.02],
     ["Oil", "CL=F", 0.03],
-    ["EURUSD", "EURUSD=X", 0.00012]
+    ["EURUSD", "EURUSD=X", 0.00012],
+    ["GBPUSD", "GBPUSD=X", 0.00012]
   ];
   const quotes = [];
   for (const [name, symbol, spread] of symbols) {
@@ -419,11 +435,14 @@ app.get("/api/book", async (_req, res) => {
       const meta = body.chart.result[0].meta;
       const last = Number(meta.regularMarketPrice);
       const prev = Number(meta.chartPreviousClose || meta.previousClose || last);
+      const fx = /USD$|EURUSD|GBPUSD|USDJPY/.test(name) && name !== "DXY";
+      const dp = fx ? 5 : 2;
       quotes.push({
         name, symbol, source: "live",
-        bid: Number((last - spread / 2).toFixed(name === "EURUSD" ? 5 : 2)),
-        ask: Number((last + spread / 2).toFixed(name === "EURUSD" ? 5 : 2)),
-        last, change: Number((last - prev).toFixed(name === "EURUSD" ? 5 : 2)),
+        bid: Number((last - spread / 2).toFixed(dp)),
+        ask: Number((last + spread / 2).toFixed(dp)),
+        last: Number(last.toFixed(dp)),
+        change: Number((last - prev).toFixed(dp)),
         time: new Date((meta.regularMarketTime || Date.now() / 1000) * 1000).toISOString()
       });
     } catch (err) {
@@ -593,6 +612,236 @@ app.get("/api/institutional", async (_req, res) => {
     };
   } catch (err) {}
   instCache = { at: Date.now(), body: out };
+  res.json(out);
+});
+
+
+let confCache = { at: 0, body: null };
+app.get("/api/confluence", async (_req, res) => {
+  if (confCache.body && Date.now() - confCache.at < 45000) return res.json(confCache.body);
+  const out = {
+    time: new Date().toISOString(),
+    session: null,
+    sessionNote: null,
+    noTradeZone: false,
+    fakeout: null,
+    levels: null,
+    deltas: [],
+    orb: null,
+    sizing: null,
+    divergence: null,
+    lockout: null
+  };
+
+  // Session profile in CAT (UTC+2)
+  const catHour = (new Date().getUTCHours() + 2) % 24;
+  if (catHour >= 0 && catHour < 8) {
+    out.session = "Asia";
+    out.sessionNote = "Quiet range. Smaller breakouts. Prefer mean-reversion templates, not news spikes.";
+  } else if (catHour >= 8 && catHour < 14) {
+    out.session = "London";
+    out.sessionNote = "Liquidity builds. Range expansion common. Prepare ORB into 14:30 CAT US prints.";
+  } else if (catHour >= 14 && catHour < 16) {
+    out.session = "London–NY overlap";
+    out.sessionNote = "Highest impact window. Tier-1 US data prints here. Widen stops, cut size.";
+  } else if (catHour >= 16 && catHour < 22) {
+    out.session = "New York";
+    out.sessionNote = "Trend continuation or fade of the 14:30 move. Do not chase the first spike blindly.";
+  } else {
+    out.session = "Off-hours";
+    out.sessionNote = "Thin liquidity. Avoid new risk unless 24/7 gold is the plan.";
+  }
+
+  // Pull desk bias for deltas + score
+  let bias = null;
+  let goldPx = null;
+  let atr = null;
+  let dxy = null;
+  let us10y = null;
+  let realYield = null;
+  try {
+    // reuse calendar/desk scoring without HTTP
+    const pack = await calendarWeekly(false);
+    const events = (pack.events || [])
+      .filter((e) => e.countryCode === "US" || e.currency === "USD")
+      .map(mapEvent)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+    const high = events.filter((e) => String(e.impact).toLowerCase() === "high");
+    const nextHigh = high.find((e) => new Date(e.date) > new Date()) || high[0];
+    const leadPool = events.filter((e) => e.actual !== "" && e.actual != null).slice(-12);
+    let leads = typeof mergeLeads === "function" ? mergeLeads(leadPool, typeof CPI_LEADS !== "undefined" ? CPI_LEADS : []) : leadPool;
+    if (typeof isPolicyLead === "function") leads = leads.filter((e) => isPolicyLead(e.title));
+    bias = signalFor(nextHigh, leads);
+    out.deltas = (bias.steps || []).filter((st) => st.status !== "waiting").map((st) => ({
+      title: st.title,
+      status: st.status,
+      points: st.points,
+      text: st.text,
+      color: st.status === "usd-up" ? "red" : st.status === "usd-down" ? "green" : "flat",
+      // red = USD bullish / gold bearish; green = USD bearish / gold bullish
+      sentiment: st.status === "usd-up" ? "USD-bullish / gold-bearish" : st.status === "usd-down" ? "USD-bearish / gold-bullish" : "neutral"
+    }));
+    out.score = bias.score;
+    out.noTradeZone = Math.abs(Number(bias.score) || 0) < 2;
+    out.call = bias.call;
+    out.gold = bias.gold;
+    out.nextEvent = nextHigh ? { title: nextHigh.title, date: nextHigh.date, forecast: nextHigh.forecast, previous: nextHigh.previous } : null;
+
+    // Event weight for sizing
+    const title = (nextHigh && nextHigh.title) || "";
+    let eventWeight = 1;
+    if (/core\s*cpi|cpi\b|pce|fomc|payroll|nonfarm|nfp/i.test(title)) eventWeight = 2.2;
+    else if (/ppi|claims|ism|retail/i.test(title)) eventWeight = 1.4;
+    out.eventWeight = eventWeight;
+
+    // ORB: conceptual pre-news box using ATR fraction (true 15m box needs live bars at event time)
+    if (nextHigh) {
+      const t = new Date(nextHigh.date).getTime();
+      out.orb = {
+        event: nextHigh.title,
+        eventTime: nextHigh.date,
+        preBoxStart: new Date(t - 15 * 60 * 1000).toISOString(),
+        preBoxEnd: nextHigh.date,
+        rule: "Track high/low of the 15 minutes before the print. Break of box + macro direction = primary path. Target 0.75× to 1.25× event ATR."
+      };
+    }
+  } catch (err) {
+    out.deskError = String(err.message || err);
+  }
+
+  try {
+    const g = await yahooChart("GC=F", "1d", "3mo");
+    const q = g.chart.result[0].indicators.quote[0];
+    const closes = q.close || [];
+    const highs = q.high || [];
+    const lows = q.low || [];
+    goldPx = closes.filter((x) => x != null).slice(-1)[0];
+    atr = atr14(highs, lows, closes);
+  } catch (err) {}
+  try {
+    const d = await yahooChart("DX-Y.NYB", "1d", "5d");
+    dxy = Number(d.chart.result[0].meta.regularMarketPrice);
+  } catch (err) {}
+  try {
+    const y = await yahooChart("^TNX", "1d", "5d");
+    us10y = Number(y.chart.result[0].meta.regularMarketPrice);
+    realYield = us10y != null ? Number((us10y - 2.4).toFixed(2)) : null;
+  } catch (err) {}
+
+  // Intraday proxy change for divergence (last vs prior close from daily)
+  let goldChg = null, dxyChg = null, yieldChg = null;
+  try {
+    const g = await yahooChart("GC=F", "1d", "5d");
+    const meta = g.chart.result[0].meta;
+    goldChg = meta.regularMarketPrice - (meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice);
+  } catch (err) {}
+  try {
+    const d = await yahooChart("DX-Y.NYB", "1d", "5d");
+    const meta = d.chart.result[0].meta;
+    dxyChg = meta.regularMarketPrice - (meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice);
+  } catch (err) {}
+  try {
+    const y = await yahooChart("^TNX", "1d", "5d");
+    const meta = y.chart.result[0].meta;
+    yieldChg = meta.regularMarketPrice - (meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice);
+  } catch (err) {}
+
+  if (goldPx != null && atr != null) {
+    const a = atr;
+    out.levels = {
+      spot: Number(goldPx.toFixed(2)),
+      atr: Number(a.toFixed(2)),
+      // expected move boundaries around event
+      upper1: Number((goldPx + a * 0.75).toFixed(2)),
+      upper2: Number((goldPx + a * 1.25).toFixed(2)),
+      lower1: Number((goldPx - a * 0.75).toFixed(2)),
+      lower2: Number((goldPx - a * 1.25).toFixed(2)),
+      // liquidity pool zones (stop clusters beyond 1× ATR)
+      liquidityHigh: Number((goldPx + a * 1.5).toFixed(2)),
+      liquidityLow: Number((goldPx - a * 1.5).toFixed(2)),
+      note: "Boundaries use 14-day ATR. Institutional stops often sit beyond 1×–1.5× ATR from pre-news mid."
+    };
+    if (out.orb) {
+      out.orb.targetUp = out.levels.upper1;
+      out.orb.targetDown = out.levels.lower1;
+      out.orb.stretchUp = out.levels.upper2;
+      out.orb.stretchDown = out.levels.lower2;
+    }
+  }
+
+  // Cross-asset divergence
+  // Rising real yields + rising DXY should pressure gold. Gold up while yields up = fakeout risk.
+  if (goldChg != null && yieldChg != null) {
+    const goldUp = goldChg > 5;
+    const goldDown = goldChg < -5;
+    const yieldsUp = yieldChg > 0.02;
+    const yieldsDown = yieldChg < -0.02;
+    const dxyUp = dxyChg != null && dxyChg > 0.05;
+    const dxyDown = dxyChg != null && dxyChg < -0.05;
+    if (goldUp && yieldsUp) {
+      out.fakeout = {
+        level: "warning",
+        title: "Fakeout warning",
+        text: "Gold is up while yields are rising. Breakout may fail if real yields keep climbing. Wait for yield fade or gold rejection."
+      };
+    } else if (goldUp && dxyUp) {
+      out.fakeout = {
+        level: "warning",
+        title: "Fakeout warning",
+        text: "Gold rising with DXY firm is cross-asset divergence. Prefer confirmation after the dollar stalls."
+      };
+    } else if (goldDown && yieldsDown && dxyDown) {
+      out.fakeout = {
+        level: "info",
+        title: "Aligned risk-on for gold",
+        text: "Gold, yields and dollar soft together — move is supported by cross-asset flow."
+      };
+    } else {
+      out.fakeout = {
+        level: "clear",
+        title: "No major divergence",
+        text: "Gold, yields and DXY are not in a hard conflict right now."
+      };
+    }
+    out.divergence = {
+      goldChg: goldChg != null ? Number(goldChg.toFixed(2)) : null,
+      dxyChg: dxyChg != null ? Number(dxyChg.toFixed(3)) : null,
+      yieldChg: yieldChg != null ? Number(yieldChg.toFixed(3)) : null,
+      us10y, realYield, dxy
+    };
+  }
+
+  // Dynamic sizing
+  const bal = 1000; // client overrides
+  const baseRiskPct = 1;
+  const weight = out.eventWeight || 1;
+  const volMult = atr && out.levels ? Math.min(2.5, Math.max(1, atr / 40)) : 1;
+  const riskPct = Number((baseRiskPct / weight / volMult).toFixed(2));
+  const stopPts = atr ? Math.max(10, Math.round(atr * (0.4 + 0.2 * weight))) : 25;
+  out.sizing = {
+    eventWeight: weight,
+    volMult: Number(volMult.toFixed(2)),
+    suggestedRiskPct: riskPct,
+    suggestedStopPts: stopPts,
+    note: "High-impact prints cut suggested risk % and widen stop buffer for slippage."
+  };
+
+  // Lockout
+  if (out.noTradeZone) {
+    out.lockout = {
+      active: true,
+      reason: "Confluence score inside −2 to +2 (no-trade zone). Macro prints conflict. No new entries until score leaves the zone or the Tier-1 print resolves it."
+    };
+  } else if (out.fakeout && out.fakeout.level === "warning") {
+    out.lockout = {
+      active: true,
+      reason: "Fakeout warning active. Size down or wait — cross-asset flow fights the gold direction."
+    };
+  } else {
+    out.lockout = { active: false, reason: "Path open. Still use event-sized risk." };
+  }
+
+  confCache = { at: Date.now(), body: out };
   res.json(out);
 });
 
