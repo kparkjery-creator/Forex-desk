@@ -1,0 +1,91 @@
+//@version=6
+indicator("Desk Trading Session Separator", overlay=true, max_lines_count=500, max_boxes_count=500, max_labels_count=200)
+
+// === INPUTS ===
+tz = input.string("Africa/Johannesburg", "Timezone (CAT)", options=["Africa/Johannesburg", "America/New_York", "Europe/London", "Asia/Tokyo", "UTC"], group="Sessions")
+showAsia = input.bool(true, "Show Asia", group="Sessions")
+showLondon = input.bool(true, "Show London", group="Sessions")
+showNY = input.bool(true, "Show New York", group="Sessions")
+showOverlap = input.bool(true, "Highlight London–NY overlap", group="Sessions")
+showLabels = input.bool(true, "Session open labels", group="Sessions")
+showKillzones = input.bool(true, "US data killzone (14:00–15:30 CAT)", group="Sessions")
+
+colAsia = input.color(color.new(#1d4e89, 88), "Asia shade", group="Colors")
+colLondon = input.color(color.new(#6b3f1d, 88), "London shade", group="Colors")
+colNY = input.color(color.new(#1e4d3a, 88), "New York shade", group="Colors")
+colOverlap = input.color(color.new(#7a2f9e, 82), "Overlap shade", group="Colors")
+colKill = input.color(color.new(#c0392b, 78), "Killzone shade", group="Colors")
+
+// Session strings in selected TZ
+// Asia 00:00–08:00 CAT, London 08:00–14:00, Overlap 14:00–16:00, NY 14:00–22:00
+asiaSes = "0000-0800"
+londonSes = "0800-1400"
+overlapSes = "1400-1600"
+nySes = "1400-2200"
+killSes = "1400-1530"
+
+inAsia = showAsia and not na(time(timeframe.period, asiaSes, tz))
+inLondon = showLondon and not na(time(timeframe.period, londonSes, tz))
+inOverlap = showOverlap and not na(time(timeframe.period, overlapSes, tz))
+inNY = showNY and not na(time(timeframe.period, nySes, tz))
+inKill = showKillzones and not na(time(timeframe.period, killSes, tz))
+
+bgcolor(inKill ? colKill : inOverlap ? colOverlap : inNY and not inOverlap ? colNY : inLondon ? colLondon : inAsia ? colAsia : na, title="Session background")
+
+// Vertical lines at session opens (once per day)
+isNewDay = ta.change(time("D", tz)) != 0
+
+asiaOpen = not na(time(timeframe.period, "0000-0001", tz))
+londonOpen = not na(time(timeframe.period, "0800-0801", tz))
+nyOpen = not na(time(timeframe.period, "1400-1401", tz))
+
+plotshape(showLabels and asiaOpen and showAsia, title="Asia open", style=shape.labelup, location=location.bottom, color=#1d4e89, text="ASIA", textcolor=color.white, size=size.tiny)
+plotshape(showLabels and londonOpen and showLondon, title="London open", style=shape.labelup, location=location.bottom, color=#c47a2c, text="LON", textcolor=color.white, size=size.tiny)
+plotshape(showLabels and nyOpen and showNY, title="NY open", style=shape.labelup, location=location.bottom, color=#2e8b57, text="NY", textcolor=color.white, size=size.tiny)
+
+// Session high/low tracking for current day (optional range)
+var float asiaHi = na
+var float asiaLo = na
+var float lonHi = na
+var float lonLo = na
+var float nyHi = na
+var float nyLo = na
+
+if isNewDay
+    asiaHi := na
+    asiaLo := na
+    lonHi := na
+    lonLo := na
+    nyHi := na
+    nyLo := na
+
+if inAsia
+    asiaHi := na(asiaHi) ? high : math.max(asiaHi, high)
+    asiaLo := na(asiaLo) ? low : math.min(asiaLo, low)
+if inLondon and not inOverlap
+    lonHi := na(lonHi) ? high : math.max(lonHi, high)
+    lonLo := na(lonLo) ? low : math.min(lonLo, low)
+if inNY
+    nyHi := na(nyHi) ? high : math.max(nyHi, high)
+    nyLo := na(nyLo) ? low : math.min(nyLo, low)
+
+plot(showAsia ? asiaHi : na, "Asia high", color.new(#1d4e89, 40), style=plot.style_linebr)
+plot(showAsia ? asiaLo : na, "Asia low", color.new(#1d4e89, 40), style=plot.style_linebr)
+plot(showLondon ? lonHi : na, "London high", color.new(#c47a2c, 40), style=plot.style_linebr)
+plot(showLondon ? lonLo : na, "London low", color.new(#c47a2c, 40), style=plot.style_linebr)
+
+// Table legend
+if barstate.islast
+    var table leg = table.new(position.top_left, 2, 6, bgcolor=color.new(#212121, 70), border_width=1)
+    table.cell(leg, 0, 0, "SESSIONS (CAT)", text_color=color.white, bgcolor=#333333, text_size=size.small)
+    table.merge_cells(leg, 0, 0, 1, 0)
+    table.cell(leg, 0, 1, "Asia", text_size=size.tiny, text_color=color.white)
+    table.cell(leg, 1, 1, "00:00–08:00", text_size=size.tiny, text_color=color.white, bgcolor=color.new(#1d4e89, 60))
+    table.cell(leg, 0, 2, "London", text_size=size.tiny, text_color=color.white)
+    table.cell(leg, 1, 2, "08:00–14:00", text_size=size.tiny, text_color=color.white, bgcolor=color.new(#6b3f1d, 60))
+    table.cell(leg, 0, 3, "Overlap", text_size=size.tiny, text_color=color.white)
+    table.cell(leg, 1, 3, "14:00–16:00", text_size=size.tiny, text_color=color.white, bgcolor=color.new(#7a2f9e, 50))
+    table.cell(leg, 0, 4, "New York", text_size=size.tiny, text_color=color.white)
+    table.cell(leg, 1, 4, "14:00–22:00", text_size=size.tiny, text_color=color.white, bgcolor=color.new(#1e4d3a, 60))
+    table.cell(leg, 0, 5, "US data KZ", text_size=size.tiny, text_color=color.white)
+    table.cell(leg, 1, 5, "14:00–15:30", text_size=size.tiny, text_color=color.white, bgcolor=color.new(#c0392b, 50))

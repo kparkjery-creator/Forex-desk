@@ -286,3 +286,19 @@ input { flex: 1; background: #12171e; color: var(--text); border: 1px solid var(
 .level-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .level-table td { padding: 4px 0; }
 .level-table td:last-child { text-align: right; font-family: "IBM Plex Mono", monospace; }
+
+.strategy-card { margin-top: 16px; }
+.strategy-card .rules-list { margin: 8px 0 16px; padding-left: 18px; color: var(--text); font-size: 13px; line-height: 1.45; }
+.strategy-card .rules-list li { margin-bottom: 6px; }
+.strat-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 14px; }
+.strat-links a, a.link-btn {
+  display: inline-block;
+  background: #3a2b1d;
+  color: var(--gold);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-decoration: none;
+  font-size: 13px;
+}
+.strat-links a:hover, a.link-btn:hover { border-color: var(--gold); }

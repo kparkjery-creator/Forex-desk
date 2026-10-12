@@ -118,8 +118,38 @@
         <button class="sym" data-sym="FX:GBPUSD">GBPUSD</button>
         <button id="theme" type="button">White chart</button>
         <button id="full" type="button">Full screen</button>
+        <a class="sym link-btn" id="tv-open" href="https://www.tradingview.com/chart/?symbol=OANDA:XAUUSD" target="_blank" rel="noopener">Open in TradingView</a>
       </div>
       <div id="tv"></div>
+      <article class="card strategy-card">
+        <p class="kicker">Chart indicators</p>
+        <h4>Desk Gold EMA Trend + Session Separator</h4>
+        <p class="section-desc">TradingView embeds cannot load private Pine scripts. Open the full chart, paste the two scripts below (Pine Editor → Add to chart). Screener defaults are gold / FX pairs.</p>
+        <div class="strat-links">
+          <a href="/indicators/Desk_Gold_EMA_Trend.pine" download>Download EMA Trend (.pine)</a>
+          <a href="/indicators/Desk_Session_Separator.pine" download>Download Session Separator (.pine)</a>
+        </div>
+        <h4>EMA Trend rules</h4>
+        <ul class="rules-list">
+          <li><strong>Ribbon</strong> — EMAs 5, 11, 15, 18, 21, 24, 28, 34. Blue stack when EMA11 above EMA34 (bullish ribbon). Gray when flipped.</li>
+          <li><strong>BUY</strong> — EMA11 crosses above EMA34 (confirmed bar close). Extra EMA200 is visual only, not in the signal.</li>
+          <li><strong>SELL</strong> — EMA11 crosses below EMA34 (confirmed bar close).</li>
+          <li><strong>Stop</strong> — Entry ± ATR(14) × 2.0 (default).</li>
+          <li><strong>Take profits</strong> — Up to 4 TPs, each step = SL distance × TP factor (default 1.0), so TP1 ≈ 1R, TP2 ≈ 2R, etc.</li>
+          <li><strong>Trade end</strong> — SL hit or all TPs filled. Lines freeze at exit.</li>
+          <li><strong>MTF dashboard</strong> — 5m / 15m / 30m / 1H / 4H / Daily: bullish if EMA11 &gt; EMA34 on that TF. Combined status needs 2 of 3 selected TFs bullish.</li>
+          <li><strong>Desk filter</strong> — Prefer longs only when Bias board is not in no-trade lockout and not fighting a fakeout warning. Prefer shorts when macro score is firm USD-up / sell gold.</li>
+        </ul>
+        <h4>Session separator rules (CAT)</h4>
+        <ul class="rules-list">
+          <li><strong>Asia</strong> 00:00–08:00 — quiet range, smaller breakouts.</li>
+          <li><strong>London</strong> 08:00–14:00 — liquidity builds.</li>
+          <li><strong>London–NY overlap</strong> 14:00–16:00 — highest impact; US Tier-1 data often 14:30.</li>
+          <li><strong>New York</strong> 14:00–22:00 — trend or fade of the data move.</li>
+          <li><strong>US data killzone</strong> 14:00–15:30 — shaded red; reduce size or wait for the print + first hold.</li>
+          <li>Session high/low lines mark Asia and London ranges for ORB / fade plans.</li>
+        </ul>
+      </article>
     </section>
 
     <section id="sessions" class="panel">
