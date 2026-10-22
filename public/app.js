@@ -323,7 +323,7 @@ async function news() {
 news();
 setInterval(news, 300000);
 
-const titles = { board: "Event bias board", charts: "Market charts", sessions: "Session dollar drivers", calendar: "Market calendar", chat: "Event chat", inst: "Institutional desk", confluence: "Macro–technical confluence" };
+const titles = { board: "Market overview", charts: "Market charts", sessions: "Session drivers", calendar: "Market calendar", chat: "Event chat", inst: "Institutional desk", confluence: "Macro–technical confluence" };
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.onclick = () => {
     document.querySelectorAll(".tab").forEach((b) => b.classList.remove("on"));
