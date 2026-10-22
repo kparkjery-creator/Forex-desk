@@ -20,43 +20,63 @@ function nums(e) {
  * Calculates Delta (Surprise Factor) and Confluence Score based on Fed weights
  */
 function calculateConfluenceScore(bias) {
+  if (!bias) return;
   let score = 0;
-  if (typeof bias.score === 'number') {
-    score = bias.score;
-  } else if (typeof bias.score === 'string') {
-    const parsed = parseInt(bias.score, 10);
+  if (typeof bias.score === "number") score = bias.score;
+  else if (typeof bias.score === "string") {
+    const parsed = parseFloat(bias.score);
     score = isNaN(parsed) ? 0 : parsed;
   }
-  
-  // Clamp score between -10 and +10
   score = Math.max(-10, Math.min(10, score));
-  
-  // Position pointer on meter (0% at -10, 50% at 0, 100% at +10)
+
   const pointerPercent = ((score + 10) / 20) * 100;
   const pointerEl = document.getElementById("confluence-pointer");
-  if (pointerEl) {
-    pointerEl.style.left = `${pointerPercent}%`;
-  }
+  if (pointerEl) pointerEl.style.left = pointerPercent + "%";
 
-  // Update Signal Action text based on score threshold
   const actionEl = document.getElementById("signal-action");
-  if (actionEl) {
-    if (score >= 7) {
-      actionEl.textContent = "Signal State: HIGH CONFLUENCE - STRONG BUY USD / STRONG SELL GOLD";
-      actionEl.className = "signal-action strong-buy";
-    } else if (score <= -7) {
-      actionEl.textContent = "Signal State: HIGH CONFLUENCE - STRONG SELL USD / STRONG BUY GOLD";
-      actionEl.className = "signal-action strong-sell";
-    } else if (score >= 3) {
-      actionEl.textContent = "Signal State: MODERATE USD BUY / NO TRADE GOLD";
-      actionEl.className = "signal-action mod-buy";
-    } else if (score <= -3) {
-      actionEl.textContent = "Signal State: MODERATE USD SELL / NO TRADE GOLD";
-      actionEl.className = "signal-action mod-sell";
-    } else {
-      actionEl.textContent = "Signal State: NO TRADE ZONE - Low Confluence / Conflicting Prints";
-      actionEl.className = "signal-action neutral";
-    }
+  if (!actionEl) return;
+
+  // FIX: honor system lockouts — never show strong buy/sell into Tier-1 on forecasts
+  if (bias.lockPreEvent) {
+    actionEl.textContent = "Signal State: PRE-EVENT LOCKOUT — FLAT · every Tier-1 · trade decision print only after release";
+    actionEl.className = "signal-action neutral";
+    return;
+  }
+  if (bias.blockedByPrice) {
+    actionEl.textContent = "Signal State: PRICE-ACTION BLOCK — macro lean exists but gold/DXY/yields disagree";
+    actionEl.className = "signal-action neutral";
+    return;
+  }
+  if (bias.noTrade) {
+    actionEl.textContent = "Signal State: NO-TRADE ZONE — wait for decision print + price confirmation";
+    actionEl.className = "signal-action neutral";
+    return;
+  }
+  if (bias.postPrintCore != null && bias.postPrintCore >= 0.3) {
+    actionEl.textContent = "Signal State: CORE HOT " + bias.postPrintCore + "% — SELL GOLD / USD FIRM";
+    actionEl.className = "signal-action strong-buy";
+    return;
+  }
+  if (bias.postPrintCore != null && bias.postPrintCore <= 0.2) {
+    actionEl.textContent = "Signal State: CORE SOFT " + bias.postPrintCore + "% — BUY GOLD PATH IF PRICE HOLDS";
+    actionEl.className = "signal-action strong-sell";
+    return;
+  }
+  if (score >= 7) {
+    actionEl.textContent = "Signal State: HIGH CONFLUENCE - STRONG BUY USD / STRONG SELL GOLD";
+    actionEl.className = "signal-action strong-buy";
+  } else if (score <= -7) {
+    actionEl.textContent = "Signal State: HIGH CONFLUENCE - STRONG SELL USD / STRONG BUY GOLD";
+    actionEl.className = "signal-action strong-sell";
+  } else if (score >= 3) {
+    actionEl.textContent = "Signal State: MODERATE USD BUY — confirm with price";
+    actionEl.className = "signal-action mod-buy";
+  } else if (score <= -3) {
+    actionEl.textContent = "Signal State: MODERATE USD SELL — confirm with price";
+    actionEl.className = "signal-action mod-sell";
+  } else {
+    actionEl.textContent = "Signal State: NO TRADE ZONE - Low Confluence / Conflicting Prints";
+    actionEl.className = "signal-action neutral";
   }
 }
 
@@ -82,9 +102,61 @@ function render(data) {
     return `<div class="row"><strong>Step ${i + 1}. ${s.title}</strong><span class="${tone}">${label} · ${s.text}</span></div>`;
   }).join("") || "<div class='row'>No leading prints in the window yet.</div>";
   const narr = document.getElementById("narrative");
-  if (narr) narr.textContent = (data.bias && data.bias.narrative) || "";
+  if (narr) {
+    const b = data.bias || {};
+    const bits = [b.narrative || "", b.whatMatters ? ("What matters: " + b.whatMatters) : "", b.priceAction && b.priceAction.text ? ("Price: " + b.priceAction.text) : "", b.rule ? ("RULE: " + b.rule) : ""];
+    narr.textContent = bits.filter(Boolean).join(" · ");
+  }
   const pulse = document.getElementById("pulse");
   if (pulse) pulse.textContent = "Pulse " + new Date((data.bias && data.bias.pulse) || Date.now()).toLocaleTimeString();
+
+  // Price action strip
+  const pa = (data.bias && data.bias.priceAction) || {};
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  if (pa.goldLast != null) {
+    const chg = pa.goldChg != null ? (pa.goldChg >= 0 ? "+" : "") + pa.goldChg.toFixed(1) : "";
+    setTxt("pa-gold", pa.goldLast.toFixed(1) + " " + chg);
+    setTxt("pa-gold-sma", "SMA " + (pa.goldVsSma || "—"));
+  }
+  if (pa.dxyLast != null) {
+    const chg = pa.dxyChg != null ? (pa.dxyChg >= 0 ? "+" : "") + pa.dxyChg.toFixed(3) : "";
+    setTxt("pa-dxy", pa.dxyLast.toFixed(2) + " " + chg);
+    setTxt("pa-dxy-sma", "SMA " + (pa.dxyVsSma || "—"));
+  }
+  if (pa.y10 != null) {
+    setTxt("pa-y10", pa.y10.toFixed(2));
+    const yc = pa.yChg != null ? ((pa.yChg >= 0 ? "+" : "") + pa.yChg.toFixed(3)) : "—";
+    setTxt("pa-y-chg", "Δ " + yc);
+  }
+  const gateEl = document.getElementById("pa-gate");
+  const gateNote = document.getElementById("pa-gate-note");
+  if (gateEl) {
+    if (data.bias && data.bias.lockPreEvent) {
+      gateEl.textContent = "LOCKOUT";
+      gateEl.className = "flat";
+      if (gateNote) gateNote.textContent = "Pre-event flat";
+    } else if (data.bias && data.bias.blockedByPrice) {
+      gateEl.textContent = "BLOCKED";
+      gateEl.className = "block";
+      if (gateNote) gateNote.textContent = "Macro ≠ price";
+    } else if (data.bias && data.bias.macroLean === "sell_gold" && pa.agreesSellGold) {
+      gateEl.textContent = "SELL OK";
+      gateEl.className = "agree";
+      if (gateNote) gateNote.textContent = "Macro + price agree";
+    } else if (data.bias && data.bias.macroLean === "buy_gold" && pa.agreesBuyGold) {
+      gateEl.textContent = "BUY OK";
+      gateEl.className = "agree";
+      if (gateNote) gateNote.textContent = "Macro + price agree";
+    } else if (data.bias && data.bias.noTrade) {
+      gateEl.textContent = "FLAT";
+      gateEl.className = "flat";
+      if (gateNote) gateNote.textContent = "No trade zone";
+    } else {
+      gateEl.textContent = "OPEN";
+      gateEl.className = "agree";
+      if (gateNote) gateNote.textContent = pa.text || "Path clear";
+    }
+  }
 
     const primers = {
     NFP: "Jobs report. It counts how many jobs the US added. More jobs than forecast, and wages at 0.3% or higher, means the dollar is bid and gold is offered. A buy in gold needs wages soft and a jobs miss. Both.",
@@ -343,3 +415,95 @@ document.getElementById("ask").onsubmit = (e) => {
   document.getElementById("q").value = "";
   log.scrollTop = log.scrollHeight;
 };
+
+/* === FOMC status + decision scorecard === */
+async function loadFomcStatus() {
+  try {
+    const r = await fetch("/api/fomc");
+    if (!r.ok) return;
+    const d = await r.json();
+    const st = document.getElementById("fomc-status");
+    const title = document.getElementById("fomc-title");
+    const when = document.getElementById("fomc-when");
+    if (title && d.title) title.textContent = d.title;
+    if (when && d.whenText) when.innerHTML = d.whenText;
+    if (st) {
+      const hrs = d.hoursToStatement;
+      if (hrs == null) st.textContent = d.status || "—";
+      else if (hrs > 48) st.textContent = "Status: " + Math.ceil(hrs / 24) + " days to statement · FLAT rules apply in last 2h";
+      else if (hrs > 2) st.textContent = "Status: " + hrs.toFixed(1) + "h to statement · scenario board only";
+      else if (hrs > -1) st.textContent = "Status: PRE-EVENT LOCKOUT · do not lean · trade statement surprise only";
+      else st.textContent = "Status: statement window passed · use presser + price action";
+    }
+  } catch (e) {}
+}
+
+const SC_KEY = "desk_scorecard_v1";
+function loadScorecard() {
+  try { return JSON.parse(localStorage.getItem(SC_KEY) || "[]"); } catch { return []; }
+}
+function saveScorecard(rows) {
+  localStorage.setItem(SC_KEY, JSON.stringify(rows.slice(0, 40)));
+}
+function renderScorecard() {
+  const rows = loadScorecard();
+  const list = document.getElementById("scorecard-list");
+  const stats = document.getElementById("scorecard-stats");
+  if (!list) return;
+  if (!rows.length) {
+    list.innerHTML = "<p class='section-desc'>No decisions logged yet. After each Tier-1, log actual + call + result.</p>";
+    if (stats) stats.textContent = "Hit rate —";
+    return;
+  }
+  list.innerHTML = rows.map((r, i) =>
+    `<div class="sc-row">
+      <span>${r.event}</span>
+      <span>${r.actual}</span>
+      <span>${r.call.replace("_", " ")}</span>
+      <span class="sc-${r.result}">${r.result}</span>
+      <button type="button" data-sc-del="${i}" style="background:none;border:none;color:#9a8a78;cursor:pointer">×</button>
+    </div>`
+  ).join("");
+  const hits = rows.filter(r => r.result === "hit").length;
+  const misses = rows.filter(r => r.result === "miss").length;
+  const n = hits + misses;
+  if (stats) stats.textContent = n ? `Hit rate ${hits}/${n} (${Math.round(100 * hits / n)}%) · ${rows.length} logs` : "Only scratches logged";
+  list.querySelectorAll("[data-sc-del]").forEach(btn => {
+    btn.onclick = () => {
+      const rows2 = loadScorecard();
+      rows2.splice(Number(btn.getAttribute("data-sc-del")), 1);
+      saveScorecard(rows2);
+      renderScorecard();
+    };
+  });
+}
+document.getElementById("sc-add")?.addEventListener("click", () => {
+  const event = document.getElementById("sc-event")?.value || "Core CPI";
+  const actual = document.getElementById("sc-actual")?.value || "—";
+  const call = document.getElementById("sc-call")?.value || "flat";
+  const result = document.getElementById("sc-result")?.value || "scratch";
+  const rows = loadScorecard();
+  rows.unshift({ event, actual, call, result, at: new Date().toISOString() });
+  saveScorecard(rows);
+  renderScorecard();
+  const inp = document.getElementById("sc-actual");
+  if (inp) inp.value = "";
+});
+
+// Seed Oct 14 Core CPI hot as first log if empty
+(function seedScorecard() {
+  const rows = loadScorecard();
+  if (!rows.length) {
+    saveScorecard([{
+      event: "Core CPI",
+      actual: "0.3 vs 0.2",
+      call: "sell_gold",
+      result: "hit",
+      at: "2026-10-14T12:30:00Z",
+      note: "Hot core — gold sold"
+    }]);
+  }
+})();
+renderScorecard();
+loadFomcStatus();
+setInterval(loadFomcStatus, 60000);

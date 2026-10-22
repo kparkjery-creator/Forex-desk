@@ -302,3 +302,82 @@ input { flex: 1; background: #12171e; color: var(--text); border: 1px solid var(
   font-size: 13px;
 }
 .strat-links a:hover, a.link-btn:hover { border-color: var(--gold); }
+
+/* Price action strip */
+.price-strip {
+  margin: 14px 0;
+  padding: 12px 14px;
+  background: #1a1612;
+  border: 1px solid var(--line, #3a2b1d);
+  border-radius: 10px;
+}
+.price-strip-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+.pa-cell {
+  background: #241c14;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+.pa-label { display: block; font-size: 11px; color: #9a8a78; margin-bottom: 4px; }
+.pa-cell strong { font-size: 15px; color: var(--gold, #d4a84b); }
+.pa-sub { display: block; font-size: 11px; color: #b0a090; margin-top: 4px; }
+.pa-gate strong.agree { color: #3dd68c; }
+.pa-gate strong.block { color: #f07178; }
+.pa-gate strong.flat { color: #c8b89a; }
+
+/* FOMC playbook */
+.fomc-playbook { margin: 16px 0; }
+.fomc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+.fomc-box {
+  background: #241c14;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid var(--line, #3a2b1d);
+}
+.fomc-box h4 { margin: 0 0 8px; color: var(--gold, #d4a84b); font-size: 13px; }
+.fomc-box ul { margin: 0; padding-left: 16px; font-size: 12px; line-height: 1.45; color: var(--text, #e8dcc8); }
+.fomc-box li { margin-bottom: 4px; }
+.fomc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.fomc-table th, .fomc-table td { padding: 6px 4px; border-bottom: 1px solid #3a2b1d; text-align: left; }
+.fomc-table th { color: #9a8a78; }
+.fomc-status { margin-top: 10px; font-size: 13px; color: var(--gold, #d4a84b); }
+
+/* Scorecard */
+.scorecard-card { margin: 16px 0; }
+.scorecard-form {
+  display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;
+}
+.scorecard-form select, .scorecard-form input {
+  background: #241c14; color: var(--text, #e8dcc8);
+  border: 1px solid var(--line, #3a2b1d); border-radius: 6px;
+  padding: 8px 10px; font-size: 13px;
+}
+.scorecard-form button {
+  background: #3a2b1d; color: var(--gold, #d4a84b);
+  border: 1px solid var(--line, #3a2b1d); border-radius: 6px;
+  padding: 8px 14px; cursor: pointer;
+}
+.scorecard-list { font-size: 12px; margin-top: 8px; }
+.scorecard-list .sc-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto;
+  gap: 6px; padding: 6px 0; border-bottom: 1px solid #2a2218;
+}
+.scorecard-stats { font-size: 13px; color: #9a8a78; margin-top: 8px; }
+.sc-hit { color: #3dd68c; }
+.sc-miss { color: #f07178; }
+.sc-scratch { color: #c8b89a; }
+
+@media (max-width: 700px) {
+  .price-strip-grid { grid-template-columns: 1fr 1fr; }
+  .scorecard-list .sc-row { grid-template-columns: 1fr 1fr; }
+}

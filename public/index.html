@@ -86,6 +86,88 @@
         <span id="pulse" class="pulse">Pulse —</span>
       </div>
 
+      <!-- Live price-action gate -->
+      <div class="price-strip" id="price-strip">
+        <p class="kicker">Price action gate</p>
+        <div class="price-strip-grid">
+          <div class="pa-cell"><span class="pa-label">Gold</span><strong id="pa-gold">—</strong><span id="pa-gold-sma" class="pa-sub">SMA —</span></div>
+          <div class="pa-cell"><span class="pa-label">DXY</span><strong id="pa-dxy">—</strong><span id="pa-dxy-sma" class="pa-sub">SMA —</span></div>
+          <div class="pa-cell"><span class="pa-label">US10Y</span><strong id="pa-y10">—</strong><span id="pa-y-chg" class="pa-sub">Δ —</span></div>
+          <div class="pa-cell pa-gate"><span class="pa-label">Gate</span><strong id="pa-gate">—</strong><span id="pa-gate-note" class="pa-sub">Needs agreement</span></div>
+        </div>
+      </div>
+
+      <!-- FOMC playbook (always visible near decision week) -->
+      <article class="card fomc-playbook" id="fomc-playbook">
+        <p class="kicker">FOMC playbook</p>
+        <h3 id="fomc-title">FOMC · 27–28 Oct 2026</h3>
+        <p class="section-desc" id="fomc-when">Statement <strong>28 Oct 20:00 CAT</strong> · Chair presser ~20:30 CAT · <strong>No SEP / dots</strong> this meeting</p>
+        <div class="fomc-grid">
+          <div class="fomc-box">
+            <h4>What moves gold</h4>
+            <ul>
+              <li><strong>Statement wording</strong> first — changes vs Sept matter more than a priced hold</li>
+              <li><strong>Hike</strong> → USD up / sell gold</li>
+              <li><strong>Hold + hawkish</strong> (higher for longer, inflation risks) → sell gold lean</li>
+              <li><strong>Hold + neutral</strong> → often fade the first spike; wait for presser</li>
+              <li><strong>Dovish hold / cut talk</strong> → buy gold path if price agrees</li>
+            </ul>
+          </div>
+          <div class="fomc-box">
+            <h4>Desk rules</h4>
+            <ul>
+              <li><strong>FLAT</strong> into the last 2 hours before 20:00 CAT</li>
+              <li>Trade the <strong>statement surprise</strong>, not the rate alone</li>
+              <li>Press conference can reverse the first 15–30 min move</li>
+              <li>Price gate required: gold + DXY + yields must agree</li>
+              <li>Hot Core CPI (0.3%) already leans <strong>sell gold</strong> into this meeting</li>
+            </ul>
+          </div>
+          <div class="fomc-box">
+            <h4>Scenario board</h4>
+            <table class="fomc-table">
+              <tr><th>Outcome</th><th>Gold</th><th>USD</th></tr>
+              <tr><td>Hike +25</td><td class="neg">Sell</td><td class="pos">Firm</td></tr>
+              <tr><td>Hold hawkish</td><td class="neg">Sell lean</td><td class="pos">Firm</td></tr>
+              <tr><td>Hold neutral</td><td>Fade first move</td><td>Mixed</td></tr>
+              <tr><td>Hold dovish</td><td class="pos">Buy lean</td><td class="neg">Soft</td></tr>
+            </table>
+          </div>
+        </div>
+        <p class="fomc-status" id="fomc-status">Status: loading…</p>
+      </article>
+
+      <!-- Decision scorecard -->
+      <article class="card scorecard-card">
+        <p class="kicker">Decision scorecard</p>
+        <h3>Post-print log</h3>
+        <p class="section-desc">Log each Tier-1 decision and mark if gold moved with the desk call. Stored on this device.</p>
+        <div class="scorecard-form">
+          <select id="sc-event">
+            <option value="Core CPI">Core CPI</option>
+            <option value="CPI">CPI</option>
+            <option value="NFP">NFP</option>
+            <option value="PPI">PPI</option>
+            <option value="PCE">PCE</option>
+            <option value="FOMC">FOMC</option>
+          </select>
+          <input id="sc-actual" placeholder="Actual (e.g. 0.3)" />
+          <select id="sc-call">
+            <option value="sell_gold">Sell gold</option>
+            <option value="buy_gold">Buy gold</option>
+            <option value="flat">Flat</option>
+          </select>
+          <select id="sc-result">
+            <option value="hit">Hit</option>
+            <option value="miss">Miss</option>
+            <option value="scratch">Scratch</option>
+          </select>
+          <button type="button" id="sc-add">Log</button>
+        </div>
+        <div id="scorecard-list" class="scorecard-list"></div>
+        <p id="scorecard-stats" class="scorecard-stats">No logs yet.</p>
+      </article>
+
       <!-- Educational Delta Breakdown -->
       <h3>Step-by-step Signal & Surprise Factor ($\Delta$)</h3>
       <p class="section-desc">Calculated via Delta ($\Delta = \text{Actual} - \text{Forecast}$) weighted by Fed policy priority.</p>
