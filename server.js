@@ -71,76 +71,369 @@ function mapEvent(e) {
   };
 }
 
-function step(title, actual, forecast) {
-  const claims = /jobless|claims/i.test(title);
-  const core = /core\s*(cpi|pce)|ex food and energy|ex food & energy/i.test(title);
-  const wages = /hourly earnings|average hourly|wage/i.test(title);
-  const labor = /payroll|non-?farm|claims|adp|jolts|employment/i.test(title);
-  const inflation = /cpi|pce|ppi|prices paid|inflation/i.test(title);
-  // regime set globally before scoring
-  let weight = 1;
-  if (core || wages) weight = 2;
-  if (global.DESK_REGIME === "inflation" && inflation) weight = Math.max(weight, 2);
-  if (global.DESK_REGIME === "inflation" && core) weight = 3;
-  if (global.DESK_REGIME === "labor" && labor) weight = Math.max(weight, 2);
-  if (global.DESK_REGIME === "labor" && wages) weight = 3;
-  const a = Number(actual);
-  const f = Number(forecast);
-  if (actual == null || forecast == null || actual === "" || forecast === "" || Number.isNaN(a) || Number.isNaN(f)) {
-    return { title, status: "waiting", text: title + " has not printed. No signal yet.", points: 0 };
+function eventFamily(title) {
+  const t = String(title || "");
+  if (/core\s*(cpi|pce)|ex food and energy/i.test(t)) return "CORE";
+  if (/consumer price|\bcpi\b/i.test(t)) return "CPI";
+  if (/\bpce\b|personal consumption/i.test(t)) return "PCE";
+  if (/producer price|\bppi\b/i.test(t)) return "PPI";
+  if (/fomc|fed interest|federal funds|interest rate decision/i.test(t)) return "FOMC";
+  if (/non-?farm|payroll/i.test(t)) return "NFP";
+  if (/retail sales/i.test(t)) return "RETAIL";
+  if (/ism manufacturing/i.test(t)) return "ISM";
+  return "OTHER";
+}
+
+function isTier1(family) {
+  return /CPI|CORE|PCE|PPI|FOMC|NFP/.test(family);
+}
+
+function hoursUntil(dateStr) {
+  if (!dateStr) return null;
+  return (new Date(dateStr).getTime() - Date.now()) / 3600000;
+}
+
+/** What actually moves each Tier-1 event — lead weights by family */
+function leadWeight(leadTitle, targetFamily) {
+  const t = String(leadTitle || "");
+  const core = /core\s*(cpi|pce)|ex food and energy/i.test(t);
+  const headlineCpi = /consumer price|\bcpi\b/i.test(t) && !core;
+  const ppi = /producer price|\bppi\b/i.test(t);
+  const ismPx = /ism.*prices|prices paid/i.test(t);
+  const wages = /hourly earnings|average hourly|wage/i.test(t);
+  const payroll = /non-?farm|payroll/i.test(t);
+  const claims = /jobless|claims/i.test(t);
+  const adp = /adp/i.test(t);
+  const jolts = /jolts/i.test(t);
+  const ismEmp = /ism.*employment/i.test(t);
+  const retail = /retail sales/i.test(t);
+
+  // matrix: weight for this lead given the TARGET event family
+  switch (targetFamily) {
+    case "CPI":
+    case "CORE":
+    case "PCE":
+      if (core) return 3.0;           // Core is the decision print
+      if (ppi || ismPx) return 2.0;   // price pipeline
+      if (headlineCpi) return 1.0;    // headline secondary
+      if (wages) return 0.5;          // soft wages ≠ soft CPI
+      if (payroll || claims || adp || jolts || ismEmp) return 0.4;
+      return 0.3;
+    case "PPI":
+      if (ppi) return 3.0;
+      if (ismPx) return 2.5;
+      if (core) return 1.5;
+      if (payroll || wages) return 0.5;
+      return 0.5;
+    case "NFP":
+      if (payroll) return 3.0;
+      if (wages) return 2.5;          // wages are the gold flip for NFP
+      if (adp || claims || jolts || ismEmp) return 2.0;
+      if (retail) return 1.0;
+      if (core || ppi || ismPx) return 0.5; // inflation leads weak for NFP path
+      return 0.5;
+    case "FOMC":
+      if (core) return 3.0;
+      if (ppi || ismPx || headlineCpi) return 2.0;
+      if (payroll || wages) return 1.5;
+      return 0.5;
+    default:
+      if (core || wages) return 2.0;
+      if (ppi || ismPx || payroll) return 1.5;
+      return 1.0;
   }
-  if (claims && a < f) return { title, status: "usd-up", text: title + " " + a + " vs " + f + " forecast. Lower claims = labor still tight. USD up, gold down.", points: 1 };
-  if (claims && a > f) return { title, status: "usd-down", text: title + " " + a + " vs " + f + " forecast. Higher claims = labor softening. USD down, gold up.", points: -1 };
-  if (a > f) {
-    const tag = core ? " Core is the Fed print. " : wages ? " Wages feed inflation. " : " ";
-    return { title, status: "usd-up", text: title + " " + a + " vs " + f + " forecast. Hotter than expected." + tag + "USD up, gold down.", points: weight };
-  }
-  if (a < f) {
-    const tag = core ? " Soft core eases hike pressure. " : wages ? " Soft wages ease demand pressure. " : " ";
-    return { title, status: "usd-down", text: title + " " + a + " vs " + f + " forecast. Softer than expected." + tag + "USD down, gold up.", points: -weight };
-  }
-  return { title, status: "flat", text: title + " in line with forecast. No new direction.", points: 0 };
 }
 
 function isPolicyLead(title) {
   const t = String(title || "");
   if (/michigan|sentiment|current conditions|consumer expectations/i.test(t) && !/inflation expectation/i.test(t)) return false;
-  // Inflation expectations keep light weight via step(); still allow
-  return /payroll|non-?farm|hourly earnings|wage|jobless|claims|adp|jolts|ism.*prices|producer price|\bppi\b|core\s*(cpi|pce)|consumer price|\bcpi\b|pce|employment/i.test(t);
+  return /payroll|non-?farm|hourly earnings|wage|jobless|claims|adp|jolts|ism.*prices|ism.*employment|producer price|\bppi\b|core\s*(cpi|pce)|consumer price|\bcpi\b|pce|retail sales|employment/i.test(t);
+}
+
+function step(title, actual, forecast, targetTitle) {
+  const targetFamily = eventFamily(targetTitle);
+  const claims = /jobless|claims/i.test(title);
+  const core = /core\s*(cpi|pce)|ex food and energy/i.test(title);
+  const wages = /hourly earnings|average hourly|wage/i.test(title);
+  const labor = /payroll|non-?farm|claims|adp|jolts|employment/i.test(title) && !wages;
+  const weight = leadWeight(title, targetFamily);
+
+  const a = Number(actual);
+  const f = Number(forecast);
+  if (actual == null || forecast == null || actual === "" || forecast === "" || Number.isNaN(a) || Number.isNaN(f)) {
+    return { title, status: "waiting", text: title + " has not printed. No signal yet.", points: 0, weight };
+  }
+  let points = 0;
+  let status = "flat";
+  let text = title + " in line. No new direction.";
+  if (claims && a < f) {
+    status = "usd-up"; points = weight;
+    text = title + " " + a + " vs " + f + " (tight labor). Weight " + weight + " for " + targetFamily + ".";
+  } else if (claims && a > f) {
+    status = "usd-down"; points = -weight;
+    text = title + " " + a + " vs " + f + " (soft labor). Weight " + weight + " for " + targetFamily + ".";
+  } else if (a > f) {
+    status = "usd-up"; points = weight;
+    text = title + " " + a + " vs " + f + " HOT. Weight " + weight + " → " + targetFamily + "." + (core ? " Decision print." : labor || wages ? " Secondary for this event." : "");
+  } else if (a < f) {
+    status = "usd-down"; points = -weight;
+    text = title + " " + a + " vs " + f + " SOFT. Weight " + weight + " → " + targetFamily + "." + (core ? " Decision print." : labor || wages ? " Secondary for this event." : "");
+  }
+  return { title, status, text, points, weight };
+}
+
+/** Live price-action filter: gold, DXY, 10Y day change + vs 20SMA */
+async function readPriceAction() {
+  const out = {
+    goldLast: null, goldChg: null, goldVsSma: null,
+    dxyLast: null, dxyChg: null, dxyVsSma: null,
+    y10: null, yChg: null,
+    agreesBuyGold: false,
+    agreesSellGold: false,
+    text: "Price action unavailable"
+  };
+  function sma(vals, n) {
+    const c = vals.filter((v) => v != null);
+    if (c.length < n) return null;
+    const s = c.slice(-n);
+    return s.reduce((a, b) => a + b, 0) / s.length;
+  }
+  try {
+    const g = await yahooChart("GC=F", "1d", "3mo");
+    const meta = g.chart.result[0].meta;
+    const q = g.chart.result[0].indicators.quote[0];
+    const closes = q.close || [];
+    out.goldLast = Number(meta.regularMarketPrice);
+    const prev = Number(meta.chartPreviousClose || meta.previousClose || out.goldLast);
+    out.goldChg = out.goldLast - prev;
+    const ma = sma(closes, 20);
+    out.goldVsSma = ma != null ? (out.goldLast >= ma ? "above" : "below") : null;
+  } catch (err) {}
+  try {
+    const d = await yahooChart("DX-Y.NYB", "1d", "3mo");
+    const meta = d.chart.result[0].meta;
+    const closes = d.chart.result[0].indicators.quote[0].close || [];
+    out.dxyLast = Number(meta.regularMarketPrice);
+    const prev = Number(meta.chartPreviousClose || meta.previousClose || out.dxyLast);
+    out.dxyChg = out.dxyLast - prev;
+    const ma = sma(closes, 20);
+    out.dxyVsSma = ma != null ? (out.dxyLast >= ma ? "above" : "below") : null;
+  } catch (err) {}
+  try {
+    const y = await yahooChart("^TNX", "1d", "5d");
+    const meta = y.chart.result[0].meta;
+    out.y10 = Number(meta.regularMarketPrice);
+    const prev = Number(meta.chartPreviousClose || meta.previousClose || out.y10);
+    out.yChg = out.y10 - prev;
+  } catch (err) {}
+
+  // Buy gold agreement: gold firm or reclaiming, DXY soft, yields not ripping higher
+  const goldOk = out.goldChg == null || out.goldChg >= -5;
+  const dxySoft = out.dxyChg == null || out.dxyChg <= 0.05;
+  const yieldsOk = out.yChg == null || out.yChg <= 0.03;
+  out.agreesBuyGold = goldOk && dxySoft && yieldsOk && out.goldVsSma !== "below";
+
+  // Sell gold agreement: gold soft, DXY firm or yields up
+  const goldWeak = out.goldChg != null && out.goldChg < -5;
+  const dxyFirm = out.dxyChg != null && out.dxyChg > 0.05;
+  const yieldsUp = out.yChg != null && out.yChg > 0.02;
+  out.agreesSellGold = (goldWeak || out.goldVsSma === "below") && (dxyFirm || yieldsUp || out.dxyVsSma === "above");
+
+  out.text = [
+    out.goldLast != null ? ("Gold " + out.goldLast.toFixed(1) + " Δ" + (out.goldChg != null ? out.goldChg.toFixed(1) : "—") + " SMA " + (out.goldVsSma || "—")) : null,
+    out.dxyLast != null ? ("DXY " + out.dxyLast.toFixed(2) + " Δ" + (out.dxyChg != null ? out.dxyChg.toFixed(3) : "—") + " SMA " + (out.dxyVsSma || "—")) : null,
+    out.y10 != null ? ("10Y " + out.y10.toFixed(2) + " Δ" + (out.yChg != null ? out.yChg.toFixed(3) : "—")) : null
+  ].filter(Boolean).join(" · ") || "Price action unavailable";
+  return out;
+}
+
+function decisionPrintValue(family, leads, next) {
+  const rows = [next, ...(leads || [])].filter(Boolean);
+  if (family === "CPI" || family === "CORE" || family === "PCE") {
+    const core = rows.find((e) => /core\s*cpi|cpi.*ex.*food|ex food and energy|core\s*pce/i.test(e.title) && e.actual !== "" && e.actual != null);
+    if (core) return { key: "core", value: Number(core.actual), title: core.title };
+  }
+  if (family === "NFP") {
+    const nfp = rows.find((e) => /non-?farm|payroll/i.test(e.title) && e.actual !== "" && e.actual != null);
+    const wage = rows.find((e) => /hourly earnings|average hourly/i.test(e.title) && e.actual !== "" && e.actual != null);
+    if (nfp) return { key: "nfp", value: Number(nfp.actual), wage: wage ? Number(wage.actual) : null, title: nfp.title };
+  }
+  if (family === "PPI") {
+    const ppi = rows.find((e) => /producer price|core\s*ppi|\bppi\b/i.test(e.title) && e.actual !== "" && e.actual != null);
+    if (ppi) return { key: "ppi", value: Number(ppi.actual), title: ppi.title };
+  }
+  if (family === "FOMC") {
+    // FOMC is decision text; no numeric here
+    return null;
+  }
+  return null;
 }
 
 function buildNarrative(sig, focus) {
-  const key = focus?.key || "";
-  const steps = (sig.steps || []).filter((x) => x.status !== "waiting");
-  const lines = steps.map((x) => x.text);
-  if (key === "CPI" || key === "CORE") {
-    if (sig.score <= -1) {
-      return "Soft labour is in (jobs miss, soft wages). Lean buy gold into Core CPI. Flip only if core prints 0.3% or hotter. Headline from oil is secondary.";
-    }
-    if (sig.score >= 2) {
-      return "Leads still lean firm. Sell gold only if Core CPI hits 0.3%+. Soft core keeps gold supported.";
-    }
-    return "Mixed into CPI. Trade Core, not the headline. Core 0.2% or under = gold lean buy. Core 0.3%+ = sell gold.";
+  const key = (focus && focus.key) || sig.family || "OTHER";
+  if (sig.lockPreEvent) {
+    return "FLAT into every Tier-1. No lean on forecasts. Leads are background only. Trade the decision print after release, and only if price action agrees.";
   }
-  if (lines.length) return lines.slice(0, 3).join(" ");
-  return "Waiting for the next high-impact print.";
+  if (key === "FOMC" || sig.family === "FOMC") {
+    return "FOMC: trade statement wording + Chair, not a priced hold alone. Hot Core CPI (0.3%) is the main lead — sell-gold lean only after hawkish surprise AND price agrees. FLAT in last 2h before 20:00 CAT.";
+  }
+  if (sig.blockedByPrice) {
+    return "Macro lean exists but PRICE ACTION blocks it. " + (sig.priceAction && sig.priceAction.text ? sig.priceAction.text + ". " : "") + "Wait for gold + DXY + yields to align.";
+  }
+  if (sig.decision) {
+    return sig.call + " " + (sig.gold || "");
+  }
+  return "Scenario board for " + key + ". What matters: " + (sig.whatMatters || "decision print") + ". No pre-print size.";
 }
 
-function signalFor(next, leads) {
+function signalFor(next, leads, priceAction) {
+  const targetTitle = next ? next.title : "";
+  const family = eventFamily(targetTitle);
   const filtered = (leads || []).filter((e) => isPolicyLead(e.title));
-  const steps = filtered.map((e) => step(e.title, e.actual, e.forecast));
-  const score = steps.reduce((n, s) => n + s.points, 0);
+  const steps = filtered.map((e) => step(e.title, e.actual, e.forecast, targetTitle));
+  let score = Math.round(steps.reduce((n, s) => n + s.points, 0) * 10) / 10;
   const printed = steps.filter((s) => s.status !== "waiting");
+  const decision = decisionPrintValue(family, leads, next);
+
+  const hrs = hoursUntil(next && next.date);
+  const tier1 = isTier1(family);
+  // Flat into ANY Tier-1 in the last 2 hours until decision print is in
+  const lockPreEvent = tier1 && hrs != null && hrs > -0.25 && hrs <= 2 && !decision;
+
+  const whatMattersMap = {
+    CPI: "Core CPI MoM (not headline energy)",
+    CORE: "Core CPI MoM",
+    PCE: "Core PCE MoM",
+    PPI: "Core PPI / PPI MoM",
+    NFP: "Payrolls + average hourly earnings (wages are the gold flip)",
+    FOMC: "Statement + dots + Chair — not the hold that was priced",
+    OTHER: "The actual print vs forecast"
+  };
+  const whatMatters = whatMattersMap[family] || whatMattersMap.OTHER;
+
   let call = "Wait. Not enough printed leads.";
   let gold = "Do not buy or sell gold only on this yet.";
-  if (printed.length) {
-    if (score >= 2) { call = "Signal: firm into " + (next ? next.title : "the event") + ". Expect USD up if the print holds."; gold = "Sell gold if core CPI (or core PCE) stays hot. Headline alone is not enough."; }
-    else if (score === 1) { call = "Signal: slight USD-up lean into " + (next ? next.title : "the event") + "."; gold = "Lean sell gold. Flip only if core prints soft (0.1% or under)."; }
-    else if (score <= -2) { call = "Signal: soft into " + (next ? next.title : "the event") + ". USD dip risk."; gold = "Lean buy gold. Core soft is the confirmation. Headline oil noise does not cancel it."; }
-    else if (score === -1) { call = "Signal: slight USD-down lean."; gold = "Lean buy gold. Watch core: 0.3%+ flips back to sell."; }
-    else call = "Signal: mixed. The small prints cancel out. Core on the big event decides.";
+  let noTrade = true;
+  let blockedByPrice = false;
+  let macroLean = null; // "buy_gold" | "sell_gold" | null
+
+  if (lockPreEvent) {
+    call = "FLAT · " + family + " within 2 hours. Scenarios only.";
+    gold = "No lean into the print. Trade " + whatMatters + " after release + price agreement.";
+    score = 0;
+  } else if (decision) {
+    // Post-decision rules — every event family
+    if (decision.key === "core") {
+      if (decision.value >= 0.3) {
+        macroLean = "sell_gold";
+        call = "Decision: Core HOT " + decision.value + "%.";
+        gold = "Sell gold / USD firm — unless price action blocks.";
+        score = Math.max(score, 3);
+        noTrade = false;
+      } else if (decision.value <= 0.2) {
+        macroLean = "buy_gold";
+        call = "Decision: Core soft/in line " + decision.value + "%.";
+        gold = "Buy gold path — only if price action agrees.";
+        score = Math.min(score, -3);
+        noTrade = false;
+      } else {
+        call = "Decision: Core " + decision.value + "% mixed.";
+        gold = "Flat until gold and DXY agree.";
+      }
+    } else if (decision.key === "nfp") {
+      const softJobs = decision.value < (Number((next && next.forecast) || leads.find((l) => /payroll/i.test(l.title))?.forecast) || decision.value + 1);
+      const softWages = decision.wage != null && decision.wage <= 0.2;
+      if (softJobs && softWages) {
+        macroLean = "buy_gold";
+        call = "Decision: NFP soft + wages soft.";
+        gold = "Buy gold path — only if price action agrees.";
+        score = Math.min(score, -3);
+        noTrade = false;
+      } else if (!softJobs || (decision.wage != null && decision.wage >= 0.3)) {
+        macroLean = "sell_gold";
+        call = "Decision: NFP firm and/or wages hot.";
+        gold = "Sell gold path — only if price action agrees.";
+        score = Math.max(score, 3);
+        noTrade = false;
+      } else {
+        call = "Decision: NFP mixed.";
+        gold = "Flat — need wages + price agreement.";
+      }
+    } else if (decision.key === "ppi") {
+      if (decision.value > 0.3) {
+        macroLean = "sell_gold";
+        call = "Decision: PPI hot " + decision.value + ".";
+        gold = "Sell-gold lean into CPI window if price agrees.";
+        noTrade = false;
+        score = Math.max(score, 2);
+      } else if (decision.value < 0.2) {
+        macroLean = "buy_gold";
+        call = "Decision: PPI soft " + decision.value + ".";
+        gold = "Soft pipeline — buy-gold lean if price agrees.";
+        noTrade = false;
+        score = Math.min(score, -2);
+      }
+    }
+  } else if (printed.length) {
+    // Background only — never a pre-print order for any Tier-1
+    if (tier1) {
+      call = "Scenario board · " + family + " · score " + score + " (background only).";
+      gold = "FLAT until " + whatMatters + " prints. Leads do not authorize size.";
+      noTrade = true;
+    } else if (score >= 2) {
+      macroLean = "sell_gold";
+      call = "Firm leads (non-Tier1).";
+      gold = "Sell-gold lean if price agrees.";
+      noTrade = false;
+    } else if (score <= -2) {
+      macroLean = "buy_gold";
+      call = "Soft leads (non-Tier1).";
+      gold = "Buy-gold lean if price agrees.";
+      noTrade = false;
+    } else {
+      call = "Mixed leads.";
+      gold = "Flat.";
+    }
   }
-  return { score, call, gold, steps };
+
+  // PRICE ACTION GATE — required for any directional lean
+  if (macroLean && priceAction) {
+    if (macroLean === "buy_gold" && !priceAction.agreesBuyGold) {
+      blockedByPrice = true;
+      noTrade = true;
+      gold = "Macro wants buy gold but PRICE BLOCKS: " + priceAction.text + ". Wait for alignment.";
+      call = (call || "") + " · blocked by price action";
+    } else if (macroLean === "sell_gold" && !priceAction.agreesSellGold) {
+      blockedByPrice = true;
+      noTrade = true;
+      gold = "Macro wants sell gold but PRICE BLOCKS: " + priceAction.text + ". Wait for alignment.";
+      call = (call || "") + " · blocked by price action";
+    } else if (macroLean === "buy_gold" && priceAction.agreesBuyGold) {
+      gold = "Buy gold — macro + price action agree. " + priceAction.text;
+    } else if (macroLean === "sell_gold" && priceAction.agreesSellGold) {
+      gold = "Sell gold — macro + price action agree. " + priceAction.text;
+    }
+  } else if (macroLean && !priceAction) {
+    gold = (gold || "") + " (price action not loaded — treat as unconfirmed)";
+    noTrade = true;
+  }
+
+  return {
+    score,
+    call,
+    gold,
+    steps,
+    noTrade,
+    lockPreEvent: !!lockPreEvent,
+    blockedByPrice,
+    postPrintCore: decision && decision.key === "core" ? decision.value : null,
+    decision,
+    family,
+    whatMatters,
+    macroLean,
+    priceAction: priceAction || null,
+    rule: "Every Tier-1: flat into the print. Weight leads by what moves THAT event. Decision print decides. Price action (gold+DXY+yields) must agree or stay flat."
+  };
 }
 
 function mergeLeads(primary, fallback) {
@@ -164,7 +457,11 @@ const WEEK_LEADS = [
 const CPI_LEADS = [
   { title: "Nonfarm payrolls", date: "2026-10-02T12:30:00Z", actual: "29", forecast: "90", previous: "133" },
   { title: "Average hourly earnings", date: "2026-10-02T12:30:00Z", actual: "0.1", forecast: "0.3", previous: "0.3" },
-  { title: "ISM prices paid", date: "2026-10-01T14:00:00Z", actual: "77.9", forecast: "71.1", previous: "71.1" }
+  { title: "ISM prices paid", date: "2026-10-01T14:00:00Z", actual: "77.9", forecast: "71.1", previous: "71.1" },
+  { title: "Core CPI MoM", date: "2026-10-14T12:30:00Z", actual: "0.3", forecast: "0.2", previous: "0.3" },
+  { title: "CPI MoM", date: "2026-10-14T12:30:00Z", actual: "0.6", forecast: "0.6", previous: "0.4" },
+  { title: "Core CPI YoY", date: "2026-10-14T12:30:00Z", actual: "2.6", forecast: "2.5", previous: "2.4" },
+  { title: "CPI YoY", date: "2026-10-14T12:30:00Z", actual: "3.7", forecast: "3.6", previous: "3.4" }
 ];
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -211,33 +508,34 @@ app.get("/api/desk", async (req, res) => {
       (byMonth[key] ||= []).push(e);
     }
 
+    const ordered = majors
+      .filter((m) => m.next)
+      .sort((a, b) => new Date(a.next.date) - new Date(b.next.date));
+    const focus = ordered.find((m) => m.key === "CORE") || ordered.find((m) => m.key === "CPI") || ordered[0];
+    const leadPool = events.filter((e) => e.actual !== "" && e.actual != null).slice(-12);
+    let leadsForBias = mergeLeads(leadPool, WEEK_LEADS);
+    if (focus && (focus.key === "CPI" || focus.key === "CORE" || focus.key === "PCE")) {
+      leadsForBias = mergeLeads(CPI_LEADS, leadPool).filter((e) => isPolicyLead(e.title));
+    } else if (focus && focus.key === "NFP") {
+      leadsForBias = mergeLeads(WEEK_LEADS, leadPool).filter((e) => isPolicyLead(e.title));
+    } else {
+      leadsForBias = leadsForBias.filter((e) => isPolicyLead(e.title));
+    }
+    const pa = await readPriceAction();
+    const sig = signalFor(focus?.next, leadsForBias, pa);
+    sig.focusKey = focus?.key || "—";
+    sig.focusTitle = focus?.next?.title || "—";
+    sig.focusWhen = focus?.next?.date || null;
+    sig.narrative = buildNarrative(sig, focus);
+    sig.pulse = new Date().toISOString();
+
     res.json({
       updated: new Date().toISOString(),
       horizonDays: HORIZON_DAYS,
       source: "biquote",
       fetchedAt: pack.fetchedAt,
       nextRefresh: new Date(new Date(pack.fetchedAt).getTime() + WEEK_MS).toISOString(),
-      bias: (() => {
-        const ordered = majors
-          .filter((m) => m.next)
-          .sort((a, b) => new Date(a.next.date) - new Date(b.next.date));
-        const focus = ordered.find((m) => m.key === "CORE") || ordered.find((m) => m.key === "CPI") || ordered[0];
-        const leadPool = events.filter((e) => e.actual !== "" && e.actual != null).slice(-12);
-        let leadsForBias = mergeLeads(leadPool, WEEK_LEADS);
-        // CPI window: start from soft NFP stack, then add policy leads only
-        if (focus && (focus.key === "CPI" || focus.key === "CORE")) {
-          leadsForBias = mergeLeads(CPI_LEADS, leadPool).filter((e) => isPolicyLead(e.title));
-        } else {
-          leadsForBias = leadsForBias.filter((e) => isPolicyLead(e.title));
-        }
-        const sig = signalFor(focus?.next, leadsForBias);
-        sig.focusKey = focus?.key || "—";
-        sig.focusTitle = focus?.next?.title || "—";
-        sig.focusWhen = focus?.next?.date || null;
-        sig.narrative = buildNarrative(sig, focus);
-        sig.pulse = new Date().toISOString();
-        return sig;
-      })(),
+      bias: sig,
       majors,
       months: byMonth
     });
@@ -671,7 +969,8 @@ app.get("/api/confluence", async (_req, res) => {
     const leadPool = events.filter((e) => e.actual !== "" && e.actual != null).slice(-12);
     let leads = typeof mergeLeads === "function" ? mergeLeads(leadPool, typeof CPI_LEADS !== "undefined" ? CPI_LEADS : []) : leadPool;
     if (typeof isPolicyLead === "function") leads = leads.filter((e) => isPolicyLead(e.title));
-    bias = signalFor(nextHigh, leads);
+    const paConf = await readPriceAction();
+    bias = signalFor(nextHigh, leads, paConf);
     out.deltas = (bias.steps || []).filter((st) => st.status !== "waiting").map((st) => ({
       title: st.title,
       status: st.status,
@@ -682,7 +981,7 @@ app.get("/api/confluence", async (_req, res) => {
       sentiment: st.status === "usd-up" ? "USD-bullish / gold-bearish" : st.status === "usd-down" ? "USD-bearish / gold-bullish" : "neutral"
     }));
     out.score = bias.score;
-    out.noTradeZone = Math.abs(Number(bias.score) || 0) < 2;
+    out.noTradeZone = bias.noTrade === true || bias.blockedByPrice === true || Math.abs(Number(bias.score) || 0) < 2 || bias.lockPreEvent === true;
     out.call = bias.call;
     out.gold = bias.gold;
     out.nextEvent = nextHigh ? { title: nextHigh.title, date: nextHigh.date, forecast: nextHigh.forecast, previous: nextHigh.previous } : null;
@@ -827,10 +1126,20 @@ app.get("/api/confluence", async (_req, res) => {
   };
 
   // Lockout
-  if (out.noTradeZone) {
+  if (bias && bias.lockPreEvent) {
     out.lockout = {
       active: true,
-      reason: "Confluence score inside −2 to +2 (no-trade zone). Macro prints conflict. No new entries until score leaves the zone or the Tier-1 print resolves it."
+      reason: "PRE-EVENT LOCKOUT · Tier-1 within 2 hours. No lean on forecasts or soft labor. Trade Core actual only after the print."
+    };
+  } else if (out.noTradeZone) {
+    out.lockout = {
+      active: true,
+      reason: "NO-TRADE ZONE · Score ambiguous or system forbids pre-print leans. Wait for the Tier-1 actual + price confirmation."
+    };
+  } else if (bias && bias.blockedByPrice) {
+    out.lockout = {
+      active: true,
+      reason: "PRICE-ACTION BLOCK · Macro lean exists but gold/DXY/yields do not agree. " + ((bias.priceAction && bias.priceAction.text) || "")
     };
   } else if (out.fakeout && out.fakeout.level === "warning") {
     out.lockout = {
@@ -843,6 +1152,40 @@ app.get("/api/confluence", async (_req, res) => {
 
   confCache = { at: Date.now(), body: out };
   res.json(out);
+});
+
+
+app.get("/api/fomc", (_req, res) => {
+  // October 2026 FOMC: 27–28 Oct, statement 28 Oct 14:00 ET = 18:00 UTC = 20:00 CAT
+  const statementAt = new Date("2026-10-28T18:00:00Z");
+  const hoursToStatement = (statementAt.getTime() - Date.now()) / 3600000;
+  let status = "Upcoming";
+  if (hoursToStatement <= 2 && hoursToStatement > -1) status = "LOCKOUT";
+  else if (hoursToStatement <= 0) status = "Post-statement";
+  res.json({
+    title: "FOMC · 27–28 Oct 2026",
+    whenText: "Statement <strong>28 Oct 20:00 CAT</strong> (14:00 ET) · Chair presser ~20:30 CAT · <strong>No SEP / dots</strong>",
+    statementIso: statementAt.toISOString(),
+    hoursToStatement: Number(hoursToStatement.toFixed(2)),
+    status,
+    currentRange: "3.75%–4.00%",
+    priorDecision: "Sep 2026 +25 bp to 3.75%–4.00%",
+    hasSep: false,
+    whatMatters: "Statement wording + Chair presser — not only the rate decision",
+    scenarios: [
+      { outcome: "Hike +25", gold: "sell", usd: "firm" },
+      { outcome: "Hold hawkish", gold: "sell_lean", usd: "firm" },
+      { outcome: "Hold neutral", gold: "fade", usd: "mixed" },
+      { outcome: "Hold dovish", gold: "buy_lean", usd: "soft" }
+    ],
+    rules: [
+      "FLAT in the last 2 hours before statement",
+      "Trade statement surprise, not the priced hold alone",
+      "Press conference can reverse the first move",
+      "Price gate required (gold + DXY + yields)",
+      "Hot Core CPI 0.3% already leans sell gold into this meeting"
+    ]
+  });
 });
 
 app.listen(PORT, () => console.log("forex-desk on " + PORT));
