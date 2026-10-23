@@ -272,44 +272,52 @@
       <h3>Gold Daily Setup — One Trade Only</h3>
       <p class="section-desc">Asian Range Breakout. If the clean version does not appear, we do not trade that day.</p>
 
+      <!-- Visual steps -->
       <div class="setup-hero">
         <div class="setup-rule">
           <span class="num">1</span>
           <div>
             <strong>Mark Asian Range</strong>
-            <p>00:00 – 07:00 GMT. Draw High and Low.</p>
+            <p>00:00 – 07:00 GMT<br>Draw High and Low on M15.</p>
           </div>
         </div>
         <div class="setup-rule">
           <span class="num">2</span>
           <div>
             <strong>Wait for London</strong>
-            <p>Only watch 08:00 – 10:00 GMT.</p>
+            <p>Only watch 08:00 – 10:00 GMT<br>Ignore everything else.</p>
           </div>
         </div>
         <div class="setup-rule">
           <span class="num">3</span>
           <div>
             <strong>Clean 15m CLOSE outside</strong>
-            <p>Wick only = no trade. Prefer retest.</p>
+            <p>Wick only = no trade<br>Prefer retest of the level.</p>
           </div>
         </div>
         <div class="setup-rule">
           <span class="num">4</span>
           <div>
             <strong>Risk 0.5–1% only</strong>
-            <p>Stop on the opposite side of the range.</p>
+            <p>Stop = opposite side of range<br>TP1 = 1R · TP2 = 1.5–2R</p>
           </div>
         </div>
       </div>
 
+      <!-- Good vs No-Trade visual cards -->
       <div class="grid setup-examples">
         <article class="card good">
-          <p class="tag pos">GOOD DAY — Take the trade</p>
+          <p class="tag pos">GOOD DAY — TAKE THE TRADE</p>
           <h4>Clean break + retest</h4>
+          <div class="setup-visual">
+            <div class="vis-line high">Asian High</div>
+            <div class="vis-box">Asian Range</div>
+            <div class="vis-line low">Asian Low</div>
+            <div class="vis-action pos">↑ Clean close above → Retest → BUY</div>
+          </div>
           <ul>
-            <li>15-minute candle closes clearly outside Asian High or Low</li>
-            <li>Price comes back and holds the broken level</li>
+            <li>15-minute candle <strong>closes clearly</strong> outside Asian High or Low</li>
+            <li>Price comes back and holds the broken level (retest)</li>
             <li>Enter on the bounce / rejection</li>
             <li>Stop = other side of Asian range</li>
             <li>TP1 = 1R · TP2 = 1.5–2R</li>
@@ -317,8 +325,14 @@
         </article>
 
         <article class="card bad">
-          <p class="tag neg">NO TRADE DAY</p>
-          <h4>Stay flat</h4>
+          <p class="tag neg">NO TRADE DAY — STAY FLAT</p>
+          <h4>Do not force it</h4>
+          <div class="setup-visual">
+            <div class="vis-line high">Asian High</div>
+            <div class="vis-box">Asian Range</div>
+            <div class="vis-line low">Asian Low</div>
+            <div class="vis-action neg">✗ Only wick / closes back inside → NO TRADE</div>
+          </div>
           <ul>
             <li>Only wicks outside the range</li>
             <li>Candle closes back inside</li>
@@ -327,6 +341,17 @@
             <li>High-impact news within 30 min</li>
           </ul>
         </article>
+      </div>
+
+      <!-- Simple checklist -->
+      <div class="card setup-checklist">
+        <p class="kicker">Daily Checklist</p>
+        <div class="check-row"><span>1</span> Mark Asian High &amp; Low before London</div>
+        <div class="check-row"><span>2</span> Watch only 08:00 – 10:00 GMT</div>
+        <div class="check-row"><span>3</span> Need clean 15m candle CLOSE outside the range</div>
+        <div class="check-row"><span>4</span> Prefer retest of the broken level</div>
+        <div class="check-row"><span>5</span> Risk 0.5–1% maximum</div>
+        <div class="check-row"><span>6</span> No clean setup by 10:00 → close charts</div>
       </div>
 
       <div class="setup-final">
