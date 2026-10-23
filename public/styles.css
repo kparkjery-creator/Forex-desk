@@ -507,3 +507,108 @@ form button {
   .price-strip-grid { grid-template-columns: 1fr; }
   .ticker-box { flex-direction: column; gap: 4px; border-radius: 12px; }
 }
+
+/* ===== Gold Daily Setup ===== */
+.setup-hero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 20px 0 28px;
+}
+.setup-rule {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.setup-rule .num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.setup-rule strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.setup-rule p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.setup-examples {
+  margin-bottom: 24px;
+}
+.setup-examples .card {
+  border-radius: var(--radius);
+}
+.setup-examples .card.good {
+  border-color: rgba(61, 214, 140, 0.35);
+  background: linear-gradient(160deg, rgba(61,214,140,0.06), var(--card));
+}
+.setup-examples .card.bad {
+  border-color: rgba(240, 113, 120, 0.35);
+  background: linear-gradient(160deg, rgba(240,113,120,0.06), var(--card));
+}
+.setup-examples .tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.setup-examples .tag.pos {
+  background: rgba(61, 214, 140, 0.15);
+  color: var(--pos);
+}
+.setup-examples .tag.neg {
+  background: rgba(240, 113, 120, 0.15);
+  color: var(--neg);
+}
+.setup-examples h4 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+.setup-examples ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.setup-examples li {
+  margin-bottom: 6px;
+}
+.setup-final {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  text-align: center;
+}
+.setup-final p {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.setup-final .gold {
+  color: var(--gold);
+  font-weight: 700;
+}
+.setup-final .muted {
+  color: var(--muted);
+  font-size: 13px;
+}

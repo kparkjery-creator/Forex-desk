@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="extra.css" />
 </head>
 <body>
   <aside>
@@ -16,6 +15,7 @@
     <button class="tab on" data-tab="board">Overview</button>
     <button class="tab" data-tab="charts">Charts</button>
     <button class="tab" data-tab="sessions">Sessions</button>
+    <button class="tab" data-tab="setup">Gold Setup</button>
     <button class="tab" data-tab="calendar">Calendar</button>
     <button class="tab" data-tab="chat">Event chat</button>
     <button class="tab" data-tab="inst">Institutional</button>
@@ -266,6 +266,73 @@
       <h3>Live session headlines</h3>
       <p class="section-desc">Asia, London, New York. Each card is one story. Red headline supports the dollar. Green fights it.</p>
       <div id="news" class="news-grid"></div>
+    </section>
+
+    <section id="setup" class="panel">
+      <h3>Gold Daily Setup — One Trade Only</h3>
+      <p class="section-desc">Asian Range Breakout. If the clean version does not appear, we do not trade that day.</p>
+
+      <div class="setup-hero">
+        <div class="setup-rule">
+          <span class="num">1</span>
+          <div>
+            <strong>Mark Asian Range</strong>
+            <p>00:00 – 07:00 GMT. Draw High and Low.</p>
+          </div>
+        </div>
+        <div class="setup-rule">
+          <span class="num">2</span>
+          <div>
+            <strong>Wait for London</strong>
+            <p>Only watch 08:00 – 10:00 GMT.</p>
+          </div>
+        </div>
+        <div class="setup-rule">
+          <span class="num">3</span>
+          <div>
+            <strong>Clean 15m CLOSE outside</strong>
+            <p>Wick only = no trade. Prefer retest.</p>
+          </div>
+        </div>
+        <div class="setup-rule">
+          <span class="num">4</span>
+          <div>
+            <strong>Risk 0.5–1% only</strong>
+            <p>Stop on the opposite side of the range.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid setup-examples">
+        <article class="card good">
+          <p class="tag pos">GOOD DAY — Take the trade</p>
+          <h4>Clean break + retest</h4>
+          <ul>
+            <li>15-minute candle closes clearly outside Asian High or Low</li>
+            <li>Price comes back and holds the broken level</li>
+            <li>Enter on the bounce / rejection</li>
+            <li>Stop = other side of Asian range</li>
+            <li>TP1 = 1R · TP2 = 1.5–2R</li>
+          </ul>
+        </article>
+
+        <article class="card bad">
+          <p class="tag neg">NO TRADE DAY</p>
+          <h4>Stay flat</h4>
+          <ul>
+            <li>Only wicks outside the range</li>
+            <li>Candle closes back inside</li>
+            <li>Messy overlapping candles</li>
+            <li>No clear close by 10:00 GMT</li>
+            <li>High-impact news within 30 min</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="setup-final">
+        <p><strong>Golden rule:</strong> If it doesn’t show up clean → <span class="gold">NO TRADE TODAY</span></p>
+        <p class="muted">Patience is the edge. One high-quality setup beats five forced ones.</p>
+      </div>
     </section>
 
     <section id="calendar" class="panel">

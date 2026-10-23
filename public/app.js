@@ -82,7 +82,7 @@ function calculateConfluenceScore(bias) {
 
 function render(data) {
   document.getElementById("updated").textContent =
-    "Calendar pulled " + new Date(data.fetchedAt).toLocaleString() + " · next weekly refresh " + new Date(data.nextRefresh).toLocaleDateString();
+    "Calendar " + new Date(data.fetchedAt).toLocaleString() + " · next pull " + new Date(data.nextRefresh).toLocaleString() + " · focus " + ((data.bias && data.bias.focusKey) || "—");
   
   document.getElementById("usd").textContent = data.bias.call || "—";
   document.getElementById("gold").textContent = data.bias.gold || "—";
@@ -104,7 +104,13 @@ function render(data) {
   const narr = document.getElementById("narrative");
   if (narr) {
     const b = data.bias || {};
-    const bits = [b.narrative || "", b.whatMatters ? ("What matters: " + b.whatMatters) : "", b.priceAction && b.priceAction.text ? ("Price: " + b.priceAction.text) : "", b.rule ? ("RULE: " + b.rule) : ""];
+    const bits = [];
+    if (b.focusTitle) bits.push("Next: " + b.focusTitle + (b.focusWhen ? " (" + when(b.focusWhen) + ")" : ""));
+    if (b.lastDecision) bits.push("Last decision: " + b.lastDecision.title + " " + b.lastDecision.actual + " → " + (b.lastDecision.lean || "").replace("_", " "));
+    if (b.narrative) bits.push(b.narrative);
+    if (b.whatMatters) bits.push("What matters: " + b.whatMatters);
+    if (b.priceAction && b.priceAction.text) bits.push("Price: " + b.priceAction.text);
+    if (b.rule) bits.push("RULE: " + b.rule);
     narr.textContent = bits.filter(Boolean).join(" · ");
   }
   const pulse = document.getElementById("pulse");
@@ -323,7 +329,7 @@ async function news() {
 news();
 setInterval(news, 300000);
 
-const titles = { board: "Market overview", charts: "Market charts", sessions: "Session drivers", calendar: "Market calendar", chat: "Event chat", inst: "Institutional desk", confluence: "Macro–technical confluence" };
+const titles = { board: "Market overview", charts: "Market charts", sessions: "Session drivers", setup: "Gold Daily Setup", calendar: "Market calendar", chat: "Event chat", inst: "Institutional desk", confluence: "Macro–technical confluence" };
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.onclick = () => {
     document.querySelectorAll(".tab").forEach((b) => b.classList.remove("on"));
@@ -507,3 +513,12 @@ document.getElementById("sc-add")?.addEventListener("click", () => {
 renderScorecard();
 loadFomcStatus();
 setInterval(loadFomcStatus, 60000);
+
+// Keep desk data fresh — stale cache was the main "stuck" issue
+let deskPoll = setInterval(() => {
+  load(false).catch(() => {});
+}, 90000);
+setInterval(() => {
+  fetch("/api/desk?refresh=1").then(r => r.json()).then(render).catch(() => {});
+  loadFomcStatus();
+}, 20 * 60 * 1000);
