@@ -8,12 +8,24 @@ function when(iso) {
   return d.toLocaleString("en-GB", { weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
+function isTier1(title) {
+  return /non-?farm|payroll|fomc|fed interest|federal funds|interest rate decision|core\s*(cpi|pce)|consumer price|\bcpi\b|\bpce\b|producer price|\bppi\b/i.test(title || "");
+}
+
 function nums(e) {
-  return [
-    e.actual !== "" && e.actual != null ? "act " + e.actual : "upcoming",
-    e.forecast !== "" && e.forecast != null ? "fcst " + e.forecast : "",
-    e.previous !== "" && e.previous != null ? "prev " + e.previous : ""
-  ].filter(Boolean).join(" · ");
+  const parts = [];
+  if (e.actual !== "" && e.actual != null) {
+    parts.push(`<span class="pill act">act ${e.actual}</span>`);
+  } else {
+    parts.push(`<span class="pill upcoming">upcoming</span>`);
+  }
+  if (e.forecast !== "" && e.forecast != null) {
+    parts.push(`<span class="pill fcst">fcst ${e.forecast}</span>`);
+  }
+  if (e.previous !== "" && e.previous != null) {
+    parts.push(`<span class="pill prev">prev ${e.previous}</span>`);
+  }
+  return parts.join(" ");
 }
 
 /**
@@ -187,8 +199,20 @@ function render(data) {
 
   monthsEl.innerHTML = Object.entries(data.months).map(([month, rows]) => `
     <article class="card month">
-      <p>${month}</p>
-      ${rows.map((e) => `<div class="event"><strong>${e.title}</strong><span>${when(e.date)}</span><span>${nums(e)}</span></div>`).join("")}
+      <p class="month-label">${month}</p>
+      ${rows.map((e) => {
+        const tier = isTier1(e.title);
+        return `<div class="cal-event${tier ? " tier1" : ""}">
+          <div class="cal-event-top">
+            ${tier ? '<span class="tier1-tag">TIER 1</span>' : ""}
+            <strong>${e.title}</strong>
+          </div>
+          <div class="cal-event-meta">
+            <span class="cal-when">${when(e.date)}</span>
+            <span class="cal-nums">${nums(e)}</span>
+          </div>
+        </div>`;
+      }).join("")}
     </article>
   `).join("") || "<p>No high-impact events returned.</p>";
 }
@@ -329,7 +353,28 @@ async function news() {
 news();
 setInterval(news, 300000);
 
-const titles = { board: "Market overview", charts: "Market charts", sessions: "Session drivers", setup: "Gold Daily Setup", calendar: "Market calendar", chat: "Event chat", inst: "Institutional desk", confluence: "Macro–technical confluence" };
+// News filter buttons (Sessions tab)
+document.querySelectorAll(".news-filter").forEach((btn) => {
+  btn.onclick = () => {
+    document.querySelectorAll(".news-filter").forEach((b) => b.classList.remove("on"));
+    btn.classList.add("on");
+    const filter = btn.dataset.filter;
+    document.querySelectorAll("#news .story").forEach((story) => {
+      if (filter === "all") {
+        story.style.display = "";
+        return;
+      }
+      const text = (story.textContent || "").toLowerCase();
+      const match =
+        (filter === "yields" && /yield|10y|treasury|bond/i.test(text)) ||
+        (filter === "fed" && /fed|fomc|central bank|powell|rate/i.test(text)) ||
+        (filter === "oil" && /oil|brent|wti|crude|dollar|dxy|usd/i.test(text));
+      story.style.display = match ? "" : "none";
+    });
+  };
+});
+
+const titles = { board: "Market overview", charts: "Market charts", sessions: "Session drivers", setup: "Gold Daily Setup", calendar: "Market calendar", inst: "Institutional desk", confluence: "Macro–technical confluence" };
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.onclick = () => {
     document.querySelectorAll(".tab").forEach((b) => b.classList.remove("on"));
@@ -522,3 +567,20 @@ setInterval(() => {
   fetch("/api/desk?refresh=1").then(r => r.json()).then(render).catch(() => {});
   loadFomcStatus();
 }, 20 * 60 * 1000);
+
+// Highlight active session on Overview (CAT = UTC+2)
+function highlightSession() {
+  const matrix = document.getElementById("session-matrix");
+  if (!matrix) return;
+  const now = new Date();
+  // CAT = Africa/Johannesburg (UTC+2, no DST)
+  const catHour = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Johannesburg" })).getHours();
+  let active = "asia";
+  if (catHour >= 8 && catHour < 14) active = "london";
+  else if (catHour >= 14 && catHour < 22) active = "ny";
+  matrix.querySelectorAll(".sm-card").forEach((card) => {
+    card.classList.toggle("active", card.dataset.session === active);
+  });
+}
+highlightSession();
+setInterval(highlightSession, 60000);

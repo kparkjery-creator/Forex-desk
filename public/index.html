@@ -17,7 +17,6 @@
     <button class="tab" data-tab="sessions">Sessions</button>
     <button class="tab" data-tab="setup">Gold Setup</button>
     <button class="tab" data-tab="calendar">Calendar</button>
-    <button class="tab" data-tab="chat">Event chat</button>
     <button class="tab" data-tab="inst">Institutional</button>
     <button class="tab" data-tab="confluence">Confluence</button>
   </aside>
@@ -51,20 +50,46 @@
     <section id="board" class="panel on">
       <div id="board-lockout" class="lockout-banner" hidden></div>
       <div id="board-fakeout" class="fakeout-banner" hidden></div>
-      <!-- High-Confluence Signal Output -->
+
+      <!-- Macro summary cards -->
       <div class="bias">
         <article>
-          <p>USD Bias <span class="tooltip-icon" data-tooltip="Based on weighted delta deviation across leading prints">ⓘ</span></p>
+          <p>Active Macro Bias <span class="tooltip-icon" data-tooltip="Based on weighted delta deviation across leading prints">ⓘ</span></p>
           <h2 id="usd">—</h2>
         </article>
         <article>
-          <p>Gold (XAU/USD) <span class="tooltip-icon" data-tooltip="Driven by U.S. Real Yields and Fed Rate Probability">ⓘ</span></p>
+          <p>Gold Bias <span class="tooltip-icon" data-tooltip="Driven by U.S. Real Yields and Fed Rate Probability">ⓘ</span></p>
           <h2 id="gold">—</h2>
         </article>
         <article>
-          <p>Confluence Score</p>
+          <p>Desk Risk Status</p>
           <h2 id="score">—</h2>
         </article>
+      </div>
+
+      <!-- Session status matrix -->
+      <div class="session-matrix" id="session-matrix">
+        <div class="sm-card" data-session="asia">
+          <span class="sm-dot"></span>
+          <div>
+            <strong>Asia</strong>
+            <p>00:00–08:00 CAT · Range / setup</p>
+          </div>
+        </div>
+        <div class="sm-card" data-session="london">
+          <span class="sm-dot"></span>
+          <div>
+            <strong>London</strong>
+            <p>08:00–14:00 CAT · Breakout window</p>
+          </div>
+        </div>
+        <div class="sm-card" data-session="ny">
+          <span class="sm-dot"></span>
+          <div>
+            <strong>New York</strong>
+            <p>14:00–22:00 CAT · Data &amp; trend</p>
+          </div>
+        </div>
       </div>
 
       <!-- Visual Confluence & Signal Strength Meter -->
@@ -187,84 +212,147 @@
     </section>
 
     <section id="charts" class="panel">
-      <p class="section-desc">Bid is the sell price. Ask is the buy price. <strong>24/7 Gold</strong> is Exness XAUUSD247 (trades weekends; special price offset). Spot XAUUSD is Mon–Fri. Futures is COMEX continuous.</p>
-      <div id="book" class="book">Loading bid / ask…</div>
-      <div id="gold-live" class="ticks">Live gold loading…</div>
-      <div class="chart-controls">
-        <button class="sym on" data-sym="OANDA:XAUUSD">Gold</button>
-        <button class="sym" data-sym="TVC:GOLD">24/7 Gold</button>
-        <button class="sym" data-sym="COMEX:GC1!">Gold futures</button>
-        <button class="sym" data-sym="CAPITALCOM:DXY">DXY</button>
-        <button class="sym" data-sym="TVC:USOIL">Oil</button>
-        <button class="sym" data-sym="FX:EURUSD">EURUSD</button>
-        <button class="sym" data-sym="FX:GBPUSD">GBPUSD</button>
-        <button id="theme" type="button">White chart</button>
-        <button id="full" type="button">Full screen</button>
-        <a class="sym link-btn" id="tv-open" href="https://www.tradingview.com/chart/?symbol=OANDA:XAUUSD" target="_blank" rel="noopener">Open in TradingView</a>
+      <!-- Compact live asset ribbon -->
+      <div class="asset-ribbon">
+        <div id="book" class="book-compact">Loading…</div>
+        <div id="gold-live" class="ticks-compact">Gold…</div>
       </div>
-      <div id="tv"></div>
-      <article class="card strategy-card">
-        <p class="kicker">Chart indicators</p>
-        <h4>Desk Gold EMA Trend + Session Separator</h4>
-        <p class="section-desc">TradingView embeds cannot load private Pine scripts. Open the full chart, paste the two scripts below (Pine Editor → Add to chart). Screener defaults are gold / FX pairs.</p>
-        <div class="strat-links">
-          <a href="/indicators/Desk_Gold_EMA_Trend.pine" download>Download EMA Trend (.pine)</a>
-          <a href="/indicators/Desk_Session_Separator.pine" download>Download Session Separator (.pine)</a>
+
+      <!-- Unified toolbar -->
+      <div class="chart-toolbar">
+        <div class="asset-pills">
+          <button class="sym on" data-sym="OANDA:XAUUSD">Gold</button>
+          <button class="sym" data-sym="TVC:GOLD">24/7 Gold</button>
+          <button class="sym" data-sym="COMEX:GC1!">Futures</button>
+          <button class="sym" data-sym="CAPITALCOM:DXY">DXY</button>
+          <button class="sym" data-sym="TVC:USOIL">Oil</button>
+          <button class="sym" data-sym="FX:EURUSD">EURUSD</button>
+          <button class="sym" data-sym="FX:GBPUSD">GBPUSD</button>
         </div>
-        <h4>EMA Trend rules</h4>
-        <ul class="rules-list">
-          <li><strong>Ribbon</strong> — EMAs 5, 11, 15, 18, 21, 24, 28, 34. Blue stack when EMA11 above EMA34 (bullish ribbon). Gray when flipped.</li>
-          <li><strong>BUY</strong> — EMA11 crosses above EMA34 (confirmed bar close). Extra EMA200 is visual only, not in the signal.</li>
-          <li><strong>SELL</strong> — EMA11 crosses below EMA34 (confirmed bar close).</li>
-          <li><strong>Stop</strong> — Entry ± ATR(14) × 2.0 (default).</li>
-          <li><strong>Take profits</strong> — Up to 4 TPs, each step = SL distance × TP factor (default 1.0), so TP1 ≈ 1R, TP2 ≈ 2R, etc.</li>
-          <li><strong>Trade end</strong> — SL hit or all TPs filled. Lines freeze at exit.</li>
-          <li><strong>MTF dashboard</strong> — 5m / 15m / 30m / 1H / 4H / Daily: bullish if EMA11 &gt; EMA34 on that TF. Combined status needs 2 of 3 selected TFs bullish.</li>
-          <li><strong>Desk filter</strong> — Prefer longs only when Bias board is not in no-trade lockout and not fighting a fakeout warning. Prefer shorts when macro score is firm USD-up / sell gold.</li>
-        </ul>
-        <h4>Session separator rules (CAT)</h4>
-        <ul class="rules-list">
-          <li><strong>Asia</strong> 00:00–08:00 — quiet range, smaller breakouts.</li>
-          <li><strong>London</strong> 08:00–14:00 — liquidity builds.</li>
-          <li><strong>London–NY overlap</strong> 14:00–16:00 — highest impact; US Tier-1 data often 14:30.</li>
-          <li><strong>New York</strong> 14:00–22:00 — trend or fade of the data move.</li>
-          <li><strong>US data killzone</strong> 14:00–15:30 — shaded red; reduce size or wait for the print + first hold.</li>
-          <li>Session high/low lines mark Asia and London ranges for ORB / fade plans.</li>
-        </ul>
-      </article>
+        <div class="chart-actions">
+          <button id="theme" type="button" class="tool-btn">Theme</button>
+          <button id="full" type="button" class="tool-btn">Full screen</button>
+          <a class="tool-btn link" id="tv-open" href="https://www.tradingview.com/chart/?symbol=OANDA:XAUUSD" target="_blank" rel="noopener">Open TV</a>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div id="tv" class="tv-frame"></div>
+
+      <!-- Indicator Toolkit (collapsible) -->
+      <details class="toolkit">
+        <summary>
+          <span>Indicator Toolkit</span>
+          <span class="toolkit-hint">EMA Trend · Session Separator · Rules</span>
+        </summary>
+        <div class="toolkit-body">
+          <div class="strat-links">
+            <a href="/indicators/Desk_Gold_EMA_Trend.pine" download>Download EMA Trend (.pine)</a>
+            <a href="/indicators/Desk_Session_Separator.pine" download>Download Session Separator (.pine)</a>
+          </div>
+          <p class="section-desc">TradingView embeds cannot load private Pine scripts. Open full chart → Pine Editor → paste → Add to chart.</p>
+          <div class="toolkit-cols">
+            <div>
+              <h4>EMA Trend rules</h4>
+              <ul class="rules-list">
+                <li><strong>Ribbon</strong> — EMAs 5–34. Blue when EMA11 &gt; EMA34.</li>
+                <li><strong>BUY</strong> — EMA11 crosses above EMA34 (bar close).</li>
+                <li><strong>SELL</strong> — EMA11 crosses below EMA34 (bar close).</li>
+                <li><strong>Stop</strong> — Entry ± ATR(14) × 2.0</li>
+                <li><strong>TPs</strong> — Up to 4× (1R, 2R…)</li>
+                <li><strong>Desk filter</strong> — Align with bias board; avoid lockout / fakeout.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Session separator (CAT)</h4>
+              <ul class="rules-list">
+                <li><strong>Asia</strong> 00:00–08:00 — quiet range</li>
+                <li><strong>London</strong> 08:00–14:00 — liquidity builds</li>
+                <li><strong>Overlap</strong> 14:00–16:00 — highest impact</li>
+                <li><strong>New York</strong> 14:00–22:00 — trend / fade data</li>
+                <li><strong>Killzone</strong> 14:00–15:30 — reduce size or wait</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </details>
     </section>
 
     <section id="sessions" class="panel">
-      <h3>Dollar drivers by session · Friday 2 Oct</h3>
-      <p class="section-desc">Day-trade context, not only the calendar. Red means dollar supported. Green means dollar offered.</p>
-      <div class="grid">
-        <article class="card">
-          <p>Asia · 00:00–08:00 CAT</p>
-          <h4>Yields and oil set the tone</h4>
-          <div class="event"><strong>US 10-year</strong><span class="neg">5.25% after a 5.34% spike</span><span>Dollar bid</span></div>
-          <div class="event"><strong>Shares</strong><span class="neg">Nikkei down 0.7%</span><span>Risk off</span></div>
-          <div class="event"><strong>China</strong><span>Closed through next Wednesday</span><span>Thin liquidity</span></div>
-          <div class="event"><strong>Oil</strong><span class="neg">Brent back above $100</span><span>Gulf tension</span></div>
+      <h3>Session Drivers</h3>
+      <p class="section-desc">Day-trade context. Red = Dollar supported / Sell gold. Green = Dollar offered / Buy gold.</p>
+
+      <div class="session-grid">
+        <!-- ASIA -->
+        <article class="card session-card">
+          <div class="session-top">
+            <div>
+              <p class="session-label">Asia · 00:00–08:00 CAT</p>
+              <h4>Yields &amp; oil set the tone</h4>
+            </div>
+            <span class="bias-pill neg">Dollar Supported</span>
+          </div>
+          <div class="session-body">
+            <div class="event"><strong>US 10-year</strong><span class="neg">Elevated after spike</span></div>
+            <div class="event"><strong>Shares</strong><span class="neg">Risk-off tone</span></div>
+            <div class="event"><strong>China</strong><span>Thin liquidity</span></div>
+            <div class="event"><strong>Oil</strong><span class="neg">Supportive of yields</span></div>
+          </div>
+          <div class="session-action">
+            <strong>Do this</strong>
+            <span>Watch range only. No new bias until London.</span>
+          </div>
         </article>
-        <article class="card">
-          <p>London · 09:00–15:00 CAT</p>
-          <h4>Euro and franc vs the dollar</h4>
-          <div class="event"><strong>DXY</strong><span class="neg">102.09, 17-month high</span><span>Third up week</span></div>
-          <div class="event"><strong>EURUSD</strong><span class="neg">Low 1.12s</span><span>French fiscal worry</span></div>
-          <div class="event"><strong>Gold</strong><span class="neg">Failed to hold the PCE bounce</span><span>Sell rallies</span></div>
-          <div class="event"><strong>Do this</strong><span>Trade the London range, not a new bias</span><span>Wait for 14:30</span></div>
+
+        <!-- LONDON -->
+        <article class="card session-card">
+          <div class="session-top">
+            <div>
+              <p class="session-label">London · 09:00–15:00 CAT</p>
+              <h4>Euro &amp; franc vs the dollar</h4>
+            </div>
+            <span class="bias-pill neg">Dollar Supported</span>
+          </div>
+          <div class="session-body">
+            <div class="event"><strong>DXY</strong><span class="neg">Firm / multi-month high</span></div>
+            <div class="event"><strong>EURUSD</strong><span class="neg">Soft</span></div>
+            <div class="event"><strong>Gold</strong><span class="neg">Sell rallies bias</span></div>
+          </div>
+          <div class="session-action">
+            <strong>Do this</strong>
+            <span>Trade the London range. Wait for NY data.</span>
+          </div>
         </article>
-        <article class="card">
-          <p>New York · 14:00–22:00 CAT</p>
-          <h4>NFP is the session</h4>
-          <div class="event"><strong>14:30</strong><span>NFP, wages, unemployment</span><span>Only real driver</span></div>
-          <div class="event"><strong>Wages 0.3%+</strong><span class="neg">Dollar up, sell gold</span><span>Red sell</span></div>
-          <div class="event"><strong>Wages 0.2% and miss</strong><span class="pos">Dollar dip, gold buy after it holds</span><span>Flip only then</span></div>
-          <div class="event"><strong>Oil</strong><span>Above $100 keeps yields sticky</span><span>Do not fade the dollar on a headline miss alone</span></div>
+
+        <!-- NEW YORK -->
+        <article class="card session-card">
+          <div class="session-top">
+            <div>
+              <p class="session-label">New York · 14:00–22:00 CAT</p>
+              <h4>Data is the session</h4>
+            </div>
+            <span class="bias-pill flat">Data Dependent</span>
+          </div>
+          <div class="session-body">
+            <div class="event"><strong>Key print</strong><span>NFP / CPI / FOMC window</span></div>
+            <div class="event"><strong>Hot data</strong><span class="neg">Dollar up · Sell gold</span></div>
+            <div class="event"><strong>Soft data</strong><span class="pos">Dollar dip · Buy gold if holds</span></div>
+          </div>
+          <div class="session-action">
+            <strong>Do this</strong>
+            <span>Trade the decision print only after price agrees.</span>
+          </div>
         </article>
       </div>
+
       <h3>Live session headlines</h3>
-      <p class="section-desc">Asia, London, New York. Each card is one story. Red headline supports the dollar. Green fights it.</p>
+      <p class="section-desc">Macro-relevant only. Red supports the dollar. Green fights it.</p>
+      <div class="news-filters">
+        <button type="button" class="news-filter on" data-filter="all">All</button>
+        <button type="button" class="news-filter" data-filter="yields">Yields</button>
+        <button type="button" class="news-filter" data-filter="fed">Central Banks</button>
+        <button type="button" class="news-filter" data-filter="oil">Oil &amp; USD</button>
+      </div>
       <div id="news" class="news-grid"></div>
     </section>
 
@@ -272,105 +360,106 @@
       <h3>Gold Daily Setup — One Trade Only</h3>
       <p class="section-desc">Asian Range Breakout. If the clean version does not appear, we do not trade that day.</p>
 
-      <!-- Visual steps -->
-      <div class="setup-hero">
-        <div class="setup-rule">
+      <!-- Compact 2x2 stepper -->
+      <div class="setup-stepper">
+        <div class="step">
           <span class="num">1</span>
           <div>
             <strong>Mark Asian Range</strong>
-            <p>00:00 – 07:00 GMT<br>Draw High and Low on M15.</p>
+            <p><b class="time">00:00 – 07:00 GMT</b> · Draw High &amp; Low on M15</p>
           </div>
         </div>
-        <div class="setup-rule">
+        <div class="step">
           <span class="num">2</span>
           <div>
             <strong>Wait for London</strong>
-            <p>Only watch 08:00 – 10:00 GMT<br>Ignore everything else.</p>
+            <p><b class="time">08:00 – 10:00 GMT</b> · Ignore everything else</p>
           </div>
         </div>
-        <div class="setup-rule">
+        <div class="step">
           <span class="num">3</span>
           <div>
             <strong>Clean 15m CLOSE outside</strong>
-            <p>Wick only = no trade<br>Prefer retest of the level.</p>
+            <p>Wick only = no trade · Prefer retest</p>
           </div>
         </div>
-        <div class="setup-rule">
+        <div class="step">
           <span class="num">4</span>
           <div>
             <strong>Risk 0.5–1% only</strong>
-            <p>Stop = opposite side of range<br>TP1 = 1R · TP2 = 1.5–2R</p>
+            <p>Stop = opposite side · TP1 1R · TP2 1.5–2R</p>
           </div>
         </div>
       </div>
 
-      <!-- Good vs No-Trade visual cards -->
-      <div class="grid setup-examples">
+      <!-- Clear Good vs No-Trade side-by-side -->
+      <div class="setup-compare">
         <article class="card good">
-          <p class="tag pos">GOOD DAY — TAKE THE TRADE</p>
-          <h4>Clean break + retest</h4>
+          <div class="card-head pos">
+            <span class="badge">✓ TAKE THE TRADE</span>
+            <h4>Clean break + retest</h4>
+          </div>
           <div class="setup-visual">
             <div class="vis-line high">Asian High</div>
             <div class="vis-box">Asian Range</div>
             <div class="vis-line low">Asian Low</div>
-            <div class="vis-action pos">↑ Clean close above → Retest → BUY</div>
+            <div class="vis-action pos">↑ Close above → Retest holds → BUY</div>
           </div>
-          <ul>
-            <li>15-minute candle <strong>closes clearly</strong> outside Asian High or Low</li>
-            <li>Price comes back and holds the broken level (retest)</li>
-            <li>Enter on the bounce / rejection</li>
-            <li>Stop = other side of Asian range</li>
-            <li>TP1 = 1R · TP2 = 1.5–2R</li>
+          <ul class="clean-list">
+            <li>15m candle <strong>closes clearly</strong> outside</li>
+            <li>Price retests and holds the level</li>
+            <li>Enter on bounce / rejection</li>
+            <li>Stop = other side of range</li>
           </ul>
         </article>
 
         <article class="card bad">
-          <p class="tag neg">NO TRADE DAY — STAY FLAT</p>
-          <h4>Do not force it</h4>
+          <div class="card-head neg">
+            <span class="badge">✗ STAY FLAT</span>
+            <h4>Do not force it</h4>
+          </div>
           <div class="setup-visual">
             <div class="vis-line high">Asian High</div>
             <div class="vis-box">Asian Range</div>
             <div class="vis-line low">Asian Low</div>
-            <div class="vis-action neg">✗ Only wick / closes back inside → NO TRADE</div>
+            <div class="vis-action neg">✗ Wick only / closes back inside</div>
           </div>
-          <ul>
+          <ul class="clean-list">
             <li>Only wicks outside the range</li>
             <li>Candle closes back inside</li>
-            <li>Messy overlapping candles</li>
+            <li>Messy / overlapping candles</li>
             <li>No clear close by 10:00 GMT</li>
-            <li>High-impact news within 30 min</li>
           </ul>
         </article>
       </div>
 
-      <!-- Simple checklist -->
-      <div class="card setup-checklist">
-        <p class="kicker">Daily Checklist</p>
-        <div class="check-row"><span>1</span> Mark Asian High &amp; Low before London</div>
-        <div class="check-row"><span>2</span> Watch only 08:00 – 10:00 GMT</div>
-        <div class="check-row"><span>3</span> Need clean 15m candle CLOSE outside the range</div>
-        <div class="check-row"><span>4</span> Prefer retest of the broken level</div>
-        <div class="check-row"><span>5</span> Risk 0.5–1% maximum</div>
-        <div class="check-row"><span>6</span> No clean setup by 10:00 → close charts</div>
-      </div>
-
+      <!-- Punchy execution gate -->
       <div class="setup-final">
-        <p><strong>Golden rule:</strong> If it doesn’t show up clean → <span class="gold">NO TRADE TODAY</span></p>
-        <p class="muted">Patience is the edge. One high-quality setup beats five forced ones.</p>
+        <p class="gate-line">
+          <strong>Execution gate:</strong>
+          Mark range → Watch <b>08:00–10:00</b> → Need clean 15m close → No setup by 10:00 = <span class="gold">CLOSE CHARTS</span>
+        </p>
+        <p class="muted">If it doesn’t show up clean → NO TRADE TODAY. Patience is the edge.</p>
       </div>
     </section>
 
     <section id="calendar" class="panel">
-      <h3>High-Impact USD Events, Next 6 Months</h3>
+      <h3>High-Impact USD Calendar</h3>
+      <p class="section-desc">Tier-1 events are highlighted. Color pills show forecast vs previous so surprises jump out.</p>
+      <div class="cal-legend">
+        <span class="tier1-tag">TIER 1</span>
+        <span class="muted">= FOMC · NFP · CPI · Core CPI · PCE · PPI</span>
+      </div>
       <div class="grid" id="months"></div>
     </section>
 
     <section id="inst" class="panel">
-      <h3>Institutional desk</h3>
-      <p class="section-desc">Fed path, curve, tech wall-check, ATR size, Fed speak. Numbers refresh about every 90 seconds.</p>
+      <h3>Institutional Desk</h3>
+      <p class="section-desc">Fed path, curve, tech levels, and risk sizing. Refreshes about every 90 seconds.</p>
+
       <div class="inst-grid">
-        <article class="card">
-          <p>Fed path (futures implied)</p>
+        <article class="card inst-widget">
+          <p class="widget-label">Fed Path</p>
           <h4 id="fed-meeting">Next FOMC</h4>
           <div class="fed-bars">
             <div><span>Cut</span><div class="bar"><i id="bar-cut"></i></div><b id="prob-cut">—</b></div>
@@ -379,91 +468,138 @@
           </div>
           <small id="fed-implied">Implied rate —</small>
         </article>
-        <article class="card">
-          <p>Yield curve</p>
+
+        <article class="card inst-widget">
+          <p class="widget-label">Yield Curve</p>
           <div id="curve-box" class="curve-box">Loading curve…</div>
         </article>
-        <article class="card">
-          <p>Tech wall-check</p>
+
+        <article class="card inst-widget">
+          <p class="widget-label">Tech Wall-Check</p>
           <div id="tech-box">Loading…</div>
         </article>
-        <article class="card">
-          <p>ATR risk size · Gold</p>
+
+        <article class="card inst-widget risk-widget">
+          <p class="widget-label">ATR Risk Size · Gold</p>
           <div id="atr-box">Loading…</div>
-          <label class="risk-line">Balance <input id="inst-bal" type="number" value="1000"> Risk % <input id="inst-risk" type="number" value="1" step="0.1"></label>
-          <p id="atr-size" class="primer"></p>
+          <div class="risk-tool">
+            <div class="risk-inputs">
+              <label>Balance <input id="inst-bal" type="number" value="1000"></label>
+              <label>Risk % <input id="inst-risk" type="number" value="1" step="0.1"></label>
+            </div>
+            <div id="atr-size" class="risk-output">—</div>
+          </div>
         </article>
       </div>
-      <h3>Fed speak</h3>
-      <div id="speakers" class="list"></div>
-      <h3>Trade log</h3>
-      <p class="section-desc">Local only. Logs win/loss per event type for your hit rate.</p>
-      <form id="trade-log-form" class="trade-form">
-        <select id="tl-event"><option>Core CPI</option><option>NFP</option><option>PPI</option><option>FOMC</option><option>PCE</option><option>Other</option></select>
-        <select id="tl-side"><option>Buy gold</option><option>Sell gold</option><option>Buy USD</option><option>Sell USD</option></select>
-        <select id="tl-result"><option>Win</option><option>Loss</option><option>BE</option></select>
-        <input id="tl-rr" placeholder="R multiple e.g. 1.5" />
-        <button type="submit">Log</button>
-      </form>
-      <div id="trade-stats" class="primer"></div>
-      <div id="trade-rows" class="list"></div>
-      <h3>Alerts</h3>
-      <p class="section-desc">Browser notify when desk score flips. Optional webhook (Discord/Telegram) on actual print change.</p>
-      <label class="risk-line"><input type="checkbox" id="alert-on"> Enable browser alerts</label>
-      <input id="webhook-url" placeholder="Webhook URL (optional)" style="width:100%;margin-top:8px" />
+
+      <div class="inst-section">
+        <h3>Fed Speak</h3>
+        <div id="speakers" class="list"></div>
+      </div>
+
+      <div class="exec-module">
+        <div class="exec-col">
+          <h3>Trade Log</h3>
+          <p class="section-desc">Local only. Track hit rate by event.</p>
+          <form id="trade-log-form" class="trade-form clean-form">
+            <div class="form-row">
+              <select id="tl-event">
+                <option>Core CPI</option><option>NFP</option><option>PPI</option>
+                <option>FOMC</option><option>PCE</option><option>Other</option>
+              </select>
+              <select id="tl-side">
+                <option>Buy gold</option><option>Sell gold</option>
+                <option>Buy USD</option><option>Sell USD</option>
+              </select>
+              <select id="tl-result">
+                <option>Win</option><option>Loss</option><option>BE</option>
+              </select>
+              <input id="tl-rr" placeholder="R e.g. 1.5" />
+              <button type="submit" class="btn-primary">Log Trade</button>
+            </div>
+          </form>
+          <div id="trade-stats" class="primer"></div>
+          <div id="trade-rows" class="list"></div>
+        </div>
+
+        <div class="exec-col">
+          <h3>Alerts</h3>
+          <p class="section-desc">Notify when desk score flips. Optional webhook.</p>
+          <div class="alert-box">
+            <label class="toggle-row">
+              <input type="checkbox" id="alert-on">
+              <span>Enable browser alerts</span>
+            </label>
+            <input id="webhook-url" class="webhook-input" placeholder="Webhook URL (Discord / Telegram)" />
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="confluence" class="panel">
       <div id="lockout-banner" class="lockout-banner">Checking guardrails…</div>
       <div id="fakeout-banner" class="fakeout-banner" hidden></div>
-      <h3>Macro → technical confluence</h3>
-      <p class="section-desc">ATR expected-move boundaries, surprise Δ overlays, session profile, ORB box for the next Tier-1 print, and mechanical lockouts.</p>
-      <div class="inst-grid">
-        <article class="card">
-          <p>Session liquidity</p>
+
+      <h3>Macro → Technical Confluence</h3>
+      <p class="section-desc">Session bias, lockouts, ATR levels, and event risk in one view.</p>
+
+      <!-- Top status row -->
+      <div class="cf-status-row">
+        <article class="card cf-status">
+          <p class="widget-label">Session Liquidity</p>
           <h4 id="cf-session">—</h4>
           <p id="cf-session-note" class="primer"></p>
         </article>
-        <article class="card">
-          <p>Score & lockout</p>
+        <article class="card cf-status">
+          <p class="widget-label">Score &amp; Lockout</p>
           <h4 id="cf-score">—</h4>
           <p id="cf-lock" class="primer"></p>
         </article>
-        <article class="card">
-          <p>Gold key levels (ATR)</p>
-          <div id="cf-levels" class="curve-box">Loading…</div>
-        </article>
-        <article class="card">
-          <p>Event position size</p>
-          <div id="cf-size" class="curve-box">Loading…</div>
-          <label class="risk-line">Balance <input id="cf-bal" type="number" value="1000"> Base risk % <input id="cf-risk" type="number" value="1" step="0.1"></label>
-          <p id="cf-size-out" class="primer"></p>
-        </article>
       </div>
-      <h3>Opening range breakout (ORB)</h3>
-      <div id="cf-orb" class="card primer">Loading ORB…</div>
-      <h3>Surprise factor Δ overlays</h3>
-      <p class="section-desc">Red = USD up / gold down. Green = USD down / gold up. Map these as vertical event markers on your chart.</p>
-      <div id="cf-deltas" class="list"></div>
-      <h3>Cross-asset divergence</h3>
-      <div id="cf-div" class="card primer">Loading…</div>
-    </section>
 
-    <section id="chat" class="panel">
-      <p class="rules">Argue the call. The desk corrects you if the leads do not agree. Tap a chip or type the print.</p>
-      <div class="chips" id="chips">
-        <button type="button" data-q="Buy gold into Core CPI">Buy gold</button>
-        <button type="button" data-q="Sell gold if Core CPI 0.3">Sell gold</button>
-        <button type="button" data-q="Core CPI 0.1 soft">Core 0.1 soft</button>
-        <button type="button" data-q="Core CPI 0.3 hot">Core 0.3 hot</button>
-        <button type="button" data-q="Headline CPI hot from oil">Headline oil hot</button>
+      <!-- Main tools grid -->
+      <div class="cf-tools">
+        <article class="card">
+          <p class="widget-label">Gold Key Levels (ATR)</p>
+          <div id="cf-levels" class="curve-box skeleton">Waiting for levels…</div>
+        </article>
+
+        <article class="card risk-strip">
+          <p class="widget-label">Event Position Size</p>
+          <div id="cf-size" class="curve-box skeleton">Waiting for size…</div>
+          <div class="risk-tool">
+            <div class="risk-inputs">
+              <label>Balance <input id="cf-bal" type="number" value="1000"></label>
+              <label>Base risk % <input id="cf-risk" type="number" value="1" step="0.1"></label>
+            </div>
+            <div id="cf-size-out" class="risk-output">—</div>
+          </div>
+        </article>
       </div>
-      <div id="desk-live" class="desk-live">Desk live: waiting for the next note.</div>
-      <div id="log" class="log"></div>
-      <form id="ask">
-        <input id="q" placeholder="NFP comes in soft, wages 0.2 instead of 0.3" />
-        <button type="submit">Ask</button>
-      </form>
+
+      <!-- ORB -->
+      <div class="cf-block">
+        <h3>Opening Range Breakout (ORB)</h3>
+        <div id="cf-orb" class="card skeleton">Waiting for ORB box…</div>
+      </div>
+
+      <!-- Surprise deltas with visual legend -->
+      <div class="cf-block">
+        <h3>Surprise Factor Δ</h3>
+        <div class="delta-legend">
+          <span class="pill neg">Red = USD up / Gold down</span>
+          <span class="pill pos">Green = USD down / Gold up</span>
+        </div>
+        <div id="cf-deltas" class="list">
+          <div class="skeleton-line">No surprise prints yet</div>
+        </div>
+      </div>
+
+      <!-- Cross-asset -->
+      <div class="cf-block">
+        <h3>Cross-Asset Divergence</h3>
+        <div id="cf-div" class="card skeleton">Waiting for cross-asset read…</div>
+      </div>
     </section>
   </main>
   <script src="app.js"></script>
