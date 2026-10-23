@@ -6,6 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const HORIZON_DAYS = 180;
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const CACHE_MS = 3 * 60 * 60 * 1000; // refresh calendar actuals every 3h
 const CACHE = path.join(__dirname, "data", "calendar.json");
 
 const MAJORS = [
@@ -50,7 +51,7 @@ function writeCache(events) {
 
 async function calendarWeekly(force) {
   const cached = readCache();
-  const fresh = cached && Date.now() - new Date(cached.fetchedAt).getTime() < WEEK_MS;
+  const fresh = cached && Date.now() - new Date(cached.fetchedAt).getTime() < CACHE_MS;
   if (cached && fresh && !force) return cached;
   try {
     const events = await pullRange();
@@ -249,8 +250,29 @@ async function readPriceAction() {
 
 function decisionPrintValue(family, leads, next) {
   const rows = [next, ...(leads || [])].filter(Boolean);
-  if (family === "CPI" || family === "CORE" || family === "PCE") {
-    const core = rows.find((e) => /core\s*cpi|cpi.*ex.*food|ex food and energy|core\s*pce/i.test(e.title) && e.actual !== "" && e.actual != null);
+  // Prefer actual on the NEXT event itself (just printed)
+  if (next && next.actual !== "" && next.actual != null) {
+    if (/core\s*(cpi|pce)|ex food and energy/i.test(next.title)) {
+      return { key: "core", value: Number(next.actual), title: next.title };
+    }
+    if (/non-?farm|payroll/i.test(next.title)) {
+      const wage = rows.find((e) => /hourly earnings|average hourly/i.test(e.title) && e.actual !== "" && e.actual != null);
+      return { key: "nfp", value: Number(next.actual), wage: wage ? Number(wage.actual) : null, title: next.title };
+    }
+    if (/producer price|\bppi\b/i.test(next.title)) {
+      return { key: "ppi", value: Number(next.actual), title: next.title };
+    }
+  }
+  // For upcoming inflation events, past Core CPI is context (lastDecision) not the live decision
+  if (family === "CPI" || family === "CORE") {
+    const core = rows.find((e) => /core\s*cpi|cpi.*ex.*food|ex food and energy/i.test(e.title) && e.actual !== "" && e.actual != null);
+    // only if that core print is the same day as next or next already printed
+    if (core && next && Math.abs(new Date(core.date) - new Date(next.date)) < 2 * 86400000) {
+      return { key: "core", value: Number(core.actual), title: core.title };
+    }
+  }
+  if (family === "PCE") {
+    const core = rows.find((e) => /core\s*pce/i.test(e.title) && e.actual !== "" && e.actual != null);
     if (core) return { key: "core", value: Number(core.actual), title: core.title };
   }
   if (family === "NFP") {
@@ -508,19 +530,29 @@ app.get("/api/desk", async (req, res) => {
       (byMonth[key] ||= []).push(e);
     }
 
+    // Nearest upcoming Tier-1 by clock — do NOT prefer CORE over FOMC
     const ordered = majors
-      .filter((m) => m.next)
+      .filter((m) => m.next && new Date(m.next.date).getTime() > Date.now() - 6 * 3600000)
       .sort((a, b) => new Date(a.next.date) - new Date(b.next.date));
-    const focus = ordered.find((m) => m.key === "CORE") || ordered.find((m) => m.key === "CPI") || ordered[0];
-    const leadPool = events.filter((e) => e.actual !== "" && e.actual != null).slice(-12);
-    let leadsForBias = mergeLeads(leadPool, WEEK_LEADS);
-    if (focus && (focus.key === "CPI" || focus.key === "CORE" || focus.key === "PCE")) {
-      leadsForBias = mergeLeads(CPI_LEADS, leadPool).filter((e) => isPolicyLead(e.title));
-    } else if (focus && focus.key === "NFP") {
-      leadsForBias = mergeLeads(WEEK_LEADS, leadPool).filter((e) => isPolicyLead(e.title));
-    } else {
-      leadsForBias = leadsForBias.filter((e) => isPolicyLead(e.title));
+    const focus = ordered[0] || majors.filter((m) => m.next).sort((a, b) => new Date(a.next.date) - new Date(b.next.date))[0];
+
+    // Live printed leads first; static seeds only fill gaps (never override live actuals)
+    const leadPool = events.filter((e) => e.actual !== "" && e.actual != null).slice(-20);
+    function seedFill(primary, seeds) {
+      return mergeLeads(primary, seeds); // primary wins on same title
     }
+    let leadsForBias = leadPool.filter((e) => isPolicyLead(e.title));
+    if (focus && (focus.key === "CPI" || focus.key === "CORE" || focus.key === "PCE" || focus.key === "FOMC")) {
+      leadsForBias = seedFill(leadsForBias, CPI_LEADS).filter((e) => isPolicyLead(e.title));
+    } else if (focus && focus.key === "NFP") {
+      leadsForBias = seedFill(leadsForBias, WEEK_LEADS).filter((e) => isPolicyLead(e.title));
+    } else {
+      leadsForBias = seedFill(leadsForBias, CPI_LEADS.concat(WEEK_LEADS)).filter((e) => isPolicyLead(e.title));
+    }
+    // Drop stale seeds older than 45 days from lead scoring noise
+    const cutoff = Date.now() - 45 * 86400000;
+    leadsForBias = leadsForBias.filter((e) => !e.date || new Date(e.date).getTime() > cutoff);
+
     const pa = await readPriceAction();
     const sig = signalFor(focus?.next, leadsForBias, pa);
     sig.focusKey = focus?.key || "—";
@@ -528,13 +560,24 @@ app.get("/api/desk", async (req, res) => {
     sig.focusWhen = focus?.next?.date || null;
     sig.narrative = buildNarrative(sig, focus);
     sig.pulse = new Date().toISOString();
+    // Last decision summary (past Core CPI etc.) separate from next-event focus
+    const lastCore = leadsForBias.find((e) => /core\s*cpi/i.test(e.title) && e.actual !== "" && e.actual != null);
+    if (lastCore) {
+      sig.lastDecision = {
+        title: lastCore.title,
+        actual: lastCore.actual,
+        forecast: lastCore.forecast,
+        when: lastCore.date,
+        lean: Number(lastCore.actual) >= 0.3 ? "sell_gold" : Number(lastCore.actual) <= 0.2 ? "buy_gold" : "flat"
+      };
+    }
 
     res.json({
       updated: new Date().toISOString(),
       horizonDays: HORIZON_DAYS,
       source: "biquote",
       fetchedAt: pack.fetchedAt,
-      nextRefresh: new Date(new Date(pack.fetchedAt).getTime() + WEEK_MS).toISOString(),
+      nextRefresh: new Date(new Date(pack.fetchedAt).getTime() + CACHE_MS).toISOString(),
       bias: sig,
       majors,
       months: byMonth
