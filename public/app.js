@@ -393,7 +393,7 @@ function showChart(sym) {
   const open = document.getElementById("tv-open");
   if (open) open.href = "https://www.tradingview.com/chart/?symbol=" + encodeURIComponent(sym);
   const src = "https://s.tradingview.com/widgetembed/?symbol=" + encodeURIComponent(sym) +
-    "&interval=1&hidesidetoolbar=0&hidetoptoolbar=0&symboledit=1&saveimage=1&withdateranges=1&details=1&hotlist=1&calendar=1&theme=" +
+    "&interval=15&hidesidetoolbar=0&hidetoptoolbar=0&symboledit=1&saveimage=1&withdateranges=1&details=1&hotlist=1&calendar=1&theme=" +
     chartTheme + "&style=1&timezone=Africa%2FJohannesburg&hideideas=1";
   document.getElementById("tv").innerHTML =
     `<iframe title="chart" src="${src}" style="width:100%;height:100%;border:0" allowfullscreen></iframe>`;
