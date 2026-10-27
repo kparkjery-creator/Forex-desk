@@ -51,74 +51,101 @@
       <div id="board-lockout" class="lockout-banner" hidden></div>
       <div id="board-fakeout" class="fakeout-banner" hidden></div>
 
-      <!-- Macro summary cards -->
-      <div class="bias">
-        <article>
-          <p>Active Macro Bias <span class="tooltip-icon" data-tooltip="Based on weighted delta deviation across leading prints">ⓘ</span></p>
-          <h2 id="usd">—</h2>
-        </article>
-        <article>
-          <p>Gold Bias <span class="tooltip-icon" data-tooltip="Driven by U.S. Real Yields and Fed Rate Probability">ⓘ</span></p>
-          <h2 id="gold">—</h2>
-        </article>
-        <article>
-          <p>Desk Risk Status</p>
-          <h2 id="score">—</h2>
-        </article>
+      <!-- Event filter pills -->
+      <div class="signal-filters">
+        <button type="button" class="sig-filter on" data-filter="all">All</button>
+        <button type="button" class="sig-filter" data-filter="NFP">NFP</button>
+        <button type="button" class="sig-filter" data-filter="CPI">CPI</button>
+        <button type="button" class="sig-filter" data-filter="PPI">PPI</button>
+        <button type="button" class="sig-filter" data-filter="FOMC">FOMC</button>
+        <button type="button" class="sig-filter" data-filter="PCE">PCE</button>
       </div>
 
-      <!-- Session status matrix -->
-      <div class="session-matrix" id="session-matrix">
-        <div class="sm-card" data-session="asia">
-          <span class="sm-dot"></span>
-          <div>
-            <strong>Asia</strong>
-            <p>00:00–08:00 CAT · Range / setup</p>
+      <!-- MAIN SIGNAL CARD — clear call, no guessing -->
+      <article class="signal-card" id="signal-card">
+        <div class="sig-head">
+          <div class="sig-time-row">
+            <span class="sig-time" id="sig-time">—</span>
+            <span class="sig-usd">USD</span>
+            <span class="sig-event" id="sig-event">Waiting for next Tier-1</span>
+            <span class="sig-side" id="sig-side">—</span>
+          </div>
+          <div class="sig-meta">
+            <span class="sig-impact" id="sig-impact">HIGH</span>
+            <span class="sig-asset">XAUUSD</span>
+            <span class="sig-conf" id="sig-conf">—%</span>
           </div>
         </div>
-        <div class="sm-card" data-session="london">
-          <span class="sm-dot"></span>
-          <div>
-            <strong>London</strong>
-            <p>08:00–14:00 CAT · Breakout window</p>
+
+        <div class="sig-body">
+          <div class="sig-pair-row">
+            <strong>Gold (XAU/USD)</strong>
+            <span class="sig-side-sm" id="sig-side-sm">—</span>
+          </div>
+          <div class="sig-bar-wrap">
+            <div class="sig-bar" id="sig-bar" style="width:0%"></div>
+            <span class="sig-bar-pct" id="sig-bar-pct">0%</span>
+          </div>
+          <p class="sig-reason" id="sig-reason">Gathering data… Desk will show a clear BUY / SELL / FLAT once leads + price action agree.</p>
+
+          <div class="sig-levels">
+            <div class="lvl"><span>ENTRY</span><b id="sig-entry">—</b></div>
+            <div class="lvl stop"><span>STOP</span><b id="sig-stop">—</b></div>
+            <div class="lvl tp"><span>TP 1</span><b id="sig-tp1">—</b></div>
+            <div class="lvl tp"><span>TP 2</span><b id="sig-tp2">—</b></div>
           </div>
         </div>
-        <div class="sm-card" data-session="ny">
-          <span class="sm-dot"></span>
-          <div>
-            <strong>New York</strong>
-            <p>14:00–22:00 CAT · Data &amp; trend</p>
+
+        <!-- Hidden legacy targets for existing JS -->
+        <span id="usd" hidden>—</span>
+        <span id="gold" hidden>—</span>
+        <span id="score" hidden>—</span>
+        <span id="narrative" hidden></span>
+        <span id="pulse" hidden></span>
+        <span id="signal-action" hidden></span>
+        <span id="confluence-pointer" hidden></span>
+      </article>
+
+      <!-- How the call is built (transparency) -->
+      <div class="source-strip">
+        <div class="src-item">
+          <span class="src-label">Data</span>
+          <span>US calendar (actual vs forecast) · DXY · yields · gold price</span>
+        </div>
+        <div class="src-item">
+          <span class="src-label">Method</span>
+          <span>Weighted leads → macro lean → price gate must agree</span>
+        </div>
+        <div class="src-item">
+          <span class="src-label">Confidence</span>
+          <span id="src-conf-note">Rule-based (not backtested). Log outcomes below to measure real hit rate.</span>
+        </div>
+      </div>
+
+      <!-- Compact session + price gate -->
+      <div class="board-secondary">
+        <div class="session-matrix" id="session-matrix">
+          <div class="sm-card" data-session="asia">
+            <span class="sm-dot"></span>
+            <div><strong>Asia</strong><p>00:00–08:00</p></div>
+          </div>
+          <div class="sm-card" data-session="london">
+            <span class="sm-dot"></span>
+            <div><strong>London</strong><p>08:00–14:00</p></div>
+          </div>
+          <div class="sm-card" data-session="ny">
+            <span class="sm-dot"></span>
+            <div><strong>New York</strong><p>14:00–22:00</p></div>
           </div>
         </div>
-      </div>
 
-      <!-- Visual Confluence & Signal Strength Meter -->
-      <div class="signal-meter-container">
-        <div class="meter-labels">
-          <span>Strong Sell USD / Buy Gold (-10)</span>
-          <span>No Trade Zone (-2 to +2)</span>
-          <span>Strong Buy USD / Sell Gold (+10)</span>
-        </div>
-        <div class="meter-bar">
-          <div id="confluence-pointer" class="pointer" style="left: 50%;"></div>
-        </div>
-        <p id="signal-action" class="signal-action">Signal State: Calculating Confluence...</p>
-      </div>
-
-      <div class="narrative-box">
-        <p class="kicker">Desk read</p>
-        <p id="narrative">Loading desk narrative…</p>
-        <span id="pulse" class="pulse">Pulse —</span>
-      </div>
-
-      <!-- Live price-action gate -->
-      <div class="price-strip" id="price-strip">
-        <p class="kicker">Price action gate</p>
-        <div class="price-strip-grid">
-          <div class="pa-cell"><span class="pa-label">Gold</span><strong id="pa-gold">—</strong><span id="pa-gold-sma" class="pa-sub">SMA —</span></div>
-          <div class="pa-cell"><span class="pa-label">DXY</span><strong id="pa-dxy">—</strong><span id="pa-dxy-sma" class="pa-sub">SMA —</span></div>
-          <div class="pa-cell"><span class="pa-label">US10Y</span><strong id="pa-y10">—</strong><span id="pa-y-chg" class="pa-sub">Δ —</span></div>
-          <div class="pa-cell pa-gate"><span class="pa-label">Gate</span><strong id="pa-gate">—</strong><span id="pa-gate-note" class="pa-sub">Needs agreement</span></div>
+        <div class="price-strip" id="price-strip">
+          <div class="price-strip-grid">
+            <div class="pa-cell"><span class="pa-label">Gold</span><strong id="pa-gold">—</strong><span id="pa-gold-sma" class="pa-sub">SMA —</span></div>
+            <div class="pa-cell"><span class="pa-label">DXY</span><strong id="pa-dxy">—</strong><span id="pa-dxy-sma" class="pa-sub">SMA —</span></div>
+            <div class="pa-cell"><span class="pa-label">US10Y</span><strong id="pa-y10">—</strong><span id="pa-y-chg" class="pa-sub">Δ —</span></div>
+            <div class="pa-cell pa-gate"><span class="pa-label">Gate</span><strong id="pa-gate">—</strong><span id="pa-gate-note" class="pa-sub">Needs agreement</span></div>
+          </div>
         </div>
       </div>
 
@@ -162,11 +189,16 @@
         <p class="fomc-status" id="fomc-status">Status: loading…</p>
       </article>
 
-      <!-- Decision scorecard -->
+      <!-- Decision scorecard — measure real accuracy -->
       <article class="card scorecard-card">
-        <p class="kicker">Decision scorecard</p>
-        <h3>Post-print log</h3>
-        <p class="section-desc">Log each Tier-1 decision and mark if gold moved with the desk call. Stored on this device.</p>
+        <p class="kicker">Measured accuracy</p>
+        <h3>Post-print scorecard</h3>
+        <p class="section-desc">After each Tier-1, log the desk call vs what gold actually did. This is how confidence becomes real — not assumed.</p>
+
+        <div id="hit-by-event" class="hit-by-event">
+          <div class="hit-chip">Log events to see hit rate by type</div>
+        </div>
+
         <div class="scorecard-form">
           <select id="sc-event">
             <option value="Core CPI">Core CPI</option>
@@ -187,27 +219,37 @@
             <option value="miss">Miss</option>
             <option value="scratch">Scratch</option>
           </select>
-          <button type="button" id="sc-add">Log</button>
+          <button type="button" id="sc-add">Log outcome</button>
         </div>
         <div id="scorecard-list" class="scorecard-list"></div>
-        <p id="scorecard-stats" class="scorecard-stats">No logs yet.</p>
+        <p id="scorecard-stats" class="scorecard-stats">No logs yet. Start after the next print.</p>
       </article>
 
-      <!-- Educational Delta Breakdown -->
-      <h3>Step-by-step Signal & Surprise Factor ($\Delta$)</h3>
-      <p class="section-desc">Calculated via Delta ($\Delta = \text{Actual} - \text{Forecast}$) weighted by Fed policy priority.</p>
-      <div id="steps" class="list"></div>
-
-      <!-- Major Event Catalyst Breakdown -->
-      <h3>Next NFP, CPI, PPI, FOMC, PCE</h3>
-      <div class="grid" id="majors"></div>
-
-      <!-- Post-Event Educational Learning Loop -->
-      <div class="post-event-analysis">
-        <h3>Post-Event Replay & Narrative Check</h3>
-        <div id="replay-card" class="replay-card">
-          <p class="replay-status">Waiting for event release...</p>
+      <!-- Economic drivers — where the signal comes from -->
+      <div class="drivers-panel">
+        <div class="drivers-head">
+          <div>
+            <h3>Economic Drivers</h3>
+            <p class="section-desc">Data that feeds the gold call. Hot prints → firmer USD → sell gold. Soft prints → softer USD → buy gold.</p>
+          </div>
+          <div class="drivers-focus">
+            <span class="muted">Focus</span>
+            <strong id="drivers-focus-name">—</strong>
+            <span id="drivers-focus-when" class="muted"></span>
+          </div>
         </div>
+
+        <div class="drivers-matter" id="drivers-matter">
+          What matters for this event loads here…
+        </div>
+
+        <div id="drivers-list" class="drivers-list">
+          <div class="driver-empty">Waiting for leading prints…</div>
+        </div>
+
+        <div id="steps" hidden></div>
+        <div id="majors" hidden></div>
+        <div id="replay-card" hidden></div>
       </div>
     </section>
 
