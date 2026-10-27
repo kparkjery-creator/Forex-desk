@@ -1407,3 +1407,384 @@ form button {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== Decisive signal card (Overview) ===== */
+.signal-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.sig-filter {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sig-filter.on {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1a1406;
+}
+
+.signal-card {
+  background: linear-gradient(160deg, #1c2230 0%, var(--card) 100%);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+}
+.sig-head {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.sig-time-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-bottom: 8px;
+}
+.sig-time {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+}
+.sig-usd {
+  background: rgba(224, 179, 77, 0.15);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+.sig-event {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 120px;
+}
+.sig-side {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: var(--line);
+  color: var(--muted);
+}
+.sig-side.buy { background: rgba(61, 214, 140, 0.2); color: var(--pos); }
+.sig-side.sell { background: rgba(240, 113, 120, 0.2); color: var(--neg); }
+.sig-side.flat { background: rgba(139, 149, 168, 0.2); color: var(--muted); }
+
+.sig-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+.sig-impact {
+  background: rgba(240, 113, 120, 0.15);
+  color: var(--neg);
+  font-weight: 700;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+.sig-conf {
+  margin-left: auto;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sig-body {
+  padding: 18px 20px 20px;
+}
+.sig-pair-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.sig-pair-row strong { font-size: 16px; }
+.sig-side-sm {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 16px;
+  background: var(--line);
+  color: var(--muted);
+}
+.sig-side-sm.buy { background: rgba(61, 214, 140, 0.2); color: var(--pos); }
+.sig-side-sm.sell { background: rgba(240, 113, 120, 0.2); color: var(--neg); }
+.sig-side-sm.flat { background: rgba(139, 149, 168, 0.2); color: var(--muted); }
+
+.sig-bar-wrap {
+  position: relative;
+  height: 10px;
+  background: var(--bg);
+  border-radius: 6px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.sig-bar {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--muted);
+  transition: width 0.4s ease, background 0.3s;
+}
+.sig-bar.buy { background: linear-gradient(90deg, #2db86e, var(--pos)); }
+.sig-bar.sell { background: linear-gradient(90deg, #e05560, var(--neg)); }
+.sig-bar.flat { background: var(--line2); }
+.sig-bar-pct {
+  position: absolute;
+  right: 8px;
+  top: -18px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--muted);
+}
+
+.sig-reason {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+
+.sig-levels {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.sig-levels .lvl {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 10px;
+  text-align: center;
+}
+.sig-levels .lvl span {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.sig-levels .lvl b {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 15px;
+  color: var(--text);
+}
+.sig-levels .lvl.stop b { color: var(--neg); }
+.sig-levels .lvl.tp b { color: var(--pos); }
+
+.board-secondary {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.board-secondary .session-matrix {
+  margin: 0;
+  grid-template-columns: 1fr;
+}
+.board-secondary .price-strip {
+  margin: 0;
+  padding: 14px;
+}
+
+@media (max-width: 900px) {
+  .sig-levels { grid-template-columns: 1fr 1fr; }
+  .board-secondary { grid-template-columns: 1fr; }
+}
+
+/* ===== Economic Drivers panel ===== */
+.drivers-panel {
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+.drivers-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.drivers-head h3 { margin: 0 0 4px; }
+.drivers-focus {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-align: right;
+  min-width: 160px;
+}
+.drivers-focus .muted {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 2px;
+}
+.drivers-focus strong {
+  font-size: 14px;
+  display: block;
+}
+.drivers-matter {
+  background: rgba(224, 179, 77, 0.08);
+  border: 1px solid rgba(224, 179, 77, 0.22);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.drivers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.driver-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--line2);
+}
+.driver-row.sell { border-left-color: var(--neg); }
+.driver-row.buy { border-left-color: var(--pos); }
+.driver-row.flat { border-left-color: var(--muted); }
+.driver-main strong {
+  display: block;
+  font-size: 13.5px;
+  margin-bottom: 3px;
+}
+.driver-text {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.driver-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.driver-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.driver-badge.sell {
+  background: rgba(240, 113, 120, 0.15);
+  color: var(--neg);
+}
+.driver-badge.buy {
+  background: rgba(61, 214, 140, 0.15);
+  color: var(--pos);
+}
+.driver-badge.flat {
+  background: rgba(139, 149, 168, 0.15);
+  color: var(--muted);
+}
+.driver-pts {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+.driver-empty {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 16px;
+  text-align: center;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px dashed var(--line);
+}
+
+/* ===== Data source transparency + hit rates ===== */
+.source-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0 0 18px;
+}
+.src-item {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.src-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.hit-by-event {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 14px;
+}
+.hit-chip {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--text);
+}
+.hit-chip b {
+  margin-right: 6px;
+  color: var(--gold);
+}
+.hit-chip.good {
+  border-color: rgba(61, 214, 140, 0.35);
+  background: rgba(61, 214, 140, 0.08);
+}
+.hit-chip.ok {
+  border-color: rgba(224, 179, 77, 0.35);
+  background: rgba(224, 179, 77, 0.08);
+}
+.hit-chip.bad {
+  border-color: rgba(240, 113, 120, 0.35);
+  background: rgba(240, 113, 120, 0.08);
+}
+.hit-chip.muted-chip {
+  color: var(--muted);
+}
+
+@media (max-width: 800px) {
+  .source-strip { grid-template-columns: 1fr; }
+}
