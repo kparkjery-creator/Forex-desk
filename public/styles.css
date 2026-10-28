@@ -1788,3 +1788,23 @@ form button {
 @media (max-width: 800px) {
   .source-strip { grid-template-columns: 1fr; }
 }
+
+/* Signal card states */
+.signal-card.side-buy { border-color: rgba(61, 214, 140, 0.45); }
+.signal-card.side-sell { border-color: rgba(240, 113, 120, 0.45); }
+.signal-card.side-flat { border-color: var(--line, #2a3142); }
+.sig-bar.buy { background: linear-gradient(90deg, #3dd68c, #2a9d5c); }
+.sig-bar.sell { background: linear-gradient(90deg, #f07178, #c44a52); }
+.sig-bar.flat { background: #5a6578; }
+.sig-side.pos, .sig-side-sm.pos { color: #3dd68c; }
+.sig-side.neg, .sig-side-sm.neg { color: #f07178; }
+.sig-filter {
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.sig-filter.on {
+  background: var(--gold, #e0b34d) !important;
+  color: #1a1406 !important;
+  font-weight: 700;
+}

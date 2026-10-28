@@ -92,7 +92,142 @@ function calculateConfluenceScore(bias) {
   }
 }
 
+
+/* ========== Signal card + event filter pills (were missing — silent chips) ========== */
+let lastDeskData = null;
+let activeFilter = "all";
+
+function atrLevels(price, side) {
+  // Approximate ATR-style levels when confluence API not used
+  const atr = 35; // gold typical short ATR buffer
+  if (price == null || !Number.isFinite(price)) return { entry: "—", stop: "—", tp1: "—", tp2: "—" };
+  const p = Number(price);
+  if (side === "BUY") {
+    return {
+      entry: p.toFixed(1),
+      stop: (p - atr * 0.5).toFixed(1),
+      tp1: (p + atr * 0.75).toFixed(1),
+      tp2: (p + atr * 1.25).toFixed(1)
+    };
+  }
+  if (side === "SELL") {
+    return {
+      entry: p.toFixed(1),
+      stop: (p + atr * 0.5).toFixed(1),
+      tp1: (p - atr * 0.75).toFixed(1),
+      tp2: (p - atr * 1.25).toFixed(1)
+    };
+  }
+  return { entry: p.toFixed(1), stop: "—", tp1: "—", tp2: "—" };
+}
+
+function updateSignalCard(data, filterKey) {
+  const b = (data && data.bias) || {};
+  const majors = (data && data.majors) || [];
+  const card = document.getElementById("signal-card");
+  if (!card) return;
+
+  // Resolve which event the card is about
+  let focusKey = filterKey && filterKey !== "all" ? filterKey : (b.focusKey || "all");
+  let major = majors.find((m) => m.key === focusKey) || majors.find((m) => m.key === b.focusKey);
+  if (!major || !major.next) {
+    major = majors.filter((m) => m.next).sort((a, b2) => new Date(a.next.date) - new Date(b2.next.date))[0];
+  }
+
+  const eventTitle = (major && major.next && major.next.title) || b.focusTitle || "Waiting for next Tier-1";
+  const eventWhen = (major && major.next && major.next.date) || b.focusWhen;
+  const sig = (major && major.signal) || b;
+  const pa = b.priceAction || {};
+  const goldPx = pa.goldLast != null ? pa.goldLast : lastGold;
+
+  // Direction from desk rules
+  let side = "FLAT";
+  let reason = "";
+  let conf = 0;
+
+  if (b.lockPreEvent || (sig && sig.lockPreEvent)) {
+    side = "FLAT";
+    reason = "PRE-EVENT LOCKOUT · Tier-1 within 2 hours. No lean on forecasts. Wait for the actual decision, then trade only if price agrees.";
+    conf = 15;
+  } else if (b.noTrade || (sig && sig.noTrade)) {
+    side = "FLAT";
+    reason = (sig && sig.gold) || b.gold || "No-trade zone. Leads are background only until the decision print + price action agree.";
+    conf = 25;
+  } else if (b.macroLean === "sell_gold" || /sell gold/i.test((sig && sig.gold) || b.gold || "")) {
+    side = "SELL";
+    reason = (sig && sig.gold) || b.gold || "Sell gold path.";
+    conf = Math.min(95, 55 + Math.abs(Number(b.score) || 0) * 4);
+  } else if (b.macroLean === "buy_gold" || /buy gold/i.test((sig && sig.gold) || b.gold || "")) {
+    side = "BUY";
+    reason = (sig && sig.gold) || b.gold || "Buy gold path.";
+    conf = Math.min(95, 55 + Math.abs(Number(b.score) || 0) * 4);
+  } else {
+    side = "FLAT";
+    reason = (sig && sig.call) || b.call || "Gathering data… Desk shows BUY / SELL only when leads + price action agree.";
+    conf = 20;
+  }
+
+  // FOMC day special: always show clear status
+  if (/FOMC|fed interest|interest rate decision/i.test(eventTitle) || focusKey === "FOMC") {
+    if (side === "FLAT") {
+      reason = "FOMC today · statement 20:00 CAT. FLAT into the print. Last decision: Core CPI 0.3% (hot) leans sell-gold only AFTER a hawkish surprise AND price agrees. Do not front-run.";
+    }
+  }
+
+  const levels = side === "FLAT" ? { entry: "—", stop: "—", tp1: "—", tp2: "—" } : atrLevels(goldPx, side);
+
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set("sig-time", eventWhen ? when(eventWhen) : "—");
+  set("sig-event", eventTitle.length > 42 ? eventTitle.slice(0, 40) + "…" : eventTitle);
+  set("sig-side", side);
+  set("sig-side-sm", side);
+  set("sig-conf", conf + "%");
+  set("sig-reason", reason);
+  set("sig-entry", levels.entry);
+  set("sig-stop", levels.stop);
+  set("sig-tp1", levels.tp1);
+  set("sig-tp2", levels.tp2);
+
+  const bar = document.getElementById("sig-bar");
+  const barPct = document.getElementById("sig-bar-pct");
+  if (bar) {
+    bar.style.width = conf + "%";
+    bar.className = "sig-bar " + (side === "BUY" ? "buy" : side === "SELL" ? "sell" : "flat");
+  }
+  if (barPct) barPct.textContent = conf + "%";
+
+  card.classList.remove("side-buy", "side-sell", "side-flat");
+  card.classList.add(side === "BUY" ? "side-buy" : side === "SELL" ? "side-sell" : "side-flat");
+
+  const sideEl = document.getElementById("sig-side");
+  if (sideEl) {
+    sideEl.className = "sig-side " + (side === "BUY" ? "pos" : side === "SELL" ? "neg" : "flat");
+  }
+}
+
+function applyEventFilter(key) {
+  activeFilter = key || "all";
+  document.querySelectorAll(".sig-filter").forEach((btn) => {
+    btn.classList.toggle("on", btn.getAttribute("data-filter") === activeFilter);
+  });
+  // Filter major cards
+  document.querySelectorAll("#majors .card").forEach((card) => {
+    const k = card.getAttribute("data-key") || "";
+    card.style.display = (activeFilter === "all" || k === activeFilter) ? "" : "none";
+  });
+  if (lastDeskData) updateSignalCard(lastDeskData, activeFilter);
+}
+
+document.querySelectorAll(".sig-filter").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    applyEventFilter(btn.getAttribute("data-filter") || "all");
+  });
+});
+
 function render(data) {
+  lastDeskData = data;
   document.getElementById("updated").textContent =
     "Calendar " + new Date(data.fetchedAt).toLocaleString() + " · next pull " + new Date(data.nextRefresh).toLocaleString() + " · focus " + ((data.bias && data.bias.focusKey) || "—");
   
@@ -185,7 +320,7 @@ function render(data) {
     PCE: "The Fed's own inflation gauge. Core PCE is the real target. Soft core PCE eases hike pressure and can bounce gold. Hot core PCE puts the sell back on."
   };
   majorsEl.innerHTML = data.majors.map((m) => `
-    <article class="card">
+    <article class="card" data-key="${m.key}">
       <p>${m.key}</p>
       <h4>${m.next ? m.next.title : "No date in the next 6 months"}</h4>
       <p class="primer">${primers[m.key] || ""}</p>
@@ -215,6 +350,26 @@ function render(data) {
       }).join("")}
     </article>
   `).join("") || "<p>No high-impact events returned.</p>";
+
+  updateSignalCard(data, activeFilter);
+  // Keep filter selection; re-apply visibility on new cards
+  document.querySelectorAll("#majors .card").forEach((card) => {
+    const k = card.getAttribute("data-key") || "";
+    card.style.display = (activeFilter === "all" || k === activeFilter) ? "" : "none";
+  });
+
+  // Countdown to focus event
+  const cd = document.getElementById("event-cd");
+  if (cd && data.bias && data.bias.focusWhen) {
+    const ms = new Date(data.bias.focusWhen).getTime() - Date.now();
+    if (ms > 0) {
+      const h = Math.floor(ms / 3600000);
+      const m = Math.floor((ms % 3600000) / 60000);
+      cd.textContent = "Next: " + (data.bias.focusKey || "event") + " in " + h + "h " + m + "m";
+    } else {
+      cd.textContent = "Next: " + (data.bias.focusTitle || data.bias.focusKey || "event");
+    }
+  }
 }
 
 async function load(force) {
@@ -584,3 +739,7 @@ function highlightSession() {
 }
 highlightSession();
 setInterval(highlightSession, 60000);
+
+document.getElementById("refresh")?.addEventListener("click", () => {
+  load(true).catch((e) => console.error(e));
+});
