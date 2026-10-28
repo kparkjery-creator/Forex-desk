@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
+app.use(express.json({ limit: '100kb' }));
 const PORT = process.env.PORT || 3000;
 const HORIZON_DAYS = 180;
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -1229,6 +1230,49 @@ app.get("/api/fomc", (_req, res) => {
       "Hot Core CPI 0.3% already leans sell gold into this meeting"
     ]
   });
+});
+
+
+const SCORE_PATH = path.join(__dirname, "data", "scorecard.json");
+function readScorecard() {
+  try { return JSON.parse(fs.readFileSync(SCORE_PATH, "utf8")); } catch { return { logs: [] }; }
+}
+function writeScorecard(body) {
+  fs.mkdirSync(path.dirname(SCORE_PATH), { recursive: true });
+  fs.writeFileSync(SCORE_PATH, JSON.stringify(body, null, 2));
+}
+app.get("/api/scorecard", (_req, res) => {
+  const body = readScorecard();
+  const logs = body.logs || [];
+  const hits = logs.filter((l) => l.result === "hit").length;
+  const misses = logs.filter((l) => l.result === "miss").length;
+  const n = hits + misses;
+  const by = {};
+  for (const l of logs) {
+    const k = l.event || "Other";
+    by[k] = by[k] || { hit: 0, miss: 0, scratch: 0 };
+    by[k][l.result] = (by[k][l.result] || 0) + 1;
+  }
+  res.json({
+    logs: logs.slice(0, 50),
+    winRate: n ? Number((hits / n).toFixed(3)) : null,
+    hits, misses, scratches: logs.filter((l) => l.result === "scratch").length,
+    byEvent: by,
+    expectancyNote: "Assign +1R hit / -1R miss for simple expectancy when stops are 1R."
+  });
+});
+app.post("/api/scorecard", express.json(), (req, res) => {
+  const body = readScorecard();
+  const row = {
+    event: String(req.body.event || "Other").slice(0, 40),
+    actual: String(req.body.actual || "—").slice(0, 40),
+    call: String(req.body.call || "flat").slice(0, 20),
+    result: ["hit", "miss", "scratch"].includes(req.body.result) ? req.body.result : "scratch",
+    at: new Date().toISOString()
+  };
+  body.logs = [row, ...(body.logs || [])].slice(0, 200);
+  writeScorecard(body);
+  res.json({ ok: true, logs: body.logs.slice(0, 20) });
 });
 
 app.listen(PORT, () => console.log("forex-desk on " + PORT));
