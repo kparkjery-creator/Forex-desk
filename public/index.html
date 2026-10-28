@@ -140,13 +140,45 @@
         </div>
 
         <div class="price-strip" id="price-strip">
+          <p class="kicker">Price gate checklist</p>
           <div class="price-strip-grid">
-            <div class="pa-cell"><span class="pa-label">Gold</span><strong id="pa-gold">—</strong><span id="pa-gold-sma" class="pa-sub">SMA —</span></div>
-            <div class="pa-cell"><span class="pa-label">DXY</span><strong id="pa-dxy">—</strong><span id="pa-dxy-sma" class="pa-sub">SMA —</span></div>
-            <div class="pa-cell"><span class="pa-label">US10Y</span><strong id="pa-y10">—</strong><span id="pa-y-chg" class="pa-sub">Δ —</span></div>
-            <div class="pa-cell pa-gate"><span class="pa-label">Gate</span><strong id="pa-gate">—</strong><span id="pa-gate-note" class="pa-sub">Needs agreement</span></div>
+            <div class="pa-cell" id="pa-cell-gold"><span class="pa-label">Gold</span><strong id="pa-gold">—</strong><span id="pa-gold-sma" class="pa-sub">SMA —</span><span class="pa-badge" id="pa-badge-gold">—</span></div>
+            <div class="pa-cell" id="pa-cell-dxy"><span class="pa-label">DXY</span><strong id="pa-dxy">—</strong><span id="pa-dxy-sma" class="pa-sub">SMA —</span><span class="pa-badge" id="pa-badge-dxy">—</span></div>
+            <div class="pa-cell" id="pa-cell-y10"><span class="pa-label">US10Y</span><strong id="pa-y10">—</strong><span id="pa-y-chg" class="pa-sub">Δ —</span><span class="pa-badge" id="pa-badge-y10">—</span></div>
+            <div class="pa-cell pa-gate" id="pa-cell-gate"><span class="pa-label">Gate</span><strong id="pa-gate">—</strong><span id="pa-gate-note" class="pa-sub">Needs agreement</span><span class="pa-badge" id="pa-badge-gate">—</span></div>
           </div>
         </div>
+
+        <!-- Risk calculator -->
+        <article class="card risk-card" id="risk-card">
+          <p class="kicker">Risk calculator</p>
+          <h3>Position size</h3>
+          <p class="section-desc">Account size × risk % ÷ stop distance → suggested gold lot size (standard 100oz contract ≈ $1/point per 0.01 lot on many brokers — adjust to your contract).</p>
+          <div class="risk-form">
+            <label>Balance ($)<input id="risk-balance" type="number" value="1000" min="1" step="100" /></label>
+            <label>Risk %<input id="risk-pct" type="number" value="1" min="0.1" max="5" step="0.1" /></label>
+            <label>Stop (pts)<input id="risk-stop" type="number" value="20" min="1" step="1" /></label>
+            <label>$ / point / lot<input id="risk-pipval" type="number" value="1" min="0.01" step="0.1" title="Exness/MT5 often ~$1 per point per 0.01 lot for XAU — set to your symbol" /></label>
+          </div>
+          <div class="risk-out">
+            <div><span>Risk $</span><strong id="risk-dollars">—</strong></div>
+            <div><span>Lots</span><strong id="risk-lots">—</strong></div>
+            <div><span>From signal stop</span><strong id="risk-from-sig">—</strong></div>
+          </div>
+        </article>
+
+        <!-- Session overlap monitor -->
+        <article class="card session-overlap" id="session-overlap">
+          <p class="kicker">Liquidity window</p>
+          <h3>Session overlap monitor</h3>
+          <div class="overlap-bar">
+            <div class="ov-seg asia" id="ov-asia">Asia</div>
+            <div class="ov-seg london" id="ov-london">London</div>
+            <div class="ov-seg overlap" id="ov-overlap">L/NY</div>
+            <div class="ov-seg ny" id="ov-ny">New York</div>
+          </div>
+          <p id="ov-note" class="section-desc">—</p>
+        </article>
       </div>
 
       <!-- FOMC playbook (always visible near decision week) -->
@@ -177,13 +209,14 @@
           </div>
           <div class="fomc-box">
             <h4>Scenario board</h4>
-            <table class="fomc-table">
-              <tr><th>Outcome</th><th>Gold</th><th>USD</th></tr>
-              <tr><td>Hike +25</td><td class="neg">Sell</td><td class="pos">Firm</td></tr>
-              <tr><td>Hold hawkish</td><td class="neg">Sell lean</td><td class="pos">Firm</td></tr>
-              <tr><td>Hold neutral</td><td>Fade first move</td><td>Mixed</td></tr>
-              <tr><td>Hold dovish</td><td class="pos">Buy lean</td><td class="neg">Soft</td></tr>
+            <table class="fomc-table" id="fomc-scenario-table">
+              <tr><th>Outcome</th><th>Gold</th><th>USD</th><th></th></tr>
+              <tr class="fomc-row" data-side="SELL" data-label="Hike +25"><td>Hike +25</td><td class="neg">Sell</td><td class="pos">Firm</td><td><button type="button" class="fomc-use">Use</button></td></tr>
+              <tr class="fomc-row" data-side="SELL" data-label="Hold hawkish"><td>Hold hawkish</td><td class="neg">Sell lean</td><td class="pos">Firm</td><td><button type="button" class="fomc-use">Use</button></td></tr>
+              <tr class="fomc-row" data-side="FLAT" data-label="Hold neutral"><td>Hold neutral</td><td>Fade first move</td><td>Mixed</td><td><button type="button" class="fomc-use">Use</button></td></tr>
+              <tr class="fomc-row" data-side="BUY" data-label="Hold dovish"><td>Hold dovish</td><td class="pos">Buy lean</td><td class="neg">Soft</td><td><button type="button" class="fomc-use">Use</button></td></tr>
             </table>
+            <p class="section-desc">Tap <strong>Use</strong> to load that scenario into the signal card levels (still wait for statement + price gate).</p>
           </div>
         </div>
         <p class="fomc-status" id="fomc-status">Status: loading…</p>
@@ -223,6 +256,11 @@
         </div>
         <div id="scorecard-list" class="scorecard-list"></div>
         <p id="scorecard-stats" class="scorecard-stats">No logs yet. Start after the next print.</p>
+        <div class="edge-metrics" id="edge-metrics">
+          <div class="edge-cell"><span>Win rate</span><strong id="edge-win">—</strong></div>
+          <div class="edge-cell"><span>Expectancy</span><strong id="edge-exp">—</strong></div>
+          <div class="edge-cell"><span>By event</span><strong id="edge-by">—</strong></div>
+        </div>
       </article>
 
       <!-- Economic drivers — where the signal comes from -->
@@ -497,46 +535,50 @@
 
     <section id="inst" class="panel">
       <h3>Institutional Desk</h3>
-      <p class="section-desc">Fed path, curve, tech levels, and risk sizing. Refreshes about every 90 seconds.</p>
+      <p class="section-desc">Fed path, curve, tech levels, and risk sizing. Auto-refresh ~90s · each card has Retry if a feed fails.</p>
 
       <div class="inst-grid">
-        <article class="card inst-widget">
-          <p class="widget-label">Fed Path</p>
+        <article class="card inst-widget" data-inst="fed">
+          <p class="widget-label">Fed Path <button type="button" class="inst-retry" data-retry="fed">Retry</button></p>
           <h4 id="fed-meeting">Next FOMC</h4>
           <div class="fed-bars">
-            <div><span>Cut</span><div class="bar"><i id="bar-cut"></i></div><b id="prob-cut">—</b></div>
-            <div><span>Hold</span><div class="bar"><i id="bar-hold"></i></div><b id="prob-hold">—</b></div>
-            <div><span>Hike</span><div class="bar"><i id="bar-hike"></i></div><b id="prob-hike">—</b></div>
+            <div><span>Cut</span><div class="bar"><i id="bar-cut" style="width:0%"></i></div><b id="prob-cut">—</b></div>
+            <div><span>Hold</span><div class="bar"><i id="bar-hold" style="width:0%"></i></div><b id="prob-hold">—</b></div>
+            <div><span>Hike</span><div class="bar"><i id="bar-hike" style="width:0%"></i></div><b id="prob-hike">—</b></div>
           </div>
           <small id="fed-implied">Implied rate —</small>
         </article>
 
-        <article class="card inst-widget">
-          <p class="widget-label">Yield Curve</p>
-          <div id="curve-box" class="curve-box">Loading curve…</div>
+        <article class="card inst-widget" data-inst="curve">
+          <p class="widget-label">Yield Curve <button type="button" class="inst-retry" data-retry="curve">Retry</button></p>
+          <div id="curve-box" class="curve-box skeleton">Loading curve…</div>
         </article>
 
-        <article class="card inst-widget">
-          <p class="widget-label">Tech Wall-Check</p>
-          <div id="tech-box">Loading…</div>
+        <article class="card inst-widget" data-inst="tech">
+          <p class="widget-label">Tech Wall-Check <button type="button" class="inst-retry" data-retry="tech">Retry</button></p>
+          <div id="tech-box" class="skeleton">Loading…</div>
         </article>
 
-        <article class="card inst-widget risk-widget">
-          <p class="widget-label">ATR Risk Size · Gold</p>
-          <div id="atr-box">Loading…</div>
+        <article class="card inst-widget risk-widget" data-inst="atr">
+          <p class="widget-label">ATR Risk Size · Gold <button type="button" class="inst-retry" data-retry="atr">Retry</button></p>
+          <div id="atr-box" class="skeleton">Loading…</div>
           <div class="risk-tool">
             <div class="risk-inputs">
-              <label>Balance <input id="inst-bal" type="number" value="1000"></label>
-              <label>Risk % <input id="inst-risk" type="number" value="1" step="0.1"></label>
+              <label>Balance $<input id="inst-bal" type="number" value="1000" min="1"></label>
+              <label>Risk %<input id="inst-risk" type="number" value="1" step="0.1" min="0.1" max="5"></label>
+              <label>Stop pts<input id="inst-stop" type="number" value="20" min="1" step="1"></label>
+              <label>$/pt/lot<input id="inst-pipval" type="number" value="1" min="0.01" step="0.1"></label>
             </div>
-            <div id="atr-size" class="risk-output">—</div>
+            <div id="atr-size" class="risk-output">Enter balance &amp; risk — size calculates live.</div>
           </div>
         </article>
       </div>
 
       <div class="inst-section">
-        <h3>Fed Speak</h3>
-        <div id="speakers" class="list"></div>
+        <h3>Fed Speak <button type="button" class="inst-retry" data-retry="speak">Retry</button></h3>
+        <p class="section-desc">Calendar speakers + macro headlines. Tone is a simple keyword flag, not a model.</p>
+        <div id="speakers" class="list skeleton">Loading speakers…</div>
+        <div id="fed-headlines" class="list"></div>
       </div>
 
       <div class="exec-module">
@@ -645,5 +687,6 @@
     </section>
   </main>
   <script src="app.js"></script>
+  <script src="institutional.js"></script>
 </body>
 </html>

@@ -203,7 +203,140 @@ function updateSignalCard(data, filterKey) {
   if (sideEl) {
     sideEl.className = "sig-side " + (side === "BUY" ? "pos" : side === "SELL" ? "neg" : "flat");
   }
+  if (typeof paintPriceGate === "function") paintPriceGate(b);
+  if (typeof syncRiskFromSignal === "function") syncRiskFromSignal();
 }
+
+
+function paintPriceGate(b) {
+  const pa = (b && b.priceAction) || {};
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  const badge = (id, state, label) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = label;
+    el.className = "pa-badge " + state;
+  };
+  if (pa.goldLast != null) {
+    const chg = pa.goldChg != null ? ((pa.goldChg >= 0 ? "+" : "") + pa.goldChg.toFixed(1)) : "";
+    set("pa-gold", pa.goldLast.toFixed(1) + " " + chg);
+    set("pa-gold-sma", "SMA " + (pa.goldVsSma || "—"));
+    badge("pa-badge-gold", pa.goldVsSma === "above" || (pa.goldChg != null && pa.goldChg >= 0) ? "green" : "red",
+      pa.goldChg != null && pa.goldChg >= 0 ? "FIRM" : "SOFT");
+  }
+  if (pa.dxyLast != null) {
+    const chg = pa.dxyChg != null ? ((pa.dxyChg >= 0 ? "+" : "") + pa.dxyChg.toFixed(3)) : "";
+    set("pa-dxy", pa.dxyLast.toFixed(2) + " " + chg);
+    set("pa-dxy-sma", "SMA " + (pa.dxyVsSma || "—"));
+    badge("pa-badge-dxy", (pa.dxyChg != null && pa.dxyChg > 0.05) ? "red" : "green",
+      (pa.dxyChg != null && pa.dxyChg > 0.05) ? "FIRM USD" : "SOFT USD");
+  }
+  if (pa.y10 != null) {
+    set("pa-y10", pa.y10.toFixed(2));
+    const yc = pa.yChg != null ? ((pa.yChg >= 0 ? "+" : "") + pa.yChg.toFixed(3)) : "—";
+    set("pa-y-chg", "Δ " + yc);
+    badge("pa-badge-y10", (pa.yChg != null && pa.yChg > 0.02) ? "red" : "green",
+      (pa.yChg != null && pa.yChg > 0.02) ? "YIELDS UP" : "YIELDS OK");
+  }
+  const gateEl = document.getElementById("pa-gate");
+  const gateNote = document.getElementById("pa-gate-note");
+  if (b && b.lockPreEvent) {
+    if (gateEl) { gateEl.textContent = "LOCKOUT"; gateEl.className = "flat"; }
+    badge("pa-badge-gate", "neutral", "FLAT");
+    if (gateNote) gateNote.textContent = "Pre-event";
+  } else if (b && b.blockedByPrice) {
+    if (gateEl) { gateEl.textContent = "BLOCKED"; gateEl.className = "block"; }
+    badge("pa-badge-gate", "red", "NO");
+    if (gateNote) gateNote.textContent = "Macro ≠ price";
+  } else if (b && b.macroLean === "sell_gold" && pa.agreesSellGold) {
+    if (gateEl) { gateEl.textContent = "SELL OK"; gateEl.className = "agree"; }
+    badge("pa-badge-gate", "green", "YES");
+    if (gateNote) gateNote.textContent = "Aligned";
+  } else if (b && b.macroLean === "buy_gold" && pa.agreesBuyGold) {
+    if (gateEl) { gateEl.textContent = "BUY OK"; gateEl.className = "agree"; }
+    badge("pa-badge-gate", "green", "YES");
+    if (gateNote) gateNote.textContent = "Aligned";
+  } else if (b && b.noTrade) {
+    if (gateEl) { gateEl.textContent = "FLAT"; gateEl.className = "flat"; }
+    badge("pa-badge-gate", "neutral", "WAIT");
+    if (gateNote) gateNote.textContent = "No-trade zone";
+  } else {
+    if (gateEl) { gateEl.textContent = "OPEN"; gateEl.className = "agree"; }
+    badge("pa-badge-gate", "green", "OPEN");
+    if (gateNote) gateNote.textContent = pa.text || "Path clear";
+  }
+}
+
+function calcRisk() {
+  const bal = Number(document.getElementById("risk-balance")?.value) || 1000;
+  const pct = Number(document.getElementById("risk-pct")?.value) || 1;
+  const stop = Number(document.getElementById("risk-stop")?.value) || 20;
+  const pipval = Number(document.getElementById("risk-pipval")?.value) || 1;
+  const riskDollars = bal * (pct / 100);
+  const lots = stop > 0 && pipval > 0 ? riskDollars / (stop * pipval) : 0;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set("risk-dollars", "$" + riskDollars.toFixed(2));
+  set("risk-lots", lots.toFixed(2));
+}
+
+function syncRiskFromSignal() {
+  const entry = parseFloat(document.getElementById("sig-entry")?.textContent);
+  const stop = parseFloat(document.getElementById("sig-stop")?.textContent);
+  if (Number.isFinite(entry) && Number.isFinite(stop)) {
+    const pts = Math.abs(entry - stop);
+    const inp = document.getElementById("risk-stop");
+    if (inp) inp.value = Math.max(1, Math.round(pts));
+    const from = document.getElementById("risk-from-sig");
+    if (from) from.textContent = pts.toFixed(1) + " pts";
+    calcRisk();
+  }
+}
+
+function paintSessionOverlap() {
+  // CAT = UTC+2
+  const h = (new Date().getUTCHours() + 2) % 24;
+  const ids = ["ov-asia", "ov-london", "ov-overlap", "ov-ny"];
+  ids.forEach((id) => document.getElementById(id)?.classList.remove("on"));
+  let note = "";
+  if (h >= 0 && h < 8) {
+    document.getElementById("ov-asia")?.classList.add("on");
+    note = "Asia session · quieter gold ranges. Avoid large FOMC risk until London/NY.";
+  } else if (h >= 8 && h < 14) {
+    document.getElementById("ov-london")?.classList.add("on");
+    note = "London · liquidity builds. Prepare ORB into 14:30–20:00 CAT US window.";
+  } else if (h >= 14 && h < 17) {
+    document.getElementById("ov-overlap")?.classList.add("on");
+    note = "London–NY overlap · highest impact. FOMC statement 20:00 CAT is inside the NY window.";
+  } else if (h >= 17 && h < 22) {
+    document.getElementById("ov-ny")?.classList.add("on");
+    note = "New York · FOMC / US data window. Size down into the print; trade the surprise.";
+  } else {
+    note = "Off-hours / thin. Prefer 24/7 gold only with tight risk.";
+  }
+  const n = document.getElementById("ov-note");
+  if (n) n.textContent = note;
+}
+
+function applyFomcScenario(side, label) {
+  const pa = (lastDeskData && lastDeskData.bias && lastDeskData.bias.priceAction) || {};
+  const px = pa.goldLast != null ? pa.goldLast : lastGold;
+  const levels = atrLevels(px, side === "FLAT" ? "FLAT" : side);
+  // atrLevels for FLAT returns entry only — fix BUY/SELL
+  const L = side === "FLAT" ? { entry: "—", stop: "—", tp1: "—", tp2: "—" } : atrLevels(px, side);
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set("sig-side", side);
+  set("sig-side-sm", side);
+  set("sig-event", "FOMC scenario: " + label);
+  set("sig-reason", "Scenario template only — wait for statement + price gate before size. " + label + " → " + side + " gold path.");
+  set("sig-entry", L.entry);
+  set("sig-stop", L.stop);
+  set("sig-tp1", L.tp1);
+  set("sig-tp2", L.tp2);
+  set("sig-conf", side === "FLAT" ? "20%" : "50%");
+  syncRiskFromSignal();
+  document.querySelectorAll(".fomc-row").forEach((r) => r.classList.toggle("on", r.getAttribute("data-label") === label));
+}
+
 
 function applyEventFilter(key) {
   activeFilter = key || "all";
@@ -352,6 +485,8 @@ function render(data) {
   `).join("") || "<p>No high-impact events returned.</p>";
 
   updateSignalCard(data, activeFilter);
+  paintSessionOverlap();
+  loadEdgeMetrics();
   // Keep filter selection; re-apply visibility on new cards
   document.querySelectorAll("#majors .card").forEach((card) => {
     const k = card.getAttribute("data-key") || "";
@@ -683,7 +818,7 @@ function renderScorecard() {
     };
   });
 }
-document.getElementById("sc-add")?.addEventListener("click", () => {
+document.getElementById("sc-add")?.addEventListener("click", async () => {
   const event = document.getElementById("sc-event")?.value || "Core CPI";
   const actual = document.getElementById("sc-actual")?.value || "—";
   const call = document.getElementById("sc-call")?.value || "flat";
@@ -691,10 +826,36 @@ document.getElementById("sc-add")?.addEventListener("click", () => {
   const rows = loadScorecard();
   rows.unshift({ event, actual, call, result, at: new Date().toISOString() });
   saveScorecard(rows);
+  try {
+    await fetch("/api/scorecard", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event, actual, call, result })
+    });
+  } catch (e) {}
   renderScorecard();
+  loadEdgeMetrics();
   const inp = document.getElementById("sc-actual");
   if (inp) inp.value = "";
 });
+
+async function loadEdgeMetrics() {
+  try {
+    const r = await fetch("/api/scorecard");
+    if (!r.ok) return;
+    const d = await r.json();
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    if (d.winRate != null) set("edge-win", Math.round(d.winRate * 100) + "% (" + d.hits + "/" + (d.hits + d.misses) + ")");
+    else set("edge-win", "—");
+    // simple expectancy +1R / -1R
+    const n = (d.hits || 0) + (d.misses || 0);
+    if (n) set("edge-exp", ((d.hits - d.misses) / n).toFixed(2) + "R");
+    else set("edge-exp", "—");
+    const parts = Object.entries(d.byEvent || {}).map(([k, v]) => k + " " + (v.hit || 0) + "H/" + (v.miss || 0) + "M");
+    set("edge-by", parts.slice(0, 4).join(" · ") || "—");
+  } catch (e) {}
+}
+
 
 // Seed Oct 14 Core CPI hot as first log if empty
 (function seedScorecard() {
@@ -742,4 +903,23 @@ setInterval(highlightSession, 60000);
 
 document.getElementById("refresh")?.addEventListener("click", () => {
   load(true).catch((e) => console.error(e));
+});
+
+// Risk inputs
+["risk-balance", "risk-pct", "risk-stop", "risk-pipval"].forEach((id) => {
+  document.getElementById(id)?.addEventListener("input", calcRisk);
+});
+calcRisk();
+paintSessionOverlap();
+setInterval(paintSessionOverlap, 60000);
+loadEdgeMetrics();
+
+// Interactive FOMC scenarios
+document.querySelectorAll(".fomc-use").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    const row = btn.closest(".fomc-row");
+    if (!row) return;
+    applyFomcScenario(row.getAttribute("data-side") || "FLAT", row.getAttribute("data-label") || "scenario");
+  });
 });

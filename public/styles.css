@@ -1808,3 +1808,188 @@ form button {
   color: #1a1406 !important;
   font-weight: 700;
 }
+
+.pa-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  background: #3a4358;
+  color: #c8b89a;
+}
+.pa-badge.green { background: rgba(61,214,140,.2); color: #3dd68c; }
+.pa-badge.red { background: rgba(240,113,120,.2); color: #f07178; }
+.pa-badge.neutral { background: rgba(139,149,168,.2); color: #8b95a8; }
+
+.risk-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+.risk-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted, #8b95a8);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.risk-form input {
+  background: var(--card2, #222836);
+  border: 1px solid var(--line, #2a3142);
+  border-radius: 10px;
+  padding: 10px;
+  color: var(--text, #e8ecf4);
+  font-size: 14px;
+}
+.risk-out {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.risk-out div {
+  background: var(--card2, #222836);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.risk-out span { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.risk-out strong { font-size: 16px; color: var(--gold, #e0b34d); }
+
+.overlap-bar {
+  display: grid;
+  grid-template-columns: 1.2fr 1.2fr 1fr 1.2fr;
+  gap: 6px;
+  margin: 12px 0 8px;
+}
+.ov-seg {
+  text-align: center;
+  padding: 12px 6px;
+  border-radius: 10px;
+  background: var(--card2, #222836);
+  border: 1px solid var(--line, #2a3142);
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.ov-seg.on {
+  background: rgba(224, 179, 77, .18);
+  border-color: var(--gold, #e0b34d);
+  color: var(--gold, #e0b34d);
+  box-shadow: 0 0 12px rgba(224, 179, 77, .15);
+}
+.ov-seg.overlap.on {
+  background: rgba(124, 140, 255, .2);
+  border-color: var(--accent, #7c8cff);
+  color: var(--accent, #7c8cff);
+}
+
+.fomc-row.on { background: rgba(224, 179, 77, .1); }
+.fomc-use {
+  background: var(--card2, #222836);
+  border: 1px solid var(--line);
+  color: var(--gold);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.fomc-use:hover { background: var(--gold); color: #1a1406; }
+
+.edge-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+.edge-cell {
+  background: var(--card2, #222836);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid var(--line);
+}
+.edge-cell span { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.edge-cell strong { font-size: 14px; color: var(--text); }
+
+.inst-retry {
+  float: right;
+  background: transparent;
+  border: 1px solid var(--line, #2a3142);
+  color: var(--muted, #8b95a8);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.inst-retry:hover { color: var(--gold); border-color: var(--gold); }
+.skeleton { opacity: 0.65; animation: pulse 1.4s infinite; }
+.inst-err { color: #f07178; font-size: 13px; }
+.fed-bars .bar {
+  height: 8px;
+  background: #2a3142;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 4px 0;
+}
+.fed-bars .bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold, #e0b34d), #c4922e);
+  width: 0%;
+  transition: width .4s ease;
+}
+.fed-bars > div {
+  display: grid;
+  grid-template-columns: 48px 1fr 42px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+.risk-output {
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--card2, #222836);
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+}
+.risk-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.risk-inputs label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.risk-inputs input {
+  background: var(--card2, #222836);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  color: var(--text);
+}
+.tl-del {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+}
+.tone-hawkish { color: #f07178; }
+.tone-dovish { color: #3dd68c; }
+.tone-neutral { color: var(--muted); }
