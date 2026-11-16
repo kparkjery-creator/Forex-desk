@@ -69,12 +69,13 @@ svg text{font-family:system-ui,sans-serif}
  <h1>Today</h1><p class="sub" id="todaydate"></p>
  <div class="note noprint"><strong>Education, not advice.</strong> Vol 100 is random. Practise on a demo account until the account holder is an adult. The market snapshot below is a dated reading, not a prediction.</div>
  <div class="grid g2" style="margin-top:14px">
-  <div class="card"><h3 style="margin-top:0">Market snapshot · Sun 15 Nov, 16:37</h3>
-   <p>Price about <strong>594.3</strong>, back under the 595–600 ceiling. Range 578–599, upper third. H4 still a down trend with a counter-trend bounce; H1 and M30 up.</p>
-   <div class="tw"><table><thead><tr><th>Scenario</th><th>You would see</th><th>Meaning</th></tr></thead><tbody>
-   <tr><td><span class="pill p-bad">Rejection</span></td><td>M15/M30 candle rejects 595–599, closes under ~592</td><td>Short, stop ~601.5. Target 589.5 (≈1.7:1) or 578.2 (≈4:1)</td></tr>
-   <tr><td><span class="pill p-good">Break up</span></td><td>M30 closes above 600 and the retest holds</td><td>Half-size long only. 604.81 is close, so aim for 630.58</td></tr>
-   <tr><td><span class="pill p-warn">Range</span></td><td>Price stays 590–595</td><td>No edge. Wait</td></tr></tbody></table></div>
+  <div class="card"><h3 style="margin-top:0">Market snapshot · Mon 16 Nov, ~03:50</h3>
+   <p>Price about <strong>595</strong>, a bounce from the pull-back low ~592.3 after the peak near 617 (15 Nov, late evening). H4 slow line flat near 585–586 with price above it; H1 pull-back holding above its rising average (~590); M30 still making lower highs. Mid-range 589–604: no edge.</p>
+   <div class="tw"><table><thead><tr><th>Scenario</th><th>You would see</th><th>Plan</th></tr></thead><tbody>
+   <tr><td><span class="pill p-good">Breakout</span></td><td>M30 closes above 604.81, retest holds</td><td>Buy ~605.5, stop ~3 below, target ~617 (≈3.8:1). Half size</td></tr>
+   <tr><td><span class="pill p-bad">Breakdown</span></td><td>M30 closes below 588.91, retest fails from below</td><td>Sell ~588.5, stop ~592, target 577.94 (≈3:1). Half size</td></tr>
+   <tr><td><span class="pill p-warn">Range</span></td><td>Price stays 589–604</td><td>No trade</td></tr></tbody></table></div>
+   <p class="small mute">A bounce is not a trigger. Judge every trade by the rules, not by what price did next.</p>
   </div>
   <div class="card"><h3 style="margin-top:0">Daily limits</h3>
    <div class="row"><div><label>Account balance</label><input id="d-bal" type="number" step="any" placeholder="e.g. 100"></div><div><label>Max losses today</label><select id="d-max"><option>2</option><option selected>3</option></select></div></div>
@@ -90,9 +91,9 @@ svg text{font-family:system-ui,sans-serif}
 <section class="view" id="v-zones">
  <h1>Zone map</h1><p class="sub">Every line audited on H4 → M15. Zones are bands, not exact lines. Edit the price to see room above and below.</p>
  <div class="grid g2">
-  <div class="card"><div class="row"><div><label>Current price</label><input id="z-price" type="number" step="any" value="594.3"></div><div><label>Planned stop (points)</label><input id="z-stop" type="number" step="any" value="4"></div></div><div id="z-room"></div><svg id="z-svg" viewBox="0 0 520 560" width="100%"></svg></div>
+  <div class="card"><div class="row"><div><label>Current price</label><input id="z-price" type="number" step="any" value="595.3"></div><div><label>Planned stop (points)</label><input id="z-stop" type="number" step="any" value="4"></div></div><div id="z-room"></div><svg id="z-svg" viewBox="0 0 520 560" width="100%"></svg></div>
   <div class="card"><div class="tw"><table id="z-table"><thead><tr><th>Zone</th><th>Verdict</th><th>Evidence / use</th></tr></thead><tbody></tbody></table></div>
-   <p class="small mute">Strong = 2+ touches, both sides or flipped. OK = crossed often, little reaction. Weak = never really touched. Add 599.5 and 495 (new). Audit from the 15 Nov screenshots, prices approximate to a few points; D1 and M5 still to be added.</p></div>
+   <p class="small mute">Strong = 2+ touches, both sides or flipped. OK = crossed often, little reaction. Weak = never really touched. Add 599.5 and 495 (new). Audit from the 15–16 Nov screenshots (604.81 upgraded after it was tested), prices approximate to a few points; D1 and M5 still to be added.</p></div>
  </div>
 </section>
 
@@ -118,6 +119,7 @@ svg text{font-family:system-ui,sans-serif}
 <section class="view" id="v-journal">
  <h1>Journal</h1><p class="sub">Demo goal: at least 30 days and 50 trades before real money (adult account holder only).</p>
  <div class="grid g4" id="j-stats"></div>
+ <div class="card"><h3 style="margin-top:0">Track record: recorded case studies</h3><div class="tw"><table><thead><tr><th>Date</th><th>Dir</th><th>Lot</th><th>Entry</th><th>Stop</th><th>Target</th><th>Exit</th><th>Result</th><th>Grade</th><th>Lesson</th></tr></thead><tbody><tr><td>16 Nov 00:45–03:42</td><td>Buy</td><td>1.00</td><td>600.39</td><td>none</td><td>606.86</td><td>~592.9</td><td>~-7.5 pts</td><td>C</td><td>Under the 604.81 wall, no stop, lot too large (Ch 20)</td></tr></tbody></table></div><p class="small mute">Read from screenshots, approximate. The journal below calculates R for trades that have a stop.</p></div>
  <div class="card"><div class="row"><div><label>Date</label><input id="j-date" type="date"></div><div><label>Dir</label><select id="j-dir"><option value="buy">Buy</option><option value="sell">Sell</option></select></div><div><label>Entry</label><input id="j-en" type="number" step="any"></div><div><label>Stop</label><input id="j-sl" type="number" step="any"></div><div><label>Exit</label><input id="j-ex" type="number" step="any"></div><div><label>Grade</label><select id="j-gr"><option>A</option><option>B</option><option>C</option></select></div></div>
   <label>Why I took it / what I learned</label><textarea id="j-note" rows="2"></textarea>
   <div class="row" style="margin-top:10px"><button class="btn" id="j-add">Add trade</button><button class="btn ghost" id="j-csv">Export CSV</button></div></div>
@@ -126,8 +128,8 @@ svg text{font-family:system-ui,sans-serif}
 
 <!-- BOOK -->
 <section class="view" id="v-book">
- <div class="row noprint" style="align-items:center"><div><h1>Trading Volatility 100: illustrated guide</h1><p class="sub">19 chapters, every diagram from your charts. Tap a diagram to enlarge.</p></div><div style="flex:0 0 auto;display:flex;gap:8px"><input id="b-search" placeholder="Search the book…" style="width:200px"><button class="btn ghost" onclick="window.print()">Print all</button></div></div>
- <div class="toc noprint" id="toc"><a href="#" data-chap="c0">Read this first</a><a href="#" data-chap="c1">Chapter 1: What Volatility 100 is</a><a href="#" data-chap="c2">Chapter 2: Reading the trend</a><a href="#" data-chap="c3">Chapter 3: Support and resistance</a><a href="#" data-chap="c4">Chapter 4: The three moving averages</a><a href="#" data-chap="c5">Chapter 5: Stop loss, target and risk-to-reward</a><a href="#" data-chap="c6">Chapter 6: Position sizing, the 1% rule</a><a href="#" data-chap="c7">Chapter 7: The step-by-step entry plan</a><a href="#" data-chap="c8">Chapter 8: Daily rules and mindset</a><a href="#" data-chap="c9">Chapter 9: Common mistakes and the pre-trade checklist</a><a href="#" data-chap="c10">Chapter 10: Journal and the demo-first plan</a><a href="#" data-chap="c11">Chapter 11: The three-timeframe routine</a><a href="#" data-chap="c12">Chapter 12: When to enter</a><a href="#" data-chap="c13">Chapter 13: When to exit and manage a trade</a><a href="#" data-chap="c14">Chapter 14: When to add another position</a><a href="#" data-chap="c15">Chapter 15: When to stay away from the chart</a><a href="#" data-chap="c16">Chapter 16: A live example, 14 to 15 November 2026</a><a href="#" data-chap="c17">Chapter 17: Our market approach to Volatility 100</a><a href="#" data-chap="c18">Chapter 18: The bigger picture and the top-down strategy</a><a href="#" data-chap="c19">Chapter 19: Teaching your son</a><a href="#" data-chap="c20">Glossary</a><a href="#" data-chap="c21">One-page cheat sheet</a></div>
+ <div class="row noprint" style="align-items:center"><div><h1>Trading Volatility 100: illustrated guide</h1><p class="sub">21 chapters, every diagram from your charts, plus the full PDF. Tap a diagram to enlarge.</p></div><div style="flex:0 0 auto;display:flex;gap:8px"><input id="b-search" placeholder="Search the book…" style="width:200px"><a class="btn ghost" href="vol100/Trading_Volatility_100_Guide.pdf" download style="text-decoration:none">Download PDF</a><button class="btn ghost" onclick="window.print()">Print all</button></div></div>
+ <div class="toc noprint" id="toc"><a href="#" data-chap="c0">Read this first</a><a href="#" data-chap="c1">Chapter 1: What Volatility 100 is</a><a href="#" data-chap="c2">Chapter 2: Reading the trend</a><a href="#" data-chap="c3">Chapter 3: Support and resistance</a><a href="#" data-chap="c4">Chapter 4: The three moving averages</a><a href="#" data-chap="c5">Chapter 5: Stop loss, target and risk-to-reward</a><a href="#" data-chap="c6">Chapter 6: Position sizing, the 1% rule</a><a href="#" data-chap="c7">Chapter 7: The step-by-step entry plan</a><a href="#" data-chap="c8">Chapter 8: Daily rules and mindset</a><a href="#" data-chap="c9">Chapter 9: Common mistakes and the pre-trade checklist</a><a href="#" data-chap="c10">Chapter 10: Journal and the demo-first plan</a><a href="#" data-chap="c11">Chapter 11: The three-timeframe routine</a><a href="#" data-chap="c12">Chapter 12: When to enter</a><a href="#" data-chap="c13">Chapter 13: When to exit and manage a trade</a><a href="#" data-chap="c14">Chapter 14: When to add another position</a><a href="#" data-chap="c15">Chapter 15: When to stay away from the chart</a><a href="#" data-chap="c16">Chapter 16: A live example, 14 to 15 November 2026</a><a href="#" data-chap="c17">Chapter 17: Our market approach to Volatility 100</a><a href="#" data-chap="c18">Chapter 18: The bigger picture and the top-down strategy</a><a href="#" data-chap="c19">Chapter 19: Teaching your son</a><a href="#" data-chap="c20">Chapter 20: Case study 1, the losing buy of 16 November</a><a href="#" data-chap="c21">Chapter 21: Case study 2, reading the turn after the loss (16 Nov, about 03:50)</a><a href="#" data-chap="c22">Glossary</a><a href="#" data-chap="c23">One-page cheat sheet</a></div>
  <div id="book"><section class="chap" id="c0" data-title="Read this first">
 <h2>Read this first</h2>
 <p>Volatility 100 is a computer-generated random price series, so no news or fundamentals give anyone a guaranteed edge, and most retail traders lose money on it. This guide teaches how to trade it with discipline: limit every loss, trade with the trend, and avoid the habits that wipe out accounts.</p>
@@ -605,7 +607,112 @@ svg text{font-family:system-ui,sans-serif}
 <li>No one can predict this market. We only manage risk.</li>
 </ul>
 </section>
-<section class="chap" id="c20" data-title="Glossary">
+<section class="chap" id="c20" data-title="Chapter 20: Case study 1, the losing buy of 16 November">
+<h2>Chapter 20: Case study 1, the losing buy of 16 November</h2>
+<p>Losing an account hurts, and it happens to almost every trader at least once. A track record that includes the losses is worth far more than one that hides them, because the losses are where the lessons are. This chapter records one real trade from your own charts, explains why the market moved the way it did, and checks the trade against the rules in this book. It is written to learn from, not to blame. The numbers are read from screenshots, so treat them as accurate to a point or two.</p>
+<h3>20.1 The trade record</h3>
+<div class="tw"><table><thead><tr><th>Item</th><th>Detail</th></tr></thead><tbody>
+<tr><td>Market</td><td>Volatility 100 Index</td></tr>
+<tr><td>Direction</td><td>Buy, 1.00 lot (about $1 per point, from the platform's own profit line)</td></tr>
+<tr><td>Opened</td><td>16 Nov, about 00:45, near 600.39 (blue arrow on M5)</td></tr>
+<tr><td>Target</td><td>606.86</td></tr>
+<tr><td>Stop loss</td><td>None visible on the chart</td></tr>
+<tr><td>Closed</td><td>About 03:42 near 592.9 (red arrow on M5)</td></tr>
+<tr><td>Result</td><td>About 7.5 points against, so roughly -$7.50 at that size (the chart showed -6.02 USD at 594.37)</td></tr>
+<tr><td>Grade</td><td>C (see 20.3)</td></tr>
+</tbody></table></div>
+<p>If that loss was most of the account, then the lot size was the biggest problem, more than the entry. Chapter 6 sizes the lot from the stop distance so that one losing trade costs about 1% of the account.</p>
+<figure><img loading="lazy" data-img="fig19_m15_case" alt="M15: your buy at 600.39 under the 604.81 wall, after the peak near 617"><figcaption>M15: your buy at 600.39 under the 604.81 wall, after the peak near 617</figcaption></figure>
+<h3>20.2 Why the market moved the way it did</h3>
+<p>Volatility 100 is a random series, so nobody can know why a particular move happens. What we can do is describe the structure that was visible. Read in order:</p>
+<div class="tw"><table><thead><tr><th>When</th><th>What price did</th><th>What it means</th></tr></thead><tbody>
+<tr><td>Sun 15 Nov, afternoon</td><td>Rejected the 595 to 600 ceiling three times</td><td>The range 578 to 599 held and the ceiling was real</td></tr>
+<tr><td>Sun evening</td><td>Broke above 600, then through 604.81, and ran to a peak near 617 (about +40 points from 577.94)</td><td>This was the "break up" scenario in section 18.7. It worked for several hours</td></tr>
+<tr><td>Late night</td><td>The fast averages on M5 and M15 turned down at the peak. Price fell back through 604.81 and 600</td><td>A <strong>failed breakout</strong>: price went beyond a wall, could not stay there, and returned. Everyone who bought the breakout is now underwater, so bounces meet sellers</td></tr>
+<tr><td>About 00:15</td><td>A retest of 604.81 from below was rejected at about 604.5</td><td>The wall held from underneath and price made a <strong>lower high</strong></td></tr>
+<tr><td>00:45</td><td>Your buy near 600.39</td><td>The buy was placed after that rejection, below the wall and below the falling averages</td></tr>
+<tr><td>01:00 to 03:42</td><td>Lower highs near 602, then a fall through the M5 slow line (about 595.7) to about 593</td><td>Sellers stayed in control until the next support (588.91)</td></tr>
+</tbody></table></div>
+<figure><img loading="lazy" data-img="fig20_m30_case" alt="M30: the 40-point rally, the failed breakout and the 25-point fall"><figcaption>M30: the 40-point rally, the failed breakout and the 25-point fall</figcaption></figure>
+<p>Two more reasons the pull-back was likely, not certain. First, price had stretched far above the H4 slow line, which sat near 580 to 585, and stretched moves often return toward it. Second, the 595 to 605 area had stopped price many times, so it is a natural place for a reversal.</p>
+<p><strong>A correction to our own audit.</strong> In section 18.9 we marked 604.81 as "weak as drawn" because price had not touched it. It has now been tested twice, once when price broke through and once when the retest was rejected near 604.5. Treat 604.81 as a valid ceiling. This is why a zone audit must be repeated after every big move.</p>
+<figure><img loading="lazy" data-img="fig21_m5_case" alt="M5: the exact buy, the rejected retest of 604.81 and the close"><figcaption>M5: the exact buy, the rejected retest of 604.81 and the close</figcaption></figure>
+<h3>20.3 The buy checked against the rules</h3>
+<div class="tw"><table><thead><tr><th>Rule from this book</th><th>This trade</th><th>Result</th></tr></thead><tbody>
+<tr><td>Trade with the direction of the frame you trade on (Ch 7, 11)</td><td>M15 and M30 averages had turned down after the peak</td><td>Fail</td></tr>
+<tr><td>Room to the next wall is at least 2 times the stop (18.4)</td><td>The wall at 604.81 was only 4.4 points above the entry, and the target 606.86 sat beyond it</td><td>Fail</td></tr>
+<tr><td>A real trigger first: an M30 candle closes and holds beyond the wall (Ch 12)</td><td>The buy was under the wall, with no close above it</td><td>Fail</td></tr>
+<tr><td>A stop loss is set before entering (Ch 5)</td><td>No stop is visible</td><td>Fail</td></tr>
+<tr><td>Reward-to-risk of 2 or better (Ch 5)</td><td>With a stop of 3 points the paper figure is 2.2 : 1, but realistic room was 4.4 points, about 1.5 : 1</td><td>Fail</td></tr>
+<tr><td>Lot sized so the stop costs about 1% (Ch 6)</td><td>1.00 lot with no stop</td><td>Fail</td></tr>
+<tr><td>Trade grade (18.6)</td><td>Only a bounce idea, other frames against</td><td>C: skip</td></tr>
+</tbody></table></div>
+<p>One or two failed checks can be forgiven on a good day. Seven out of seven is a gamble, and gambles on a random index lose over time.</p>
+<h3>20.4 What the same chart offered under the rules</h3>
+<p>This is hindsight, so read it as practice, not as a promise:</p>
+<ol>
+<li><strong>Stay out.</strong> After a failed breakout the middle zone (595 to 604) has no edge. This was the best option.</li>
+<li><strong>Sell the failed retest.</strong> Price rejected at about 604.5. A sell near 604.2 with the stop above the wall at about 606.5 risks 2.3 points. A target near 595 is about 9 points, roughly 4 : 1. The rule is to enter only after a candle closes back down from the wall, and to place the stop first.</li>
+<li><strong>Buy only on a proven breakout.</strong> An M30 close above 604.81, then a retest that holds, with the stop below the wall. That setup never appeared.</li>
+</ol>
+<h3>20.5 Rules to keep from this loss</h3>
+<ol>
+<li>No stop loss, no trade. Place the stop before pressing the button.</li>
+<li>Size the lot from the stop distance so that one loss is about 1% of the account. If the smallest lot is too big, skip the trade.</li>
+<li>Never buy just under a wall, or sell just above a floor. Wait for the close beyond it and the retest.</li>
+<li>After a big move (about 40 points), do not chase. Wait for a pull-back to a zone.</li>
+<li>After a failed breakout, the fade (a trade the other way) needs a failed retest and a stop beyond the wall.</li>
+<li>After any losing trade, stop for the day. After a large loss, go back to a demo account until the journal shows 30 days and 50 trades following the rules (Chapter 10).</li>
+<li>Log every trade, wins and losses, with the grade. Review them every Sunday.</li>
+</ol>
+<p>If the loss feels heavier than the money, talk to someone you trust. A lost account can be rebuilt over time, and it does not say anything about you as a person.</p>
+<h3>20.6 Track-record template</h3>
+<div class="tw"><table><thead><tr><th>Date and time</th><th>Direction</th><th>Lot</th><th>Entry</th><th>Stop</th><th>Target</th><th>Exit</th><th>Result (points)</th><th>Grade</th><th>Lesson</th></tr></thead><tbody>
+<tr><td>16 Nov 00:45 to 03:42</td><td>Buy</td><td>1.00</td><td>600.39</td><td>none</td><td>606.86</td><td>about 592.9</td><td>about -7.5</td><td>C</td><td>Under the wall, no stop, lot too large</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody></table></div>
+</section>
+<section class="chap" id="c21" data-title="Chapter 21: Case study 2, reading the turn after the loss (16 Nov, about 03:50)">
+<h2>Chapter 21: Case study 2, reading the turn after the loss (16 Nov, about 03:50)</h2>
+<p>After a loss the market often seems to turn the moment you are out. This chapter reads the charts taken a few minutes after the trade in Chapter 20 closed, and uses them to teach three things: how to read a pull-back, how to tell a bounce from a trigger, and how to judge a trade by the rules and not by what price did next. Prices are read from screenshots and are approximate.</p>
+<h3>21.1 What the charts show now</h3>
+<div class="tw"><table><thead><tr><th>Frame</th><th>What it shows</th><th>What it means</th></tr></thead><tbody>
+<tr><td>H4</td><td>The slow line stopped falling and is flat near 585 to 586. Price closed above it (the 15 Nov 04:00 candle) and has stayed above. The 15 Nov 20:00 candle has a long upper wick to about 618</td><td>The bigger picture improved from a down-trend bounce to neutral or up. The rejection wick says sellers defended the high</td></tr>
+<tr><td>H1</td><td>Peak near 618, then a pull-back of about 25 points. Price is still above the rising H1 average (about 590) and above 588.91</td><td>A pull-back inside a rising structure, not yet a reversal</td></tr>
+<tr><td>M30</td><td>Lower highs since the peak and price under both averages</td><td>The short term is still down</td></tr>
+<tr><td>M15 and M5</td><td>A low near 592.3, then a bounce to about 595.65. Price is under the M5 slow line (about 597) and the falling M5 average (about 599.5)</td><td>A bounce without a trigger</td></tr>
+</tbody></table></div>
+<figure><img loading="lazy" data-img="fig22_h4_after" alt="H4: the slow line has flattened and price holds above it"><figcaption>H4: the slow line has flattened and price holds above it</figcaption></figure>
+<figure><img loading="lazy" data-img="fig23_h1_after" alt="H1: a pull-back from 618 that is holding above the rising average"><figcaption>H1: a pull-back from 618 that is holding above the rising average</figcaption></figure>
+<h3>21.2 Did the direction change?</h3>
+<p>Not in any way that proves the earlier trade was right or wrong. Volatility 100 is a random series, so it does not know where your trade is. After a fall of about 25 points, a small bounce is normal. The low of about 592.3 sat close to the H1 average and above the 588.91 support, which is exactly where a pull-back in a rising structure often pauses. Whether the bounce continues is unknown.</p>
+<figure><img loading="lazy" data-img="fig25_m5_bounce" alt="M5: a bounce to 595.65 that is still below the M5 slow line"><figcaption>M5: a bounce to 595.65 that is still below the M5 slow line</figcaption></figure>
+<p><strong>Judge by the rules, not by what price did next.</strong> A trade that breaks the rules is a bad trade even if price happens to go your way afterwards, and a trade that follows the rules is a good trade even if it loses. If you judge by the outcome, you will start breaking rules because "it worked last time".</p>
+<h3>21.3 What the plan says at 595</h3>
+<p>Price is in the middle of the zone between 588.91 and 604.81. The middle of a range has no edge, so the first answer is to wait. These are the conditions that would change that:</p>
+<div class="tw"><table><thead><tr><th>Scenario</th><th>What you need to see</th><th>Plan</th></tr></thead><tbody>
+<tr><td>Bounce becomes a trade</td><td>An M30 candle closes above about 600.5 and holds</td><td>The wall at 604.81 is only about 4 points away, so it fails the 2 : 1 rule. Wait for the bigger break instead</td></tr>
+<tr><td>Real breakout</td><td>An M30 close above 604.81, then a retest that holds</td><td>Buy near 605.5 with the stop about 3 below. The last high near 617 is about 11.5 points away, about 3.8 : 1. Half size while H4 is not yet clearly up</td></tr>
+<tr><td>Breakdown</td><td>An M30 close below 588.91, then a retest that fails from below</td><td>Sell near 588.5 with the stop at about 592. Target 577.94 is about 10.5 points for 3.5 risked, about 3 : 1. Grade B: half size, because H4 has improved</td></tr>
+<tr><td>Nothing happens</td><td>Price stays between 589 and 604</td><td>No trade</td></tr>
+</tbody></table></div>
+<p>These are scenarios, not predictions. The market can ignore all of them.</p>
+<h3>21.4 Your trade marks: counting your own arrows</h3>
+<figure><img loading="lazy" data-img="fig24_m15_trades" alt="M15: the blue and red arrows are your trades"><figcaption>M15: the blue and red arrows are your trades</figcaption></figure>
+<p>The arrows on the chart are your own trade history. Several buy-and-close pairs appear within about 18 hours. That is not a judgement. It is a prompt: for every arrow, can you write one line in the journal saying which rule gave the entry? The book allows a limit of 2 to 3 losses in a day, and the more trades you take, the faster that limit arrives. Fewer, better trades protect the account.</p>
+<h3>21.5 Lessons from this chart</h3>
+<ol>
+<li>A bounce is not a trigger. Wait for a candle close beyond the average or the wall.</li>
+<li>The middle of a range is a no-trade zone.</li>
+<li>Pull-backs to the H1 average inside a rising structure are where good buys can appear, but only with a trigger, a stop and a small size.</li>
+<li>Judge each trade by the rules, not by the next candle.</li>
+<li>Count your arrows. Every trade needs a reason written down before it is placed.</li>
+<li>After a large loss, rest for a day, then restart on a demo account until the journal shows 30 days and 50 trades that follow the rules.</li>
+</ol>
+<p><strong>Exercise (demo account):</strong> open M15, mark each arrow on your own history, and write one line for each: the rule, the stop and the result in points. Then grade each trade A, B or C.</p>
+</section>
+<section class="chap" id="c22" data-title="Glossary">
 <h2>Glossary</h2>
 <div class="tw"><table><thead><tr><th>Word</th><th>Meaning</th></tr></thead><tbody>
 <tr><td>Point</td><td>The smallest unit price is measured in.</td></tr>
@@ -623,7 +730,7 @@ svg text{font-family:system-ui,sans-serif}
 <tr><td>Demo account</td><td>A practice account with pretend money.</td></tr>
 </tbody></table></div>
 </section>
-<section class="chap" id="c21" data-title="One-page cheat sheet">
+<section class="chap" id="c23" data-title="One-page cheat sheet">
 <h2>One-page cheat sheet</h2>
 <p><strong>Before any trade, answer yes to all of these:</strong></p>
 <ol>
@@ -653,7 +760,7 @@ svg text{font-family:system-ui,sans-serif}
 </section>
 
 <!-- GALLERY -->
-<section class="view" id="v-gallery"><h1>Diagram gallery</h1><p class="sub">All annotated charts and diagrams in one place.</p><div class="gal" id="gal"></div></section>
+<section class="view" id="v-gallery"><h1>Diagram gallery</h1><p class="sub">All annotated charts and diagrams in one place.</p><div class="card"><h3 style="margin-top:0">Video: how the market moved (14–15 Nov)</h3><video controls preload="none" style="width:100%;max-width:420px;border-radius:10px" src="vol100/Vol100_market_move.mp4"></video><p class="small mute">82 seconds, built from your charts.</p></div><div class="gal" id="gal"></div></section>
 
 <!-- ABOUT -->
 <section class="view" id="v-about"><h1>About &amp; data</h1>
@@ -666,7 +773,7 @@ svg text{font-family:system-ui,sans-serif}
 </main></div>
 <div id="lb"><img alt=""></div>
 <script>
-const IMGS=Object.fromEntries(["fig1_h1_trend", "fig2_zone_overshoot", "fig3_ma_roles", "fig4_trade_plan", "fig5_h4", "fig6_h1", "fig7_m30", "flow", "fig8_m15_trade", "timeline", "fig9_breakout", "fig10_failed_breakout", "fig11_retest_held", "fig12_h4_big_picture", "fig13_second_push", "states", "fig15_h4_wide", "fig16_h1_wide", "fig17_h4_audit", "fig18_m15_zones", "fig14_overnight_dip", "scenarios_m30"].map(n=>[n,'vol100/img/'+n+'.jpg'])),CAPS={"fig1_h1_trend": "Your H1 chart of Volatility 100 with three rising lows marked", "fig2_zone_overshoot": "Your M15 chart with the 571.28 zone and two overshoots marked", "fig3_ma_roles": "Your M15 chart with the three moving averages labelled", "fig4_trade_plan": "Your M15 chart with Setup B entry, stop and target marked", "fig5_h4": "H4 chart: resistance at 578.94 plus the falling purple line, support at 549.05", "fig6_h1": "H1 chart: higher low at 549, rising purple line, highs rejected at 575 to 579", "fig7_m30": "M30 chart: price in the middle of the range, pullback zone below, rejection zone above", "flow": "Decision path: look top-down, score, trigger, checklist, enter, manage, add or stay away", "fig8_m15_trade": "M15 chart of the short trade: stop, entry, halfway and target", "timeline": "One buy from entry to target, with the stop moved to break-even at the halfway point", "fig9_breakout": "M30 chart on 15 Nov at 09:20: breakout above 578.94, the missed entry and the better retest entry", "fig10_failed_breakout": "M15 chart on 15 Nov at 12:44: the high near 599, the failed retest of 588.91, and the 578.94 support zone", "fig11_retest_held": "M15 chart on 15 Nov at 13:10: the retest of 578.94 held, with a possible entry, stop and target drawn in", "fig12_h4_big_picture": "H4 chart: the crash to 495, the recovery, the 549 to 579 range, and the spike to 599 that was rejected", "fig13_second_push": "M15 chart on 15 Nov at 14:05: the second push above 588.91 after the retest held at about 577", "states": "Four market states and the plan for each: range, trend, breakout, failed breakout", "fig15_h4_wide": "H4 wide view: swing high, crash low, retracement guides and the slow line", "fig16_h1_wide": "H1 wide view: higher lows from 495 and the breakout of 577.94", "fig17_h4_audit": "H4 zone audit: strong, OK and weak lines", "fig18_m15_zones": "M15 refined zones for today", "fig14_overnight_dip": "M15, 15 Nov overnight dip", "scenarios_m30": "M30 scenarios: the three paths from a pullback"},ORDER=["fig1_h1_trend", "fig2_zone_overshoot", "fig3_ma_roles", "fig4_trade_plan", "fig5_h4", "fig6_h1", "fig7_m30", "flow", "fig8_m15_trade", "timeline", "fig9_breakout", "fig10_failed_breakout", "fig11_retest_held", "fig12_h4_big_picture", "fig13_second_push", "states", "fig15_h4_wide", "fig16_h1_wide", "fig17_h4_audit", "fig18_m15_zones", "fig14_overnight_dip", "scenarios_m30"];
+const IMGS=Object.fromEntries(["fig1_h1_trend", "fig2_zone_overshoot", "fig3_ma_roles", "fig4_trade_plan", "fig5_h4", "fig6_h1", "fig7_m30", "flow", "fig8_m15_trade", "timeline", "fig9_breakout", "fig10_failed_breakout", "fig11_retest_held", "fig12_h4_big_picture", "fig13_second_push", "states", "fig15_h4_wide", "fig16_h1_wide", "fig17_h4_audit", "fig18_m15_zones", "fig19_m15_case", "fig20_m30_case", "fig21_m5_case", "fig22_h4_after", "fig23_h1_after", "fig25_m5_bounce", "fig24_m15_trades", "fig14_overnight_dip", "scenarios_m30"].map(n=>[n,'vol100/img/'+n+'.jpg'])),CAPS={"fig1_h1_trend": "Your H1 chart of Volatility 100 with three rising lows marked", "fig2_zone_overshoot": "Your M15 chart with the 571.28 zone and two overshoots marked", "fig3_ma_roles": "Your M15 chart with the three moving averages labelled", "fig4_trade_plan": "Your M15 chart with Setup B entry, stop and target marked", "fig5_h4": "H4 chart: resistance at 578.94 plus the falling purple line, support at 549.05", "fig6_h1": "H1 chart: higher low at 549, rising purple line, highs rejected at 575 to 579", "fig7_m30": "M30 chart: price in the middle of the range, pullback zone below, rejection zone above", "flow": "Decision path: look top-down, score, trigger, checklist, enter, manage, add or stay away", "fig8_m15_trade": "M15 chart of the short trade: stop, entry, halfway and target", "timeline": "One buy from entry to target, with the stop moved to break-even at the halfway point", "fig9_breakout": "M30 chart on 15 Nov at 09:20: breakout above 578.94, the missed entry and the better retest entry", "fig10_failed_breakout": "M15 chart on 15 Nov at 12:44: the high near 599, the failed retest of 588.91, and the 578.94 support zone", "fig11_retest_held": "M15 chart on 15 Nov at 13:10: the retest of 578.94 held, with a possible entry, stop and target drawn in", "fig12_h4_big_picture": "H4 chart: the crash to 495, the recovery, the 549 to 579 range, and the spike to 599 that was rejected", "fig13_second_push": "M15 chart on 15 Nov at 14:05: the second push above 588.91 after the retest held at about 577", "states": "Four market states and the plan for each: range, trend, breakout, failed breakout", "fig15_h4_wide": "H4 wide view: swing high, crash low, retracement guides and the slow line", "fig16_h1_wide": "H1 wide view: higher lows from 495 and the breakout of 577.94", "fig17_h4_audit": "H4 zone audit: strong, OK and weak lines", "fig18_m15_zones": "M15 refined zones for today", "fig19_m15_case": "M15: your buy at 600.39 under the 604.81 wall, after the peak near 617", "fig20_m30_case": "M30: the 40-point rally, the failed breakout and the 25-point fall", "fig21_m5_case": "M5: the exact buy, the rejected retest of 604.81 and the close", "fig22_h4_after": "H4: the slow line has flattened and price holds above it", "fig23_h1_after": "H1: a pull-back from 618 that is holding above the rising average", "fig25_m5_bounce": "M5: a bounce to 595.65 that is still below the M5 slow line", "fig24_m15_trades": "M15: the blue and red arrows are your trades", "fig14_overnight_dip": "M15, 15 Nov overnight dip", "scenarios_m30": "M30 scenarios: the three paths from a pullback"},ORDER=["fig1_h1_trend", "fig2_zone_overshoot", "fig3_ma_roles", "fig4_trade_plan", "fig5_h4", "fig6_h1", "fig7_m30", "flow", "fig8_m15_trade", "timeline", "fig9_breakout", "fig10_failed_breakout", "fig11_retest_held", "fig12_h4_big_picture", "fig13_second_push", "states", "fig15_h4_wide", "fig16_h1_wide", "fig17_h4_audit", "fig18_m15_zones", "fig19_m15_case", "fig20_m30_case", "fig21_m5_case", "fig22_h4_after", "fig23_h1_after", "fig25_m5_bounce", "fig24_m15_trades", "fig14_overnight_dip", "scenarios_m30"];
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const store={get(k,d){try{const v=localStorage.getItem('v100.'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('v100.'+k,JSON.stringify(v))}catch(e){}}};
 const today=()=>new Date().toISOString().slice(0,10);
@@ -709,8 +816,9 @@ $('#d-loss').onclick=()=>{day.l++;dayU()};$('#d-win').onclick=()=>{day.w++;dayU(
 let Z=store.get('zones',null)||[
  {lo:682,hi:688,n:'684.94',v:'Strong',c:'good',t:'H4: three touches in Oct. Big ceiling.'},
  {lo:629,hi:632,n:'630.58',v:'OK',c:'warn',t:'Crossed often; expect little reaction. Target for a real breakout.'},
- {lo:602.5,hi:606,n:'604.81',v:'Weak as drawn',c:'bad',t:'Real highs stopped under it. Use 595–605 as one ceiling zone.'},
- {lo:595,hi:600,n:'Ceiling 595–600',v:'Strong (new)',c:'good',t:'Three rejections 15 Nov (599.8, 597.5, ~596). Add 599.5 as the recent high.'},
+ {lo:615,hi:619,n:'Peak ~617–618',v:'Recent high (new)',c:'warn',t:'15 Nov late evening. H4 wick ~618: sellers defended it.'},
+ {lo:603,hi:606,n:'604.81',v:'Strong (upgraded)',c:'good',t:'Broke through, then the retest was rejected near 604.5 (16 Nov). Valid ceiling.'},
+ {lo:595,hi:600,n:'Ceiling 595–600',v:'Strong (new)',c:'good',t:'Three rejections 15 Nov, then broken. Now a pivot: 600 acted as support then resistance.'},
  {lo:586,hi:591,n:'589.50 pivot',v:'Strong',c:'good',t:'Support in Oct, resistance in Nov. A band 586–591, not a wall.'},
  {lo:574.5,hi:578.2,n:'578.20 floor',v:'Strong',c:'good',t:'Old ceiling (7, 12, 14 Nov) now support. Yellow shelf ~574.5.'},
  {lo:549,hi:551,n:'549.05',v:'Strong',c:'good',t:'H4 5–9 Nov, M15 double bottom 14–15 Nov.'},
@@ -726,7 +834,7 @@ function zonesU(){const p=+$('#z-price').value,sl=+$('#z-stop').value||0;store.s
  Z.forEach(z=>{const y1=Y(z.hi),y2=Y(z.lo),h=Math.max(y2-y1,6);s+=`<rect x="60" y="${y1}" width="430" height="${h}" fill="${col[z.c]}" opacity=".35" rx="3"/><text x="66" y="${y1-2}" font-size="11" font-weight="700" fill="${col[z.c]}">${z.n}</text>`});
  if(p>=lo&&p<=hi)s+=`<line x1="52" x2="505" y1="${Y(p)}" y2="${Y(p)}" stroke="#2a7fff" stroke-width="2" stroke-dasharray="6 4"/><rect x="440" y="${Y(p)-10}" width="76" height="20" rx="5" fill="#2a7fff"/><text x="446" y="${Y(p)+4}" font-size="12" fill="#fff" font-weight="700">${f2(p)}</text>`;
  $('#z-svg').innerHTML=s}
-$('#z-price').value=store.get('zprice',594.3);['#z-price','#z-stop'].forEach(s=>$(s).oninput=zonesU);zonesU();
+$('#z-price').value=store.get('zprice',595.3);['#z-price','#z-stop'].forEach(s=>$(s).oninput=zonesU);zonesU();
 /* planner */
 function planU(){const dir=$('#p-dir').value,en=+$('#p-en').value,sl=+$('#p-sl').value,tp=+$('#p-tp').value,bal=+$('#p-bal').value,rk=+$('#p-risk').value,vpp=+$('#p-vpp').value,gr=+$('#p-grade').value;const o=$('#p-out');
  if(!en||!sl||!tp){o.innerHTML='<p class="mute">Enter entry, stop and target.</p>';return}
