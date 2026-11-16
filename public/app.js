@@ -664,7 +664,7 @@ document.querySelectorAll(".news-filter").forEach((btn) => {
   };
 });
 
-const titles = { board: "Market overview", charts: "Market charts", sessions: "Session drivers", setup: "Gold Daily Setup", calendar: "Market calendar", inst: "Institutional desk", confluence: "Macro–technical confluence" };
+const titles = { board: "Market overview", charts: "Market charts", sessions: "Session drivers", setup: "Gold Daily Setup", calendar: "Market calendar", inst: "Institutional desk", confluence: "Macro–technical confluence", vol100: "Volatility 100 desk" };
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.onclick = () => {
     document.querySelectorAll(".tab").forEach((b) => b.classList.remove("on"));

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vol 100 Desk</title>
+<style>
+:root{--bg:#f4f6f5;--card:#fff;--ink:#14201c;--ink2:#35463f;--mute:#6a7a73;--line:#dfe5e2;--accent:#0f8a6a;--accent-d:#0a6a52;--accent-f:#e1f4ee;--side:#12201b;--buy:#0f8a6a;--sell:#d6453a;--warn:#e08a00;--warn-f:#fdf1dc;--bad-f:#fbe4e1;--good-f:#e1f4ee}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1512;--card:#16211c;--ink:#e8f0ec;--ink2:#bccbc4;--mute:#8aa097;--line:#25362f;--accent:#2fc59b;--accent-d:#58d8b4;--accent-f:#143329;--side:#0a100e;--warn-f:#3a2e12;--bad-f:#3b1c19;--good-f:#143329}}
+:root[data-theme=dark]{--bg:#0e1512;--card:#16211c;--ink:#e8f0ec;--ink2:#bccbc4;--mute:#8aa097;--line:#25362f;--accent:#2fc59b;--accent-d:#58d8b4;--accent-f:#143329;--side:#0a100e;--warn-f:#3a2e12;--bad-f:#3b1c19;--good-f:#143329}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.app{display:flex;min-height:100vh}
+.side{width:230px;background:var(--side);color:#cfe0d9;padding:16px 10px;position:sticky;top:0;height:100vh;overflow:auto;flex:none}
+.brand{font-weight:800;font-size:17px;color:#fff;padding:6px 10px 14px;letter-spacing:.2px}.brand small{display:block;font-weight:500;font-size:11px;color:#7fa093}
+.nav a{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;color:#cfe0d9;text-decoration:none;font-weight:600;cursor:pointer;margin-bottom:2px}
+.nav a:hover{background:#1b2f27}.nav a.on{background:var(--accent);color:#fff}
+.nav .sec{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#6f8b80;padding:14px 12px 4px}
+.main{flex:1;min-width:0;padding:22px 26px 60px;max-width:1180px}
+.top{display:none}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:21px;margin:26px 0 8px}h3{font-size:16.5px;margin:20px 0 6px;color:var(--accent-d)}
+.sub{color:var(--mute);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.tw{overflow-x:auto;margin:10px 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}th{background:var(--accent-f);color:var(--ink)}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700}.p-good{background:var(--good-f);color:var(--accent-d)}.p-warn{background:var(--warn-f);color:#a86400}.p-bad{background:var(--bad-f);color:var(--sell)}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:14px}.btn.ghost{background:transparent;color:var(--accent-d);border:1px solid var(--accent)}.btn.red{background:var(--sell)}.btn:disabled{opacity:.5}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 10px;width:100%}
+label{display:block;font-size:12px;font-weight:700;color:var(--mute);margin:8px 0 3px;text-transform:uppercase;letter-spacing:.4px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.row>*{flex:1 1 130px}
+.big{font-size:28px;font-weight:800}.mute{color:var(--mute)}.small{font-size:13px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line)}.chk input{width:20px;height:20px;margin-top:2px;flex:none}
+.chap{display:none}.chap.on{display:block}
+.chap p,.chap li{max-width:80ch}.chap figure{margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+.chap figure img,.gal img{width:100%;height:auto;border-radius:8px;display:block;cursor:zoom-in;background:#000}
+.chap figure img[data-img^=fig1_],.chap figure img[data-img^=fig2_],.chap figure img[data-img^=fig3_],.chap figure img[data-img^=fig4_]{max-width:430px;margin:0 auto}
+figcaption{font-size:13px;color:var(--mute);margin-top:6px;text-align:center}
+.formula{background:var(--accent-f);border-left:4px solid var(--accent);padding:10px 14px;border-radius:8px;font-weight:600;margin:10px 0}
+.tool-slot{border:2px dashed var(--accent);border-radius:12px;padding:12px;margin:12px 0;background:var(--accent-f)}.tag{background:var(--accent);color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;margin-right:6px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}.toc a{font-size:13px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;color:var(--ink2);text-decoration:none;background:var(--card)}.toc a.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.view{display:none}.view.on{display:block}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}.gal figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:99;padding:10px}#lb img{max-width:100%;max-height:100%;border-radius:8px}#lb.on{display:flex}
+.note{background:var(--warn-f);border-left:4px solid var(--warn);padding:10px 14px;border-radius:8px;font-size:14px}
+.res{border-radius:12px;padding:12px 14px;font-weight:700;margin-top:10px}.res.good{background:var(--good-f);color:var(--accent-d)}.res.warn{background:var(--warn-f);color:#a86400}.res.bad{background:var(--bad-f);color:var(--sell)}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+svg text{font-family:system-ui,sans-serif}
+@media(max-width:860px){.side{position:fixed;left:-250px;z-index:50;transition:left .2s;width:240px}.side.open{left:0;box-shadow:0 0 0 100vmax rgba(0,0,0,.5)}.top{display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20;background:var(--side);color:#fff;padding:10px 14px;font-weight:800}.top button{background:none;border:0;color:#fff;font-size:22px}.main{padding:16px 16px 60px}.g2,.g3,.g4{grid-template-columns:1fr}h1{font-size:21px}}
+@media print{.side,.top,.toc,.noprint{display:none!important}.chap{display:block!important;page-break-before:always}.view{display:none}#v-book{display:block}.main{max-width:none;padding:0}}
+</style>
+</head>
+<body>
+<div class="top"><button id="burger" aria-label="Menu">☰</button><span>Vol 100 Desk</span></div>
+<div class="app">
+<aside class="side" id="side">
+ <div class="brand">VOL 100 DESK<small>Module for your Forex Desk</small></div>
+ <nav class="nav" id="nav">
+  <div class="sec">Daily</div>
+  <a data-v="today" class="on">◎ Today</a><a data-v="zones">▤ Zone map</a><a data-v="planner">⚖ Trade planner</a><a data-v="entry">✓ Entry checks</a><a data-v="journal">✎ Journal</a>
+  <div class="sec">Learn</div>
+  <a data-v="book">📖 The book</a><a data-v="teach">👨‍👦 Teach your son</a><a data-v="gallery">🖼 Diagram gallery</a>
+  <div class="sec">System</div>
+  <a data-v="about">ⓘ About &amp; data</a>
+ </nav>
+</aside>
+<main class="main">
+
+<!-- TODAY -->
+<section class="view on" id="v-today">
+ <h1>Today</h1><p class="sub" id="todaydate"></p>
+ <div class="note noprint"><strong>Education, not advice.</strong> Vol 100 is random. Practise on a demo account until the account holder is an adult. The market snapshot below is a dated reading, not a prediction.</div>
+ <div class="grid g2" style="margin-top:14px">
+  <div class="card"><h3 style="margin-top:0">Market snapshot · Sun 15 Nov, 16:37</h3>
+   <p>Price about <strong>594.3</strong>, back under the 595–600 ceiling. Range 578–599, upper third. H4 still a down trend with a counter-trend bounce; H1 and M30 up.</p>
+   <div class="tw"><table><thead><tr><th>Scenario</th><th>You would see</th><th>Meaning</th></tr></thead><tbody>
+   <tr><td><span class="pill p-bad">Rejection</span></td><td>M15/M30 candle rejects 595–599, closes under ~592</td><td>Short, stop ~601.5. Target 589.5 (≈1.7:1) or 578.2 (≈4:1)</td></tr>
+   <tr><td><span class="pill p-good">Break up</span></td><td>M30 closes above 600 and the retest holds</td><td>Half-size long only. 604.81 is close, so aim for 630.58</td></tr>
+   <tr><td><span class="pill p-warn">Range</span></td><td>Price stays 590–595</td><td>No edge. Wait</td></tr></tbody></table></div>
+  </div>
+  <div class="card"><h3 style="margin-top:0">Daily limits</h3>
+   <div class="row"><div><label>Account balance</label><input id="d-bal" type="number" step="any" placeholder="e.g. 100"></div><div><label>Max losses today</label><select id="d-max"><option>2</option><option selected>3</option></select></div></div>
+   <div class="row" style="margin-top:10px"><button class="btn red" id="d-loss">+ Loss</button><button class="btn" id="d-win">+ Win</button><button class="btn ghost" id="d-reset">Reset day</button></div>
+   <p class="big" id="d-count" style="margin:10px 0 0">0 wins · 0 losses</p><div id="d-msg"></div>
+   <p class="small mute">Rules: 1% risk per trade, stop for the day at 2–3 losses or 3% down, max 2 open positions, add only to winners with the stop at break-even.</p>
+  </div>
+ </div>
+ <div class="card"><h3 style="margin-top:0">Zoom-out checklist (resets each day)</h3><div id="zoomlist"></div><p class="small mute">Finish with one sentence: “The big picture says ____, so today I prefer ____.”</p><textarea id="d-sentence" rows="2" placeholder="Write your sentence…"></textarea></div>
+</section>
+
+<!-- ZONES -->
+<section class="view" id="v-zones">
+ <h1>Zone map</h1><p class="sub">Every line audited on H4 → M15. Zones are bands, not exact lines. Edit the price to see room above and below.</p>
+ <div class="grid g2">
+  <div class="card"><div class="row"><div><label>Current price</label><input id="z-price" type="number" step="any" value="594.3"></div><div><label>Planned stop (points)</label><input id="z-stop" type="number" step="any" value="4"></div></div><div id="z-room"></div><svg id="z-svg" viewBox="0 0 520 560" width="100%"></svg></div>
+  <div class="card"><div class="tw"><table id="z-table"><thead><tr><th>Zone</th><th>Verdict</th><th>Evidence / use</th></tr></thead><tbody></tbody></table></div>
+   <p class="small mute">Strong = 2+ touches, both sides or flipped. OK = crossed often, little reaction. Weak = never really touched. Add 599.5 and 495 (new). Audit from the 15 Nov screenshots, prices approximate to a few points; D1 and M5 still to be added.</p></div>
+ </div>
+</section>
+
+<!-- PLANNER -->
+<section class="view" id="v-planner">
+ <h1>Trade planner</h1><p class="sub">Decide stop and target before entering. Skip anything under 2 : 1.</p>
+ <div class="grid g2"><div class="card">
+  <div class="row"><div><label>Direction</label><select id="p-dir"><option value="buy">Buy</option><option value="sell">Sell</option></select></div><div><label>Grade</label><select id="p-grade"><option value="1">A · all frames agree (full)</option><option value="0.5">B · half size</option><option value="0">C · skip</option></select></div></div>
+  <div class="row"><div><label>Entry</label><input id="p-en" type="number" step="any"></div><div><label>Stop</label><input id="p-sl" type="number" step="any"></div><div><label>Target</label><input id="p-tp" type="number" step="any"></div></div>
+  <div class="row"><div><label>Account balance</label><input id="p-bal" type="number" step="any"></div><div><label>Risk %</label><input id="p-risk" type="number" step="any" value="1"></div><div><label>Value per point per 1.00 lot (broker spec)</label><input id="p-vpp" type="number" step="any"></div></div>
+  <div id="p-out"></div>
+ </div>
+ <div class="card"><h3 style="margin-top:0">Why 2 : 1 matters</h3><div class="tw"><table><thead><tr><th>Reward : risk</th><th>Win rate to break even</th></tr></thead><tbody><tr><td>1 : 1</td><td>50%</td></tr><tr><td>2 : 1</td><td>33%</td></tr><tr><td>3 : 1</td><td>25%</td></tr></tbody></table></div><svg id="p-svg" viewBox="0 0 360 200" width="100%"></svg><p class="small mute">Find the contract value per point in your broker’s Volatility 100 specification. If even the smallest lot risks more than your %, skip the trade.</p></div></div>
+</section>
+
+<!-- ENTRY -->
+<section class="view" id="v-entry">
+ <h1>Entry checks</h1><p class="sub">Four checks, then size, enter, log. Any “no” means stay out.</p>
+ <div class="card" id="entrybox"></div>
+</section>
+
+<!-- JOURNAL -->
+<section class="view" id="v-journal">
+ <h1>Journal</h1><p class="sub">Demo goal: at least 30 days and 50 trades before real money (adult account holder only).</p>
+ <div class="grid g4" id="j-stats"></div>
+ <div class="card"><div class="row"><div><label>Date</label><input id="j-date" type="date"></div><div><label>Dir</label><select id="j-dir"><option value="buy">Buy</option><option value="sell">Sell</option></select></div><div><label>Entry</label><input id="j-en" type="number" step="any"></div><div><label>Stop</label><input id="j-sl" type="number" step="any"></div><div><label>Exit</label><input id="j-ex" type="number" step="any"></div><div><label>Grade</label><select id="j-gr"><option>A</option><option>B</option><option>C</option></select></div></div>
+  <label>Why I took it / what I learned</label><textarea id="j-note" rows="2"></textarea>
+  <div class="row" style="margin-top:10px"><button class="btn" id="j-add">Add trade</button><button class="btn ghost" id="j-csv">Export CSV</button></div></div>
+ <div class="card tw"><table id="j-table"><thead><tr><th>Date</th><th>Dir</th><th>Entry</th><th>Stop</th><th>Exit</th><th>R</th><th>Grade</th><th>Note</th><th></th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<!-- BOOK -->
+<section class="view" id="v-book">
+ <div class="row noprint" style="align-items:center"><div><h1>Trading Volatility 100: illustrated guide</h1><p class="sub">19 chapters, every diagram from your charts. Tap a diagram to enlarge.</p></div><div style="flex:0 0 auto;display:flex;gap:8px"><input id="b-search" placeholder="Search the book…" style="width:200px"><button class="btn ghost" onclick="window.print()">Print all</button></div></div>
+ <div class="toc noprint" id="toc"><a href="#" data-chap="c0">Read this first</a><a href="#" data-chap="c1">Chapter 1: What Volatility 100 is</a><a href="#" data-chap="c2">Chapter 2: Reading the trend</a><a href="#" data-chap="c3">Chapter 3: Support and resistance</a><a href="#" data-chap="c4">Chapter 4: The three moving averages</a><a href="#" data-chap="c5">Chapter 5: Stop loss, target and risk-to-reward</a><a href="#" data-chap="c6">Chapter 6: Position sizing, the 1% rule</a><a href="#" data-chap="c7">Chapter 7: The step-by-step entry plan</a><a href="#" data-chap="c8">Chapter 8: Daily rules and mindset</a><a href="#" data-chap="c9">Chapter 9: Common mistakes and the pre-trade checklist</a><a href="#" data-chap="c10">Chapter 10: Journal and the demo-first plan</a><a href="#" data-chap="c11">Chapter 11: The three-timeframe routine</a><a href="#" data-chap="c12">Chapter 12: When to enter</a><a href="#" data-chap="c13">Chapter 13: When to exit and manage a trade</a><a href="#" data-chap="c14">Chapter 14: When to add another position</a><a href="#" data-chap="c15">Chapter 15: When to stay away from the chart</a><a href="#" data-chap="c16">Chapter 16: A live example, 14 to 15 November 2026</a><a href="#" data-chap="c17">Chapter 17: Our market approach to Volatility 100</a><a href="#" data-chap="c18">Chapter 18: The bigger picture and the top-down strategy</a><a href="#" data-chap="c19">Chapter 19: Teaching your son</a><a href="#" data-chap="c20">Glossary</a><a href="#" data-chap="c21">One-page cheat sheet</a></div>
+ <div id="book"><section class="chap" id="c0" data-title="Read this first">
+<h2>Read this first</h2>
+<p>Volatility 100 is a computer-generated random price series, so no news or fundamentals give anyone a guaranteed edge, and most retail traders lose money on it. This guide teaches how to trade it with discipline: limit every loss, trade with the trend, and avoid the habits that wipe out accounts.</p>
+<p>It is general education, not financial advice, and it cannot promise profit. Practise on a demo account first.</p>
+<p>The guide assumes you trade on a phone with MT5, using the H1 chart for direction and the M15 chart for entries. The worked examples come from your own charts on 14 Nov 2026.</p>
+</section>
+<section class="chap" id="c1" data-title="Chapter 1: What Volatility 100 is">
+<h2>Chapter 1: What Volatility 100 is</h2>
+<p>Volatility 100 is built to keep a constant 100% volatility and to print a new price every 2 seconds, as the description on your chart says. It keeps moving all day, including weekends: your 14 Nov chart is a Saturday.</p>
+<p>Because the series is random, you cannot predict each move. What you can control is how much you lose when you are wrong. That is why this guide puts risk first and entries second:</p>
+<ul>
+<li>Risk 1% of your account or less on each trade.</li>
+<li>Always place a stop loss.</li>
+<li>Only take trades where the reward is at least twice the risk.</li>
+<li>Stop trading for the day after a set number of losses.</li>
+</ul>
+<p>Traders who survive on Vol 100 mostly do these four things. Traders who blow up usually break them.</p>
+</section>
+<section class="chap" id="c2" data-title="Chapter 2: Reading the trend">
+<h2>Chapter 2: Reading the trend</h2>
+<p>A trend is the direction price keeps moving in, and the cleanest way to read it is by the swings.</p>
+<ul>
+<li><strong>Uptrend:</strong> each high and each low is higher than the one before.</li>
+<li><strong>Downtrend:</strong> each high and each low is lower than the one before.</li>
+<li><strong>Pullback:</strong> a dip against the bigger trend. It is a pause, not a reversal, until price breaks the last swing low.</li>
+</ul>
+<p>Use two timeframes. Read the direction on H1, then look for your entry on M15. Trading M15 moves against the H1 direction is how most small losses pile up.</p>
+<p>In your 14 Nov charts, H1 climbed from about 514 to 577 with higher lows, so the bigger trend was up. On M15, price pulled back to about 549 and then bounced. That is a pullback inside an uptrend.</p>
+<figure><img loading="lazy" data-img="fig1_h1_trend" alt="Your H1 chart of Volatility 100 with three rising lows marked"><figcaption>Your H1 chart of Volatility 100 with three rising lows marked</figcaption></figure>
+<p>On your own H1 chart the lows rise from about 509 to about 531 to about 549. As long as price holds above the last low, the uptrend is intact, and a pullback is a pause, not a reversal.</p>
+</section>
+<section class="chap" id="c3" data-title="Chapter 3: Support and resistance">
+<h2>Chapter 3: Support and resistance</h2>
+<p>Support is a price area where buyers stepped in before, a floor. Resistance is an area where sellers stepped in, a ceiling. On Volatility 100 they are zones, not exact lines: price often spikes through a level and then reverses.</p>
+<figure><img loading="lazy" data-img="fig2_zone_overshoot" alt="Your M15 chart with the 571.28 zone and two overshoots marked"><figcaption>Your M15 chart with the 571.28 zone and two overshoots marked</figcaption></figure>
+<p>Your 17:13 chart shows it. Price spiked to about 579 and later to about 577, both well past 571.28, and fell back under it each time. Treating 571.28 as one exact price would have stopped you out or trapped you.</p>
+<p>How to trade levels that overshoot:</p>
+<ul>
+<li>Draw a zone a few points wide around each level, not a single line.</li>
+<li>Count a break only when a candle closes beyond the zone. A wick through it does not count.</li>
+<li>Put stops beyond the zone, not on the line, and size the lot for that wider stop (Chapter 6).</li>
+<li>Wait for a reaction at the zone, a rejection or a hold, instead of entering the moment price touches it.</li>
+<li>When resistance breaks and holds, the retest of the old level is the safer entry.</li>
+</ul>
+<p>The levels you drew on 14 Nov were 539.24, about 549, about 565, 571.28 and 588.91.</p>
+</section>
+<section class="chap" id="c4" data-title="Chapter 4: The three moving averages">
+<h2>Chapter 4: The three moving averages</h2>
+<p>Your chart shows three moving averages. Their periods are whatever you set in the indicator settings, so check them. What matters is their roles:</p>
+<ul>
+<li><strong>Blue (fast):</strong> follows price closely and shows short-term momentum.</li>
+<li><strong>Orange (medium):</strong> the line price often pulls back to in a healthy trend.</li>
+<li><strong>Purple (slow):</strong> the long-term floor or ceiling. Price far above it in a rising purple line means a strong uptrend.</li>
+</ul>
+<p>How to read them:</p>
+<ul>
+<li>Price above all three, with all three sloping up, is bullish. Price below all three, sloping down, is bearish.</li>
+<li>Blue crossing above orange is an early sign that momentum is turning up.</li>
+<li>In an uptrend, pullbacks that touch the orange or blue lines and hold are the entries to look for.</li>
+</ul>
+<p>Moving averages lag behind price. Never trade a crossover alone: confirm it with the trend on H1 and a nearby support or resistance level.</p>
+<figure><img loading="lazy" data-img="fig3_ma_roles" alt="Your M15 chart with the three moving averages labelled"><figcaption>Your M15 chart with the three moving averages labelled</figcaption></figure>
+<p>On this chart price had just moved above all three lines. The purple line sits well below price and is still rising, which supports the bigger uptrend.</p>
+</section>
+<section class="chap" id="c5" data-title="Chapter 5: Stop loss, target and risk-to-reward">
+<h2>Chapter 5: Stop loss, target and risk-to-reward</h2>
+<p>Before you enter, decide three prices: where you get in, where you are proven wrong (the stop loss), and where you take profit (the target).</p>
+<ul>
+<li><strong>Stop loss:</strong> just beyond the last swing low for a buy, or the last swing high for a sell. If price reaches it, the idea is wrong and you accept the loss.</li>
+<li><strong>Target:</strong> the next resistance for a buy, or the next support for a sell.</li>
+<li><strong>Reward-to-risk:</strong> the distance to the target divided by the distance to the stop. Take trades at 2 or better.</li>
+</ul>
+<div class="tool-slot" data-tool="rr"><span class="tag">Interactive tool</span> entry, stop and target · 2 : 1 reward-to-risk</div>
+<p>The target sits twice as far from your entry as the stop does.</p>
+<p>Why 2 or better matters: the higher your reward-to-risk, the less often you need to win.</p>
+<div class="tw"><table><thead><tr><th>Reward-to-risk</th><th>Win rate needed just to break even</th></tr></thead><tbody>
+<tr><td>1 : 1</td><td>50%</td></tr>
+<tr><td>2 : 1</td><td>33%</td></tr>
+<tr><td>3 : 1</td><td>25%</td></tr>
+</tbody></table></div>
+<p>Never move your stop further away to avoid a loss. Moving it closer to lock in profit is fine.</p>
+<p>Because Volatility 100 overshoots levels, put the stop beyond the whole zone, not on its edge, and size the lot for that wider stop.</p>
+</section>
+<section class="chap" id="c6" data-title="Chapter 6: Position sizing, the 1% rule">
+<h2>Chapter 6: Position sizing, the 1% rule</h2>
+<p>Lot size decides how much a losing trade costs, and on Vol 100 it is what ends most accounts. Work it out before every trade, from the stop distance, never the other way around.</p>
+<div class="formula"><div>Risk amount = Account &times; 1%</div><div>Loss allowed per point = Risk amount &divide; Stop distance (points)</div></div>
+<p>Worked example: with a $100 account, 1% is $1. If your stop is 3 points away, you can lose $1 ÷ 3 = about $0.33 per point. If your stop is 7 points away, only about $0.14 per point. A wider stop means a smaller lot.</p>
+<p>Then open your broker's contract specification for Volatility 100 to see what 1 lot is worth per point, and pick the lot size that keeps the loss per point at or under your allowed figure.</p>
+<p>If even the smallest lot loses more than 1% at your stop distance, skip the trade or wait for a tighter, still valid stop. Do not break the 1% rule to make the trade fit.</p>
+</section>
+<section class="chap" id="c7" data-title="Chapter 7: The step-by-step entry plan">
+<h2>Chapter 7: The step-by-step entry plan</h2>
+<p>Follow these steps in order. If any step fails, you do not trade.</p>
+<ol>
+<li>On H1, mark the trend direction and the main support and resistance zones.</li>
+<li>Only look for trades in the H1 direction. If H1 is unclear, stay out.</li>
+<li>Drop to M15 and wait for a pullback to the orange or blue line, or to a broken level, that holds.</li>
+<li>Decide the stop (beyond the last swing) and the target (the next level) before entering.</li>
+<li>Calculate reward-to-risk. If it is under 2, skip the trade.</li>
+<li>Size the lot so the stop loss equals 1% of your account or less (Chapter 6).</li>
+<li>Enter, place the stop and target, and leave the trade alone.</li>
+<li>Log it in your journal (Chapter 10).</li>
+</ol>
+<div class="tool-slot" data-tool="entry"><span class="tag">Interactive tool</span> the entry strategy · four checks, then size, enter and log</div>
+<p>If any answer is no, you stay out. Only a trade that passes all four checks gets a lot size, a stop and a target.</p>
+<p><strong>Worked example from your 14 Nov 2026 chart</strong> (about 16:00, price near 565). The same market gives two very different trades, depending on where you enter:</p>
+<div class="tw"><table><thead><tr><th>Setup</th><th>Entry</th><th>Stop</th><th>Target</th><th>Risk (points)</th><th>Reward (points)</th><th>Reward-to-risk</th><th>Verdict</th></tr></thead><tbody>
+<tr><td>A: buy right under resistance</td><td>566.0</td><td>558.5</td><td>571.28</td><td>7.5</td><td>5.28</td><td>0.7 : 1</td><td>Skip</td></tr>
+<tr><td>B: buy a pullback to the MAs that holds</td><td>560.5</td><td>557.5</td><td>571.28</td><td>3.0</td><td>10.78</td><td>3.6 : 1</td><td>Acceptable if H1 is still up and price really holds there</td></tr>
+</tbody></table></div>
+<p>Setup A risks more than it can win, so it fails the rule even though the direction is right. Setup B is the same idea with a better price, which is why patience pays. These levels are for learning only: the market has moved since, so redo the numbers on the live chart.</p>
+<figure><img loading="lazy" data-img="fig4_trade_plan" alt="Your M15 chart with Setup B entry, stop and target marked"><figcaption>Your M15 chart with Setup B entry, stop and target marked</figcaption></figure>
+<p>Hindsight check: after 16:00 price ran to about 577, so Setup A would have hit its target this time. One win does not change the rule. Setup A risks 7.5 points to make 5.3, so it must win about 59% of the time just to break even. Setup B needs only about 22%.</p>
+</section>
+<section class="chap" id="c8" data-title="Chapter 8: Daily rules and mindset">
+<h2>Chapter 8: Daily rules and mindset</h2>
+<p>Write these rules down and treat them as non-negotiable. They protect you on the days your judgement is worst.</p>
+<ul>
+<li>Stop for the day after 2 to 3 losses in a row, or a 3% loss on the day.</li>
+<li>Take at most 2 to 3 trades a day. Fewer, cleaner trades beat constant trading.</li>
+<li>Never trade to win back a loss. That is revenge trading, and it is the biggest account killer.</li>
+<li>Never add to a losing trade or remove your stop.</li>
+<li>Do not trade when you are tired, angry or in a rush.</li>
+<li>Close the app after your trades are placed. Watching every tick pushes you to interfere.</li>
+</ul>
+<p>A losing trade that followed your plan is a good trade. A winning trade that broke your rules is a bad one, because it teaches you to break them again.</p>
+</section>
+<section class="chap" id="c9" data-title="Chapter 9: Common mistakes and the pre-trade checklist">
+<h2>Chapter 9: Common mistakes and the pre-trade checklist</h2>
+<p>The mistakes that cost the most are rarely about the entry:</p>
+<ul>
+<li>Oversized lots.</li>
+<li>Moving or removing the stop loss.</li>
+<li>Averaging down on a loser.</li>
+<li>Overtrading.</li>
+<li>Trading against the H1 trend.</li>
+<li>Buying right under resistance, or selling right above support.</li>
+</ul>
+<p>Tick every box before you press buy or sell. One empty box means no trade.</p>
+<ul>
+<li>[ ] H1 trend direction is clear and my trade goes with it</li>
+<li>[ ] Entry is on a pullback or a broken level that held, not in the middle of a move</li>
+<li>[ ] Stop loss is beyond the last swing</li>
+<li>[ ] Target is at the next support or resistance</li>
+<li>[ ] Reward-to-risk is 2 or better</li>
+<li>[ ] Lot size keeps the loss at 1% of my account or less</li>
+<li>[ ] I am under my daily trade and loss limits</li>
+<li>[ ] I am calm, not chasing or trying to win back a loss</li>
+</ul>
+</section>
+<section class="chap" id="c10" data-title="Chapter 10: Journal and the demo-first plan">
+<h2>Chapter 10: Journal and the demo-first plan</h2>
+<p>A journal shows what actually works for you. Copy this table into a notebook or spreadsheet and fill one row per trade, with a screenshot of the chart at entry.</p>
+<div class="tw"><table><thead><tr><th>Date</th><th>Direction</th><th>Entry</th><th>Stop</th><th>Target</th><th>Lot</th><th>Result (points)</th><th>Followed my plan?</th><th>Lesson</th></tr></thead><tbody>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody></table></div>
+<p><strong>Demo-first plan</strong></p>
+<ol>
+<li>Week 1: study the chapters, mark levels on H1 each day, place no trades.</li>
+<li>Weeks 2 to 4: trade on a demo account with the full checklist and journal, at most 3 trades a day.</li>
+<li>After at least 30 days and 50 trades: review your win rate, your average reward-to-risk and how many times you broke a rule.</li>
+<li>Go live only if the demo was profitable and you followed the rules. Start with the smallest lot.</li>
+</ol>
+<p>If the demo is not profitable, that is useful information: fix the weak point, then demo again. This guide is general education, not financial advice, and trading carries a real risk of losing money.</p>
+</section>
+<section class="chap" id="c11" data-title="Chapter 11: The three-timeframe routine">
+<h2>Chapter 11: The three-timeframe routine</h2>
+<p>One chart can mislead you. Three charts, each with one job, turn a guess into a routine. Always read them top-down: H4 first, then H1, then M30.</p>
+<div class="tw"><table><thead><tr><th>Timeframe</th><th>Its job</th><th>The question to answer</th><th>What to mark</th></tr></thead><tbody>
+<tr><td>H4</td><td>The map</td><td>Where are the big levels?</td><td>Support, resistance, the slow (purple) line</td></tr>
+<tr><td>H1</td><td>The direction</td><td>Is the trend up, down or sideways?</td><td>Highs and lows, the slope of the purple line</td></tr>
+<tr><td>M30</td><td>The entry</td><td>Is there a trigger right now?</td><td>Pullback to the blue and orange lines, candle closes</td></tr>
+</tbody></table></div>
+<p>Score what you see:</p>
+<ul>
+<li><strong>All three agree:</strong> a full-quality setup. Risk up to your 1% limit.</li>
+<li><strong>Two agree:</strong> use a smaller lot, or skip.</li>
+<li><strong>One or none agree:</strong> stay away.</li>
+</ul>
+<p>Spend five minutes on this, then close the app. Here are your three charts from 14 Nov 2026, between 20:33 and 20:36.</p>
+<p><strong>H4, the map.</strong> Price (about 570) is rallying into two resistances stacked together: the 578.94 level and the slow purple line, which sits near 580 and is falling. Support is 549.05.</p>
+<figure><img loading="lazy" data-img="fig5_h4" alt="H4 chart: resistance at 578.94 plus the falling purple line, support at 549.05"><figcaption>H4 chart: resistance at 578.94 plus the falling purple line, support at 549.05</figcaption></figure>
+<p><strong>H1, the direction.</strong> The trend is up. The low at 549 held, price is above the rising purple line (about 545), and the lows are higher than before.</p>
+<figure><img loading="lazy" data-img="fig6_h1" alt="H1 chart: higher low at 549, rising purple line, highs rejected at 575 to 579"><figcaption>H1 chart: higher low at 549, rising purple line, highs rejected at 575 to 579</figcaption></figure>
+<p><strong>M30, the entry.</strong> Price has moved sideways between 549 and 579 for about a day, and it sits in the middle of that range. There is no trigger.</p>
+<figure><img loading="lazy" data-img="fig7_m30" alt="M30 chart: price in the middle of the range, pullback zone below, rejection zone above"><figcaption>M30 chart: price in the middle of the range, pullback zone below, rejection zone above</figcaption></figure>
+<p><strong>Reading the three together.</strong> H4 has resistance overhead, H1 is up and M30 is sideways. That is two of three at best, and buying into the H4 resistance leaves only about 8 to 10 points of room. The routine says: wait.</p>
+<p>Good setups on this map would be a buy around 549 to 555, where the level, the H1 low and the H4 orange line meet, or a buy after a close above about 580 followed by a retest that holds. Avoid the middle.</p>
+<p><strong>The whole routine on one page:</strong></p>
+<figure><img loading="lazy" data-img="flow" alt="Decision path: look top-down, score, trigger, checklist, enter, manage, add or stay away"><figcaption>Decision path: look top-down, score, trigger, checklist, enter, manage, add or stay away</figcaption></figure>
+</section>
+<section class="chap" id="c12" data-title="Chapter 12: When to enter">
+<h2>Chapter 12: When to enter</h2>
+<p><strong>The best time to enter is a place on the chart, not a time on the clock.</strong> Volatility 100 is computer-generated, never closes and does not follow news or market sessions, so no hour of the day is known to be better. Judge by where price is and whether your checklist passes.</p>
+<p>Good entries:</p>
+<ol>
+<li>A pullback to the blue or orange line that holds, with H1 trending the same way (Chapter 7).</li>
+<li>A retest of a broken level: a candle closes beyond the zone, then price comes back and holds (Chapter 3).</li>
+<li>A rejection at the edge of a range with enough room to the next level, taken with a smaller target and a smaller lot.</li>
+</ol>
+<p>Timing rules:</p>
+<ul>
+<li>Enter after a candle closes, not in the middle of it. The price tag shows the time left in the candle. Moves in the middle of a candle are often wicks that vanish.</li>
+<li>After a big spike candle, wait for one or two candles to close before deciding.</li>
+<li>To avoid chasing, place a limit order at your planned price and set the stop loss on the same order, so the trade is protected from the moment it opens.</li>
+<li>Check the room: the next level must be at least twice your stop distance away.</li>
+</ul>
+<p>Skip the trade when:</p>
+<ul>
+<li>Price is in the middle of a range.</li>
+<li>You would be chasing a candle that has already run a long way.</li>
+<li>The trade goes against H1 and you have no strong reason.</li>
+<li>Any box on the checklist is empty.</li>
+</ul>
+</section>
+<section class="chap" id="c13" data-title="Chapter 13: When to exit and manage a trade">
+<h2>Chapter 13: When to exit and manage a trade</h2>
+<p>Decide the exit before you enter. Write down four prices: entry, stop, halfway point and target.</p>
+<p>How a trade can end:</p>
+<ul>
+<li><strong>Target hit:</strong> take the profit. Do not move the target further away because you feel greedy.</li>
+<li><strong>Stop hit:</strong> accept the loss. It was planned.</li>
+<li><strong>The reason is gone:</strong> if a candle closes beyond the zone against you, or H1 flips, close early instead of hoping.</li>
+<li><strong>Time runs out:</strong> choose a limit before you enter, for example 8 candles on M30 (4 hours). If price has not moved toward your target by then, reassess or close.</li>
+</ul>
+<p>Managing the trade in between:</p>
+<ul>
+<li>At the halfway point, move the stop to your entry (break-even), so the trade can no longer lose money. The trade-off: on a noisy market a small retrace can stop you out at zero before the real move. That is a fair price for safety.</li>
+<li>Never move the stop further from price, and never remove it.</li>
+<li>Optional: close half the trade at the halfway point and let the rest run to the target.</li>
+<li>Set price alerts at the halfway point and the target, then close the app.</li>
+</ul>
+<p><strong>Worked example: a short taken from the ceiling</strong> (your M15 chart at about 20:18). The prices were:</p>
+<figure><img loading="lazy" data-img="fig8_m15_trade" alt="M15 chart of the short trade: stop, entry, halfway and target"><figcaption>M15 chart of the short trade: stop, entry, halfway and target</figcaption></figure>
+<div class="tw"><table><thead><tr><th>Price</th><th>What it is</th><th>What you do</th></tr></thead><tbody>
+<tr><td>573.91</td><td>Stop loss</td><td>If reached, the idea was wrong. The trade closes by itself.</td></tr>
+<tr><td>about 570.3</td><td>Entry</td><td>Sold here, under the resistance zone.</td></tr>
+<tr><td>about 567.5</td><td>Halfway</td><td>Move the stop to the entry price.</td></tr>
+<tr><td>564.59</td><td>Target</td><td>Take the profit at the blue and orange lines.</td></tr>
+</tbody></table></div>
+<p>Risk was about 3.6 points and reward about 5.7, roughly 1.6 : 1. That is below the 2 : 1 rule, so it is a medium-quality range trade, and a good reminder of why the room check matters.</p>
+</section>
+<section class="chap" id="c14" data-title="Chapter 14: When to add another position">
+<h2>Chapter 14: When to add another position</h2>
+<p>Adding to a trade is the most dangerous move in this book, because it is how small losses become large ones. Follow these rules exactly.</p>
+<p><strong>Never add to a losing trade.</strong> Do not "average down". If the first trade is against you, the market is telling you the idea may be wrong. Take the planned loss.</p>
+<p><strong>You may add only to a winner, and only when all of these are true:</strong></p>
+<ol>
+<li>The first trade is in profit and its stop is already at break-even (Chapter 13).</li>
+<li>A new, separate setup has appeared. It needs its own entry, stop, target and a passed checklist.</li>
+<li>The new trade's risk plus the first trade's risk is no more than 1% of the account. Because the first stop is at break-even, the first trade now risks nothing.</li>
+<li>There is room to the next level, at least twice the new stop distance.</li>
+<li>You have two positions at most.</li>
+</ol>
+<p>If you cannot tick every box, do nothing. Missing a second trade costs you nothing. A bad second trade can cost the whole day.</p>
+<p><strong>Example.</strong> You buy at 560.5 with a stop at 557.5. Price rises to 566 and you move the stop to 560.5. If price then pulls back to the blue line, holds, and gives a fresh trigger on M30, you may place a second small buy with its own stop. If price is simply higher and you feel excited, that is not a setup, so you do not add.</p>
+<figure><img loading="lazy" data-img="timeline" alt="One buy from entry to target, with the stop moved to break-even at the halfway point"><figcaption>One buy from entry to target, with the stop moved to break-even at the halfway point</figcaption></figure>
+</section>
+<section class="chap" id="c15" data-title="Chapter 15: When to stay away from the chart">
+<h2>Chapter 15: When to stay away from the chart</h2>
+<p>The market is open all day and all night. You do not have to be. Staying away is a skill, and the best traders do it most of the time.</p>
+<p>Close the app when:</p>
+<ul>
+<li><strong>Price is in the middle of the range</strong>, far from any level, and no setup is showing.</li>
+<li><strong>You have hit your daily limit:</strong> 2 or 3 losses, or 3% down. Stop for the day, even if you feel sure the next one will win.</li>
+<li><strong>You just had a big win.</strong> Excitement makes people take poor trades.</li>
+<li><strong>You are tired, angry or in a hurry.</strong> Anger after a loss leads to revenge trades.</li>
+<li><strong>You cannot check all three timeframes</strong> (H4, H1, M30).</li>
+<li><strong>A huge spike candle has just printed.</strong> Wait for a few candles to close.</li>
+<li><strong>The next level is too close</strong> for a 2 : 1 trade.</li>
+<li><strong>You are bored.</strong> The market being open is not a reason to trade.</li>
+</ul>
+<p>Before you leave a trade open:</p>
+<ul>
+<li>Check that the stop loss and take profit are on the order.</li>
+<li>Check your phone battery and signal. A trade with no stop and no connection is the worst case.</li>
+<li>Set price alerts for your halfway point and target.</li>
+</ul>
+<p><strong>A simple daily routine.</strong> Look at the charts at fixed times, for example morning and evening. Spend 10 minutes: H4, then H1, then M30. Write down one of three decisions: trade, wait or stay away. Then close the app. Every "stay away" day is also a successful day if it kept your account safe.</p>
+</section>
+<section class="chap" id="c16" data-title="Chapter 16: A live example, 14 to 15 November 2026">
+<h2>Chapter 16: A live example, 14 to 15 November 2026</h2>
+<p>This chapter follows one real stretch of the chart from start to finish, so you can see the rules working.</p>
+<p><strong>The setup (14 Nov evening).</strong> Price had moved between 549 and 579 for about two days. On H4 the 578.94 level sat together with the slow purple line, so there was resistance overhead. H1 was still in an uptrend. The routine said: in the middle of the range, wait.</p>
+<p><strong>The good entry that came and went (about 04:00, 15 Nov).</strong> Price dropped to about 552, touched the rising purple M30 line just above the 549.05 support, and bounced. That was the best buy of the period: a level, the H1 higher low and the purple line all in the same place. It was missed, and that is fine.</p>
+<p><strong>The breakout (morning, 15 Nov).</strong> Price climbed to 573, then through 578.94 in a run of strong H1 candles. The M30 chart showed one nearly vertical move with no pullbacks.</p>
+<figure><img loading="lazy" data-img="fig9_breakout" alt="M30 chart on 15 Nov at 09:20: breakout above 578.94, the missed entry and the better retest entry"><figcaption>M30 chart on 15 Nov at 09:20: breakout above 578.94, the missed entry and the better retest entry</figcaption></figure>
+<p><strong>What the daily chart added.</strong> At 588.91 and about 592, price reached the flat D1 purple line and the D1 orange line. That is a larger ceiling than anything on H4. Price had also risen about 27 points in a few hours, far from its moving averages.</p>
+<p><strong>The lessons</strong></p>
+<ol>
+<li>The best entries came at the edges of the range, near 552, and not in the middle.</li>
+<li>After a breakout, do not chase. Wait for the retest of the broken level (here 578.94, which flips from resistance to support) and for a candle that holds.</li>
+<li>When price is far from the blue and orange lines, a pullback is more likely than a continuation.</li>
+<li>Check the next bigger timeframe (D1) for ceilings before targeting a level.</li>
+<li>A missed trade costs nothing. A chased trade can cost the whole day.</li>
+<li>Up all night? Close the app. Tiredness is on the stay-away list.</li>
+</ol>
+<p><strong>What happened next (15 Nov, 09:00 to 12:44).</strong> Price ran to about 599, which is above the D1 line near 592, and then reversed. It fell back through 588.91 within a few hours, so the retest of 588.91 did not hold. It then came down to the 578.94 zone and wicked to about 577. At 12:44 it was at about 580, holding that zone for the moment but not yet confirmed.</p>
+<figure><img loading="lazy" data-img="fig10_failed_breakout" alt="M15 chart on 15 Nov at 12:44: the high near 599, the failed retest of 588.91, and the 578.94 support zone"><figcaption>M15 chart on 15 Nov at 12:44: the high near 599, the failed retest of 588.91, and the 578.94 support zone</figcaption></figure>
+<p><strong>What this teaches</strong></p>
+<ol>
+<li>Waiting for the retest was right. A buyer who chased at 592 or 599 was holding a trade that dropped about 20 points.</li>
+<li>A retest can fail. That is why you need the candle to close and hold before entering, and why the stop goes on the order.</li>
+<li>A breakout that returns inside the old range is a failed breakout. Treat the old range edges (here 578.94 and 549.05) as the map again.</li>
+<li>When two chances in a row do not give a clean trigger, the answer is still to wait. Every wait that avoids a bad trade counts as a good decision.</li>
+<li>Nothing in this chapter is a prediction. It shows how to read what price has already done and respond with a plan.</li>
+</ol>
+<p><strong>The outcome (15 Nov, 13:10).</strong> The 578.94 retest held. Price wicked down to about 577, then green candles closed back above the level, and price recovered to about 586. This is the retest entry the chapter described earlier.</p>
+<figure><img loading="lazy" data-img="fig11_retest_held" alt="M15 chart on 15 Nov at 13:10: the retest of 578.94 held, with a possible entry, stop and target drawn in"><figcaption>M15 chart on 15 Nov at 13:10: the retest of 578.94 held, with a possible entry, stop and target drawn in</figcaption></figure>
+<p>Look at the numbers on the chart. A buy after the green close would have had an entry near 581, a stop near 575.5 (below the wick and the yellow line) and a target at 588.91. That is a risk of about 5.5 and a reward of about 7.9, which is 1.4 to 1. The level held, but the trade was still below the 2 to 1 rule, so the right size was half a lot or no trade. A good read of the chart does not make a poor trade good.</p>
+<p><strong>The big picture on H4.</strong> The chart below shows about three weeks. Price crashed to about 495, recovered with higher lows, moved in a range between 549 and 579, and then spiked to about 599 and was rejected. The slow purple line, still falling, sat just under the 579 zone the whole time. Seeing this picture makes it clear why the middle of the range was a place to wait and the edges were places to act.</p>
+<figure><img loading="lazy" data-img="fig12_h4_big_picture" alt="H4 chart: the crash to 495, the recovery, the 549 to 579 range, and the spike to 599 that was rejected"><figcaption>H4 chart: the crash to 495, the recovery, the 549 to 579 range, and the spike to 599 that was rejected</figcaption></figure>
+<p><strong>Three more lessons</strong></p>
+<ol>
+<li>Support and resistance can swap roles. The 578.94 level was a ceiling for days, then a floor.</li>
+<li>The same level can give two different results (588.91 failed, 578.94 held). Wait for the candle to decide, every time.</li>
+<li>Even a clean setup needs the numbers to work. Always check the reward against the risk before you click.</li>
+</ol>
+<p><strong>Update, 15 Nov at 14:05.</strong> Price made a second push. It fell back to about 577, held, and then rose back through 588.91 to about 592. The level 588.91 is acting as support again, and the first high near 599 is the next reference. Another point from the chart: the lower level was redrawn from 578.94 to 577.94 to fit the wick. The exact number matters less than the area around it.</p>
+<figure><img loading="lazy" data-img="fig13_second_push" alt="M15 chart on 15 Nov at 14:05: the second push above 588.91 after the retest held at about 577"><figcaption>M15 chart on 15 Nov at 14:05: the second push above 588.91 after the retest held at about 577</figcaption></figure>
+<p>Nothing here is a prediction. The area around 592 to 599 can reject price again, as it did earlier, or break. The routine does not change: wait for a close and a hold before acting.</p>
+</section>
+<section class="chap" id="c17" data-title="Chapter 17: Our market approach to Volatility 100">
+<h2>Chapter 17: Our market approach to Volatility 100</h2>
+<p>This chapter pulls the whole book into one approach you can follow every day.</p>
+<p><strong>What kind of market this is</strong></p>
+<ul>
+<li>Volatility 100 is a computer-generated series with constant volatility. It has no news, no sessions and no opening or closing times, and it never stops.</li>
+<li>Because it is random in the short run, no signal is certain. The aim is not to predict. The aim is to take only trades where the loss is small and the reward is at least twice the loss, and to repeat that many times.</li>
+<li>Levels act as zones. Price often goes through them and returns, so stops go beyond the zone, not on the line.</li>
+<li>Moves can be fast and large, so position size comes from the stop distance and the 1% rule, never from a feeling.</li>
+</ul>
+<p><strong>Step 1: name the market state.</strong> Then follow the plan for that state.</p>
+<figure><img loading="lazy" data-img="states" alt="Four market states and the plan for each: range, trend, breakout, failed breakout"><figcaption>Four market states and the plan for each: range, trend, breakout, failed breakout</figcaption></figure>
+<p><strong>Step 2: run the three-timeframe routine</strong> (Chapter 11). H4 gives the map, H1 the direction, M30 the trigger. If D1 is available, glance at it for large ceilings and floors before you set a target.</p>
+<p><strong>Step 3: pass the checklist</strong> (Chapter 12). Trigger, room of at least twice the stop, risk of 1% or less, daily limit not reached, and you are rested.</p>
+<p><strong>Step 4: manage the trade by the plan</strong> (Chapter 13). Stop and target on the order, stop to break-even at the halfway point, no widening, close if the reason is gone.</p>
+<p><strong>Step 5: record and review.</strong> Write every trade in a journal: date, state, setup, entry, stop, target, result, and one lesson. Every Sunday, read the week together and count how many trades followed the rules.</p>
+<p><strong>Why the reward-to-risk number matters.</strong> The table shows the average result per trade, measured in units of risk (R). It is the win rate times the reward, minus the loss rate times one unit of risk. These are illustrations only, they ignore the spread, and they do not predict any real result.</p>
+<div class="tw"><table><thead><tr><th>Win rate</th><th>Reward-to-risk 1.4 : 1</th><th>Reward-to-risk 2 : 1</th><th>Reward-to-risk 3 : 1</th></tr></thead><tbody>
+<tr><td>30%</td><td>-0.28 R</td><td>-0.10 R</td><td>+0.20 R</td></tr>
+<tr><td>40%</td><td>-0.04 R</td><td>+0.20 R</td><td>+0.60 R</td></tr>
+<tr><td>50%</td><td>+0.20 R</td><td>+0.50 R</td><td>+1.00 R</td></tr>
+</tbody></table></div>
+<p>Reading it: at 2 to 1 you can lose six trades in ten and still come out ahead, and at 1.4 to 1 you need to win about half your trades just to be positive. That is why the 578.94 example in Chapter 16, with its 1.4 to 1, was a half-lot or skip trade.</p>
+<p><strong>Habits that protect the account</strong></p>
+<div class="tw"><table><thead><tr><th>Do</th><th>Do not</th></tr></thead><tbody>
+<tr><td>Wait for a closed candle</td><td>Enter in the middle of a candle</td></tr>
+<tr><td>Put the stop on the order</td><td>Trade with no stop or move it further away</td></tr>
+<tr><td>Take profit at the plan</td><td>Hold on because it might go further</td></tr>
+<tr><td>Skip when there is no setup</td><td>Trade because the market is open</td></tr>
+<tr><td>Stop after 2 to 3 losses or a 3% day</td><td>Chase losses with a bigger lot</td></tr>
+<tr><td>Add only to a winner at break-even</td><td>Add to a loser</td></tr>
+<tr><td>Charge the phone and check the signal</td><td>Leave a trade open on a dying battery</td></tr>
+</tbody></table></div>
+<p><strong>Building skill in stages</strong></p>
+<ol>
+<li><strong>Stage 1, paper and demo:</strong> at least 30 days and 50 trades on a demo account, following the checklist. The goal is rule-following, not profit.</li>
+<li><strong>Stage 2, review:</strong> the journal shows rule-following on about nine trades in ten, and the demo results are positive after the spread.</li>
+<li><strong>Stage 3, small real money (adults only):</strong> only money you can afford to lose, the smallest lot size, and the same rules. Increase size slowly, and only after weeks of steady results.</li>
+<li><strong>At any stage:</strong> a string of losses means go back one stage and review. It does not mean trade bigger.</li>
+</ol>
+<p>No method wins every trade, and trading can lose money. The purpose of this book is to give you a process you can repeat calmly and learn from.</p>
+</section>
+<section class="chap" id="c18" data-title="Chapter 18: The bigger picture and the top-down strategy">
+<h2>Chapter 18: The bigger picture and the top-down strategy</h2>
+<p>Every lesson so far has used the small charts (M30, M15) to find the entry. This chapter zooms out. The higher time frames (H4 and D1) do not give you the entry. They give you the <strong>context</strong>: where the market has been, where the big walls are, and how much room there is before price hits one. A trade that looks perfect on M15 can be a poor trade if a big wall sits only a few points above it.</p>
+<h3>18.1 Why zoom out first</h3>
+<ul>
+<li><strong>Context.</strong> Is price falling, rising or sitting still on the big chart? Trading with the big move is easier than trading against it.</li>
+<li><strong>Room.</strong> The small chart cannot show you a big ceiling that is just off its screen. The H4 chart can.</li>
+<li><strong>Level history.</strong> A level that was touched three times over two weeks is stronger than one drawn from a single wick.</li>
+<li><strong>Calm.</strong> On H4 one candle is four hours. You see fewer, clearer decisions and less noise.</li>
+</ul>
+<h3>18.2 Worked example: the H4 wide view (Oct to 15 Nov)</h3>
+<figure><img loading="lazy" data-img="fig15_h4_wide" alt="H4 wide view: swing high, crash low, retracement guides and the slow line"><figcaption>H4 wide view: swing high, crash low, retracement guides and the slow line</figcaption></figure>
+<p>What the H4 chart shows, step by step:</p>
+<ol>
+<li><strong>Swing high about 780</strong> (24 Oct) and <strong>crash low about 495</strong> (12 Nov). The fall was about 285 points.</li>
+<li><strong>The recovery</strong> has brought price to about 597, roughly one third of that fall.</li>
+<li><strong>Retracement guides</strong> (guides, not rules): one third is about 590, one half about 637.5, two thirds about 685. Notice that 685 sits next to the 684.94 level. When a guide and a drawn level agree, pay extra attention.</li>
+<li><strong>The slow line (purple)</strong> has been falling since the peak and sits near 580. Price is just above it. That means price has bounced back up to the line and is now testing whether it can stay on top.</li>
+<li><strong>Levels on the chart:</strong> 684.94, 630.58, 604.81, 588.91, 577.94, 549.05, 513.92. Treat each as a zone, not a thin line.</li>
+</ol>
+<h3>18.3 The H1 staircase</h3>
+<figure><img loading="lazy" data-img="fig16_h1_wide" alt="H1 wide view: higher lows from 495 and the breakout of 577.94"><figcaption>H1 wide view: higher lows from 495 and the breakout of 577.94</figcaption></figure>
+<p>On H1 the picture is friendlier: a staircase of <strong>higher lows</strong> (495, then about 531, then about 552), the H1 slow line turned up around 11 Nov, and price broke out of its week-long range (500 to 578) by closing above 577.94. So the <strong>lower time frames are up while the H4 is still in a down trend</strong>. That is called a <em>counter-trend bounce</em> on the higher chart. It can continue, but it is a weaker setup than a trade where every time frame agrees.</p>
+<h3>18.4 The zoom-out checklist (do this once a day, or before the first trade)</h3>
+<ol>
+<li>Mark the <strong>swing high</strong> and <strong>swing low</strong> on H4. Write both numbers down.</li>
+<li>Mark every level price touched <strong>two or more times</strong>. Keep about five.</li>
+<li>Is the H4 slow line <strong>rising, falling or flat</strong>? Which side is price on?</li>
+<li>Where is price inside the swing: near the low, the middle, or the high? Check the one-third, one-half and two-thirds guides.</li>
+<li>Which side has <strong>more room</strong>: the next wall above or the next wall below? Measure it in points.</li>
+<li>Write one sentence: "The big picture says \_\_\_\_\_\_, so today I prefer \_\_\_\_\_\_."</li>
+</ol>
+<h3>18.5 Bias table: how the big picture changes the trade</h3>
+<div class="tw"><table><thead><tr><th>H4 direction</th><th>Price vs H4 slow line</th><th>What it means</th><th>Size</th><th>Target plan</th></tr></thead><tbody>
+<tr><td>Up</td><td>Above</td><td>Trend with you</td><td>Full size (1% risk)</td><td>Hold for the next big wall; trail the stop</td></tr>
+<tr><td>Up</td><td>Below</td><td>Pull-back in an up trend</td><td>Wait, or half size</td><td>Enter only after price closes back above the line</td></tr>
+<tr><td>Down</td><td>Below</td><td>Trend against longs</td><td>Prefer sells, full size</td><td>Hold for the next big wall below</td></tr>
+<tr><td>Down</td><td>Above (our case)</td><td>Counter-trend bounce</td><td>Half size, long only</td><td>Short targets, stop to break-even early</td></tr>
+<tr><td>Flat</td><td>Either</td><td>Range</td><td>Half size</td><td>Trade wall to wall, take profit at the middle or far wall</td></tr>
+</tbody></table></div>
+<p><strong>Upgrade rule:</strong> a counter-trend bounce becomes a full-size trend trade only after an H4 candle closes above the slow line, holds there, and the line stops falling. Until then, treat every long as a bounce.</p>
+<h3>18.6 Trade grades</h3>
+<div class="tw"><table><thead><tr><th>Grade</th><th>What agrees</th><th>Action</th></tr></thead><tbody>
+<tr><td>A</td><td>H4, H1 and M30 all agree, room is at least 2 times the stop</td><td>Full size (1% risk)</td></tr>
+<tr><td>B</td><td>H1 and M30 agree, H4 is against or neutral</td><td>Half size, shorter target, break-even early</td></tr>
+<tr><td>C</td><td>Only the M30 trigger, other frames disagree or room is under 2 times the stop</td><td>Skip. Write it in the journal and move on</td></tr>
+</tbody></table></div>
+<h3>18.7 Where we are now (15 Nov): scenarios, not predictions</h3>
+<p>Price is about 590 on the 588.91 level, with a ceiling zone at 595 to 599. Nobody knows which way it goes. The strategy is to know in advance what each outcome means.</p>
+<div class="tw"><table><thead><tr><th>Scenario</th><th>What you would see</th><th>What it means</th></tr></thead><tbody>
+<tr><td>Hold and break up</td><td>M30 closes above about 600 and holds on a retest</td><td>Bounce continues. Next walls 604.81 then 630.58. Half size until H4 closes above the slow line</td></tr>
+<tr><td>Rejection</td><td>M30 closes below about 586</td><td>Bounce is failing. Look to 577.94, then 549.05. Longs are off; shorts only with a clear trigger</td></tr>
+<tr><td>Range</td><td>Price stays between 577 and 599</td><td>No edge in the middle. Wait for a wall touch or stay out</td></tr>
+</tbody></table></div>
+<p>This is education, not a prediction and not financial advice. The market can ignore every line on the chart.</p>
+<h3>18.8 Exercises for your son (on a demo account)</h3>
+<ol>
+<li>Open H4. Mark the swing high and swing low of the last month.</li>
+<li>Mark five levels that price touched at least twice.</li>
+<li>Is the slow line rising, falling or flat? Is price above or below it?</li>
+<li>Which side has more room, up or down? Count the points.</li>
+<li>Fill in the sentence: "The big picture says \_\_\_\_\_\_, so I prefer \_\_\_\_\_\_."</li>
+<li>Only then open M30 and look for the trigger. Grade the trade A, B or C before you press the button.</li>
+</ol>
+<p>Repeat for ten days. If he can do steps 1 to 5 without help, he understands the top-down method.</p>
+<h3>18.9 Zone audit: checking the lines you drew (15 Nov)</h3>
+<p>Drawing zones is the hardest skill, so it is worth checking them. Below, every line you drew was checked against the H4, H1, M30 and M15 charts you shared. Most of your lines are good. A few need a small correction. Only H4 down to M15 could be checked, because no D1 or M5 chart was shared yet (send them and this section can be extended).</p>
+<figure><img loading="lazy" data-img="fig17_h4_audit" alt="H4 zone audit: strong, OK and weak lines"><figcaption>H4 zone audit: strong, OK and weak lines</figcaption></figure>
+<div class="tw"><table><thead><tr><th>Your line</th><th>Verdict</th><th>Evidence</th><th>Correction</th></tr></thead><tbody>
+<tr><td>684.94</td><td>Strong</td><td>H4 highs touched it three times in October</td><td>Keep. Draw it as a band about 682 to 688</td></tr>
+<tr><td>630.58</td><td>OK</td><td>H4 price crossed it many times, so it is a pass-through level</td><td>Keep, but expect little reaction</td></tr>
+<tr><td>604.81</td><td>Weak as drawn</td><td>Real highs stopped at about 595 to 600 and never reached it</td><td>Treat 595 to 605 as one ceiling zone. Add 599.5 as the recent swing high</td></tr>
+<tr><td>588.91</td><td>Strong pivot</td><td>Support in early October, resistance in early November, crossed again today</td><td>Keep, but use the band 586 to 591. It is a pivot, not a wall</td></tr>
+<tr><td>577.94</td><td>Strong</td><td>H1 rejected it on 7, 12 and 14 Nov, then price broke up through it</td><td>Keep. It is now support. The yellow line near 574.5 is the breakout shelf: zone 574.5 to 578</td></tr>
+<tr><td>549.05</td><td>Strong</td><td>H4 touched 5 to 9 Nov, M15 double bottom 14 and 15 Nov (about 549 and 551)</td><td>Keep as band 549 to 551</td></tr>
+<tr><td>513.92</td><td>OK</td><td>H4 lows cluster 514 to 518 on 8 to 12 Nov</td><td>Keep. <strong>Add the crash low about 495</strong> as the last support</td></tr>
+</tbody></table></div>
+<p><strong>Missing lines worth adding:</strong> 599.5 (recent high), about 495 (crash low), and about 560 (the middle of the one-week range, useful as a small pivot).</p>
+<figure><img loading="lazy" data-img="fig18_m15_zones" alt="M15 refined zones for today"><figcaption>M15 refined zones for today</figcaption></figure>
+<h3>18.10 Rules for drawing a good zone</h3>
+<ol>
+<li><strong>Two touches or more.</strong> One wick is a hint, not a zone.</li>
+<li><strong>Draw a band, not a line.</strong> Use the wick-to-body width of the touches, about 3 to 5 points on this index.</li>
+<li><strong>Start on H4, refine on M15.</strong> Find the zone on the big chart, then zoom in to place its edges.</li>
+<li><strong>Check both directions.</strong> A level that stopped price from above and from below is a pivot and is strong.</li>
+<li><strong>Do not draw a line where price never stopped.</strong> 604.81 was drawn above the real high, which is why it looked close but never reacted.</li>
+<li><strong>Redraw after every swing.</strong> Delete lines that have not been touched for weeks. Keep about five to seven on the screen.</li>
+<li><strong>Flip rule:</strong> when price closes beyond a zone and the retest holds, the old ceiling becomes the new floor (577.94 today).</li>
+</ol>
+<p>This audit is read from screenshots and the prices are approximate to a few points. Always confirm on your own chart before risking money. It is education, not advice.</p>
+</section>
+<section class="chap" id="c19" data-title="Chapter 19: Teaching your son">
+<h2>Chapter 19: Teaching your son</h2>
+<p>This chapter is for you as the teacher.</p>
+<p><strong>First, the ground rules.</strong> Most brokers only open real-money accounts for adults (18 and over). Until then your son should use a demo account only, which uses pretend money. Never lend him money to trade, and never trade money that is needed for school fees, rent or food. Tell him plainly that most people lose money trading, and that this book teaches how to lose small while learning.</p>
+<p><strong>A teaching order that works:</strong></p>
+<ol>
+<li><strong>Risk first.</strong> Teach the 1% rule and the daily limit before showing any entry. Use the Chapter 5 table.</li>
+<li><strong>Trend on paper.</strong> Print or screenshot charts, and ask him to mark higher highs and higher lows with a pencil.</li>
+<li><strong>Levels as zones.</strong> Have him draw zones, not lines, and find the wicks that went beyond them (Chapter 3).</li>
+<li><strong>The three-timeframe routine.</strong> Practise H4, then H1, then M30 on old charts, deciding trade, wait or stay away (Chapter 11).</li>
+<li><strong>Demo account with a journal.</strong> At least 30 days and 50 trades. Record the date, setup, entry, stop, target, result and one lesson.</li>
+<li><strong>Weekly review.</strong> Sit down together every Sunday and read the journal. Praise rule-following, even on losing trades.</li>
+</ol>
+<p><strong>Things to repeat often:</strong></p>
+<ul>
+<li>A loss that followed the rules is a good trade. A win that broke the rules is a bad one.</li>
+<li>No trade is also a decision.</li>
+<li>The stop loss is the price of staying in the game.</li>
+<li>No one can predict this market. We only manage risk.</li>
+</ul>
+</section>
+<section class="chap" id="c20" data-title="Glossary">
+<h2>Glossary</h2>
+<div class="tw"><table><thead><tr><th>Word</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>Point</td><td>The smallest unit price is measured in.</td></tr>
+<tr><td>Lot</td><td>The size of the trade. A bigger lot makes every point worth more, for wins and losses.</td></tr>
+<tr><td>Stop loss (SL)</td><td>A price where the trade closes automatically to limit the loss.</td></tr>
+<tr><td>Take profit (TP)</td><td>A price where the trade closes automatically to bank the profit.</td></tr>
+<tr><td>Pullback</td><td>A short move against the main trend before it continues.</td></tr>
+<tr><td>Support / resistance</td><td>Zones where price has often turned up (support) or down (resistance).</td></tr>
+<tr><td>Moving average</td><td>A smooth line showing the average price over recent candles.</td></tr>
+<tr><td>M30, H1, H4</td><td>Chart timeframes: each candle is 30 minutes, 1 hour or 4 hours.</td></tr>
+<tr><td>Candle and wick</td><td>A candle shows one period of price. The thin line (wick) shows how far price went before coming back.</td></tr>
+<tr><td>Spread</td><td>The small cost built into every trade when you open it.</td></tr>
+<tr><td>Break-even</td><td>Moving the stop to the entry price so the trade cannot lose.</td></tr>
+<tr><td>Risk-to-reward</td><td>The potential profit compared with the potential loss, such as 2 : 1.</td></tr>
+<tr><td>Demo account</td><td>A practice account with pretend money.</td></tr>
+</tbody></table></div>
+</section>
+<section class="chap" id="c21" data-title="One-page cheat sheet">
+<h2>One-page cheat sheet</h2>
+<p><strong>Before any trade, answer yes to all of these:</strong></p>
+<ol>
+<li>H4: do I know the big levels, and is there room (at least 2x my stop) to the next one?</li>
+<li>H1: is the trend the same way as my trade?</li>
+<li>M30: has a candle closed with a real trigger, such as a pullback holding or a retest?</li>
+<li>Is price away from the middle of the range?</li>
+<li>Are my stop, target and halfway price written down before I enter?</li>
+<li>Is my risk 1% or less, and am I under my daily limit (2 to 3 losses, 3% down)?</li>
+</ol>
+<p><strong>Score:</strong> 3 of 3 = trade. 2 of 3 = small or skip. 0 or 1 = stay away.</p>
+<p><strong>Bigger picture (H4):</strong> mark swing high and low, five levels, slow-line direction and side, and which side has more room. Grade the trade A (all frames agree), B (half size, short target) or C (skip).</p>
+<p><strong>During the trade:</strong> at halfway move the stop to entry. Never widen the stop. Take profit at the target. Close if the reason is gone or the time limit passes.</p>
+<p><strong>Adding:</strong> only to a winner whose stop is at break-even, with a new setup. Maximum two positions.</p>
+<p><strong>Stop for the day when:</strong> limit hit, tired, angry, after a big win, or just bored.</p>
+<p><strong>Remember:</strong> demo only until he is an adult. A rule-following loss is a good trade.</p>
+</section></div>
+ <div class="row noprint" style="margin-top:16px"><button class="btn ghost" id="b-prev">← Previous</button><button class="btn" id="b-next">Next →</button></div>
+</section>
+
+<!-- TEACH -->
+<section class="view" id="v-teach">
+ <h1>Teach your son</h1><p class="sub">Demo account only until he is an adult. Ten days of practice, one skill at a time.</p>
+ <div class="grid g2"><div class="card"><h3 style="margin-top:0">Daily exercise (do before looking at M30)</h3><div id="ex-list"></div></div>
+ <div class="card"><h3 style="margin-top:0">10-day practice tracker</h3><div id="ex-days" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px"></div><p class="small mute">If he can do steps 1–5 alone for ten days, he understands the top-down method. A rule-following loss is a good trade.</p></div></div>
+ <div class="card"><h3 style="margin-top:0">Glossary</h3><input id="g-search" placeholder="Search a word…"><div class="tw"><table id="g-table"><tbody></tbody></table></div></div>
+</section>
+
+<!-- GALLERY -->
+<section class="view" id="v-gallery"><h1>Diagram gallery</h1><p class="sub">All annotated charts and diagrams in one place.</p><div class="gal" id="gal"></div></section>
+
+<!-- ABOUT -->
+<section class="view" id="v-about"><h1>About &amp; data</h1>
+ <div class="card"><p>Vol 100 Desk is a standalone module for your Forex Desk (separate from MIMS). Runs inside your Forex Desk as the Vol 100 tab. Journal, checklists and settings are saved on this device only (browser storage); use <strong>Export CSV</strong> in the Journal to back up.</p>
+ <p>Book levels from 14 Nov (such as 578.94) are historical examples. Live levels are on <strong>Today</strong> and <strong>Zone map</strong> (584 audited 15 Nov).</p>
+ <div class="row"><button class="btn ghost" id="theme">Toggle dark / light</button><button class="btn red" id="wipe">Clear saved data on this device</button></div></div>
+ <div class="note">Not financial advice. Volatility 100 is a random synthetic index and most retail traders lose money. Real-money accounts are for adults. Practise on demo first.</div>
+</section>
+
+</main></div>
+<div id="lb"><img alt=""></div>
+<script>
+const IMGS=Object.fromEntries(["fig1_h1_trend", "fig2_zone_overshoot", "fig3_ma_roles", "fig4_trade_plan", "fig5_h4", "fig6_h1", "fig7_m30", "flow", "fig8_m15_trade", "timeline", "fig9_breakout", "fig10_failed_breakout", "fig11_retest_held", "fig12_h4_big_picture", "fig13_second_push", "states", "fig15_h4_wide", "fig16_h1_wide", "fig17_h4_audit", "fig18_m15_zones", "fig14_overnight_dip", "scenarios_m30"].map(n=>[n,'vol100/img/'+n+'.jpg'])),CAPS={"fig1_h1_trend": "Your H1 chart of Volatility 100 with three rising lows marked", "fig2_zone_overshoot": "Your M15 chart with the 571.28 zone and two overshoots marked", "fig3_ma_roles": "Your M15 chart with the three moving averages labelled", "fig4_trade_plan": "Your M15 chart with Setup B entry, stop and target marked", "fig5_h4": "H4 chart: resistance at 578.94 plus the falling purple line, support at 549.05", "fig6_h1": "H1 chart: higher low at 549, rising purple line, highs rejected at 575 to 579", "fig7_m30": "M30 chart: price in the middle of the range, pullback zone below, rejection zone above", "flow": "Decision path: look top-down, score, trigger, checklist, enter, manage, add or stay away", "fig8_m15_trade": "M15 chart of the short trade: stop, entry, halfway and target", "timeline": "One buy from entry to target, with the stop moved to break-even at the halfway point", "fig9_breakout": "M30 chart on 15 Nov at 09:20: breakout above 578.94, the missed entry and the better retest entry", "fig10_failed_breakout": "M15 chart on 15 Nov at 12:44: the high near 599, the failed retest of 588.91, and the 578.94 support zone", "fig11_retest_held": "M15 chart on 15 Nov at 13:10: the retest of 578.94 held, with a possible entry, stop and target drawn in", "fig12_h4_big_picture": "H4 chart: the crash to 495, the recovery, the 549 to 579 range, and the spike to 599 that was rejected", "fig13_second_push": "M15 chart on 15 Nov at 14:05: the second push above 588.91 after the retest held at about 577", "states": "Four market states and the plan for each: range, trend, breakout, failed breakout", "fig15_h4_wide": "H4 wide view: swing high, crash low, retracement guides and the slow line", "fig16_h1_wide": "H1 wide view: higher lows from 495 and the breakout of 577.94", "fig17_h4_audit": "H4 zone audit: strong, OK and weak lines", "fig18_m15_zones": "M15 refined zones for today", "fig14_overnight_dip": "M15, 15 Nov overnight dip", "scenarios_m30": "M30 scenarios: the three paths from a pullback"},ORDER=["fig1_h1_trend", "fig2_zone_overshoot", "fig3_ma_roles", "fig4_trade_plan", "fig5_h4", "fig6_h1", "fig7_m30", "flow", "fig8_m15_trade", "timeline", "fig9_breakout", "fig10_failed_breakout", "fig11_retest_held", "fig12_h4_big_picture", "fig13_second_push", "states", "fig15_h4_wide", "fig16_h1_wide", "fig17_h4_audit", "fig18_m15_zones", "fig14_overnight_dip", "scenarios_m30"];
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem('v100.'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('v100.'+k,JSON.stringify(v))}catch(e){}}};
+const today=()=>new Date().toISOString().slice(0,10);
+const f2=n=>isFinite(n)?(Math.round(n*100)/100).toString():'–';
+/* nav */
+function show(v){$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));$$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));$('#side').classList.remove('open');window.scrollTo(0,0);store.set('view',v)}
+$('#nav').addEventListener('click',e=>{const a=e.target.closest('a');if(a)show(a.dataset.v)});
+$('#burger').onclick=()=>$('#side').classList.toggle('open');
+/* images */
+$$('img[data-img]').forEach(i=>i.src=IMGS[i.dataset.img]);
+const lb=$('#lb');document.addEventListener('click',e=>{const i=e.target.closest('figure img');if(i){lb.querySelector('img').src=i.src;lb.classList.add('on')}else if(e.target.closest('#lb'))lb.classList.remove('on')});
+$('#gal').innerHTML=ORDER.map(n=>`<figure><img src="${IMGS[n]}" alt="${CAPS[n]||n}"><figcaption>${CAPS[n]||n}</figcaption></figure>`).join('');
+/* book */
+const chaps=$$('.chap'),tocA=$$('#toc a');let cur=store.get('chap',0);if(cur>=chaps.length)cur=0;
+function chap(i){cur=i;chaps.forEach((c,k)=>c.classList.toggle('on',k===i));tocA.forEach((a,k)=>a.classList.toggle('on',k===i));store.set('chap',i);window.scrollTo(0,0)}
+$('#toc').addEventListener('click',e=>{const a=e.target.closest('a');if(!a)return;e.preventDefault();chap(tocA.indexOf(a))});
+$('#b-prev').onclick=()=>chap(Math.max(0,cur-1));$('#b-next').onclick=()=>chap(Math.min(chaps.length-1,cur+1));chap(cur);
+$('#b-search').addEventListener('input',e=>{const q=e.target.value.toLowerCase().trim();tocA.forEach((a,k)=>{const hit=!q||chaps[k].textContent.toLowerCase().includes(q);a.style.display=hit?'':'none'});if(q){const f=chaps.findIndex(c=>c.textContent.toLowerCase().includes(q));if(f>=0)chap(f)}});
+/* book tools */
+function rrTool(el){el.innerHTML='<span class="tag">Interactive</span> Reward-to-risk<div class="row"><div><label>Entry</label><input type="number" step="any" value="100" class="a"></div><div><label>Stop</label><input type="number" step="any" value="97" class="b"></div><div><label>Target</label><input type="number" step="any" value="106" class="c"></div></div><div class="res"></div>';
+ const u=()=>{const [a,b,c]=['.a','.b','.c'].map(s=>+el.querySelector(s).value);const risk=Math.abs(a-b),rew=Math.abs(c-a),r=rew/risk,o=el.querySelector('.res');o.className='res '+(r>=2?'good':r>=1.4?'warn':'bad');o.textContent=isFinite(r)?`Risk ${f2(risk)} · Reward ${f2(rew)} · ${f2(r)} : 1 · need ${f2(100/(1+r))}% wins to break even · ${r>=2?'Acceptable':'Skip (under 2:1)'}`:'Enter numbers'};el.querySelectorAll('input').forEach(i=>i.oninput=u);u()}
+const ENTRY_Q=['H4: do I know the big levels and is there room (at least 2× my stop) to the next one?','H1: is the trend the same way as my trade?','M30: has a candle closed with a real trigger (pullback held or retest)?','Is price away from the middle of the range?'];
+function entryTool(el,persist){const key='entry.'+today();let st=persist?store.get(key,[0,0,0,0]):[0,0,0,0];
+ el.innerHTML=(persist?'':'<span class="tag">Interactive</span> ')+ENTRY_Q.map((q,i)=>`<label class="chk" style="text-transform:none;font-size:14px;color:inherit;margin:0"><input type="checkbox" data-i="${i}" ${st[i]?'checked':''}><span>${q}</span></label>`).join('')+'<div class="res"></div>';
+ const u=()=>{const n=st.reduce((a,b)=>a+b,0),o=el.querySelector('.res');o.className='res '+(n==4?'good':n==3?'warn':'bad');o.textContent=n==4?'All four pass: size at 1% risk, place stop and target, enter, then log it.':n==3?'3 of 4: small size or skip. Write what is missing.':'Fewer than 3: stay out.';if(persist)store.set(key,st)};
+ el.querySelectorAll('input').forEach(i=>i.onchange=()=>{st[+i.dataset.i]=i.checked?1:0;u()});u()}
+$$('.tool-slot').forEach(el=>el.dataset.tool==='rr'?rrTool(el):entryTool(el,false));
+entryTool($('#entrybox'),true);
+/* today */
+$('#todaydate').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const ZL=['H4: marked swing high and swing low','Marked the 5 levels touched 2+ times','H4 slow line: rising, falling or flat? Price above or below?','Where is price in the swing (1/3, 1/2, 2/3 guides)?','Which side has more room, up or down (in points)?'];
+let zs=store.get('zoom.'+today(),[0,0,0,0,0]);$('#zoomlist').innerHTML=ZL.map((q,i)=>`<label class="chk" style="text-transform:none;font-size:14px;color:inherit;margin:0"><input type="checkbox" data-i="${i}" ${zs[i]?'checked':''}><span>${q}</span></label>`).join('');
+$('#zoomlist').onchange=e=>{zs[+e.target.dataset.i]=e.target.checked?1:0;store.set('zoom.'+today(),zs)};
+$('#d-sentence').value=store.get('sent.'+today(),'');$('#d-sentence').oninput=e=>store.set('sent.'+today(),e.target.value);
+let day=store.get('day.'+today(),{w:0,l:0});$('#d-bal').value=store.get('bal','');$('#d-max').value=store.get('maxl',3);
+function dayU(){$('#d-count').textContent=`${day.w} wins · ${day.l} losses`;const max=+$('#d-max').value,m=$('#d-msg');const bal=+$('#d-bal').value;const lossPct=bal?day.l*1:0;
+ if(day.l>=max){m.innerHTML='<div class="res bad">Daily loss limit reached. Stop trading for today.</div>'}else if(day.l==max-1){m.innerHTML='<div class="res warn">One loss from your limit. Only A-grade setups.</div>'}else m.innerHTML='';store.set('day.'+today(),day)}
+$('#d-loss').onclick=()=>{day.l++;dayU()};$('#d-win').onclick=()=>{day.w++;dayU()};$('#d-reset').onclick=()=>{day={w:0,l:0};dayU()};$('#d-bal').oninput=e=>{store.set('bal',e.target.value);$('#p-bal').value=e.target.value};$('#d-max').onchange=e=>{store.set('maxl',e.target.value);dayU()};dayU();
+/* zones */
+let Z=store.get('zones',null)||[
+ {lo:682,hi:688,n:'684.94',v:'Strong',c:'good',t:'H4: three touches in Oct. Big ceiling.'},
+ {lo:629,hi:632,n:'630.58',v:'OK',c:'warn',t:'Crossed often; expect little reaction. Target for a real breakout.'},
+ {lo:602.5,hi:606,n:'604.81',v:'Weak as drawn',c:'bad',t:'Real highs stopped under it. Use 595–605 as one ceiling zone.'},
+ {lo:595,hi:600,n:'Ceiling 595–600',v:'Strong (new)',c:'good',t:'Three rejections 15 Nov (599.8, 597.5, ~596). Add 599.5 as the recent high.'},
+ {lo:586,hi:591,n:'589.50 pivot',v:'Strong',c:'good',t:'Support in Oct, resistance in Nov. A band 586–591, not a wall.'},
+ {lo:574.5,hi:578.2,n:'578.20 floor',v:'Strong',c:'good',t:'Old ceiling (7, 12, 14 Nov) now support. Yellow shelf ~574.5.'},
+ {lo:549,hi:551,n:'549.05',v:'Strong',c:'good',t:'H4 5–9 Nov, M15 double bottom 14–15 Nov.'},
+ {lo:512,hi:516,n:'513.47–513.92',v:'OK',c:'warn',t:'H4 lows cluster 514–518 on 8–12 Nov.'},
+ {lo:494,hi:498,n:'~495 crash low',v:'Last support (new)',c:'good',t:'The 12 Nov low. Add it to your chart.'}];
+function zonesU(){const p=+$('#z-price').value,sl=+$('#z-stop').value||0;store.set('zprice',p);
+ $('#z-table tbody').innerHTML=Z.map(z=>`<tr><td><strong>${z.n}</strong><br><span class="small mute">${z.lo}–${z.hi}</span></td><td><span class="pill p-${z.c}">${z.v}</span></td><td>${z.t}</td></tr>`).join('');
+ const above=Z.filter(z=>z.lo>p).sort((a,b)=>a.lo-b.lo)[0],below=Z.filter(z=>z.hi<p).sort((a,b)=>b.hi-a.hi)[0];
+ const up=above?above.lo-p:NaN,dn=below?p-below.hi:NaN;
+ $('#z-room').innerHTML=`<div class="grid g2" style="margin:10px 0"><div class="card" style="margin:0"><div class="small mute">Room up to ${above?above.n:'–'}</div><div class="big">${f2(up)} pts</div><span class="pill p-${up>=2*sl?'good':'bad'}">${sl?(up>=2*sl?'≥ 2× stop':'< 2× stop'):'set stop'}</span></div><div class="card" style="margin:0"><div class="small mute">Room down to ${below?below.n:'–'}</div><div class="big">${f2(dn)} pts</div><span class="pill p-${dn>=2*sl?'good':'bad'}">${sl?(dn>=2*sl?'≥ 2× stop':'< 2× stop'):'set stop'}</span></div></div>`;
+ const lo=480,hi=700,Y=v=>20+(hi-v)/(hi-lo)*520,col={good:'#0f8a6a',warn:'#e08a00',bad:'#d6453a'};
+ let s='<rect x="0" y="0" width="520" height="560" fill="none"/>';for(let v=500;v<=700;v+=50)s+=`<line x1="52" x2="500" y1="${Y(v)}" y2="${Y(v)}" stroke="#8883" /><text x="4" y="${Y(v)+4}" font-size="11" fill="#8a9">${v}</text>`;
+ Z.forEach(z=>{const y1=Y(z.hi),y2=Y(z.lo),h=Math.max(y2-y1,6);s+=`<rect x="60" y="${y1}" width="430" height="${h}" fill="${col[z.c]}" opacity=".35" rx="3"/><text x="66" y="${y1-2}" font-size="11" font-weight="700" fill="${col[z.c]}">${z.n}</text>`});
+ if(p>=lo&&p<=hi)s+=`<line x1="52" x2="505" y1="${Y(p)}" y2="${Y(p)}" stroke="#2a7fff" stroke-width="2" stroke-dasharray="6 4"/><rect x="440" y="${Y(p)-10}" width="76" height="20" rx="5" fill="#2a7fff"/><text x="446" y="${Y(p)+4}" font-size="12" fill="#fff" font-weight="700">${f2(p)}</text>`;
+ $('#z-svg').innerHTML=s}
+$('#z-price').value=store.get('zprice',594.3);['#z-price','#z-stop'].forEach(s=>$(s).oninput=zonesU);zonesU();
+/* planner */
+function planU(){const dir=$('#p-dir').value,en=+$('#p-en').value,sl=+$('#p-sl').value,tp=+$('#p-tp').value,bal=+$('#p-bal').value,rk=+$('#p-risk').value,vpp=+$('#p-vpp').value,gr=+$('#p-grade').value;const o=$('#p-out');
+ if(!en||!sl||!tp){o.innerHTML='<p class="mute">Enter entry, stop and target.</p>';return}
+ const sign=dir==='buy'?1:-1,risk=(en-sl)*sign,rew=(tp-en)*sign;
+ if(risk<=0||rew<=0){o.innerHTML='<div class="res bad">Stop must be on the losing side and target on the winning side of entry for a '+dir+'.</div>';return}
+ const r=rew/risk,half=en+sign*risk*1.0*0+sign*rew/2;let cls=r>=2?'good':r>=1.4?'warn':'bad';let msg=gr===0?'Grade C: skip.':r>=2?'Meets 2 : 1.':r>=1.4?'Under 2 : 1: half lot or skip.':'Skip: reward too small for the risk.';if(gr===0)cls='bad';
+ let h=`<div class="res ${cls}">Risk ${f2(risk)} pts · Reward ${f2(rew)} pts · ${f2(r)} : 1<br>${msg} Break-even win rate ${f2(100/(1+r))}%.</div>`;
+ h+=`<div class="grid g2" style="margin-top:10px"><div class="card" style="margin:0"><div class="small mute">Move stop to entry at</div><div class="big">${f2(en+sign*rew/2)}</div></div>`;
+ if(bal&&rk){const amt=bal*rk/100*(gr||0),perPt=amt/risk;h+=`<div class="card" style="margin:0"><div class="small mute">Risk amount (${gr===1?'full':gr===.5?'half':'zero'} size)</div><div class="big">${f2(amt)}</div><div class="small">Allowed loss per point: ${f2(perPt)}${vpp?'<br>Lot size ≈ <strong>'+(Math.floor(perPt/vpp*100)/100).toFixed(2)+'</strong>':''}</div></div>`}
+ h+='</div>';o.innerHTML=h;
+ const sv=$('#p-svg'),W=360,H=200,sc=v=>20+(1-(v-Math.min(sl,tp,en))/(Math.max(sl,tp,en)-Math.min(sl,tp,en)))*150;
+ sv.innerHTML=`<rect x="60" y="${Math.min(sc(en),sc(tp))}" width="200" height="${Math.abs(sc(tp)-sc(en))}" fill="#0f8a6a55"/><rect x="60" y="${Math.min(sc(en),sc(sl))}" width="200" height="${Math.abs(sc(sl)-sc(en))}" fill="#d6453a55"/><line x1="50" x2="280" y1="${sc(en)}" y2="${sc(en)}" stroke="#e08a00" stroke-width="2"/><text x="285" y="${sc(en)+4}" font-size="12" fill="#e08a00" font-weight="700">Entry ${f2(en)}</text><text x="285" y="${sc(tp)+4}" font-size="12" fill="#0f8a6a" font-weight="700">Target ${f2(tp)}</text><text x="285" y="${sc(sl)+4}" font-size="12" fill="#d6453a" font-weight="700">Stop ${f2(sl)}</text><text x="70" y="${(sc(en)+sc(tp))/2+4}" font-size="13" fill="currentColor">Reward ${f2(rew)}</text><text x="70" y="${(sc(en)+sc(sl))/2+4}" font-size="13" fill="currentColor">Risk ${f2(risk)}</text>`}
+['#p-dir','#p-grade','#p-en','#p-sl','#p-tp','#p-bal','#p-risk','#p-vpp'].forEach(s=>$(s).oninput=planU);$('#p-bal').value=store.get('bal','');planU();
+/* journal */
+let J=store.get('journal',[]);$('#j-date').value=today();
+const rOf=t=>{const s=t.dir==='buy'?1:-1,risk=(t.en-t.sl)*s;return risk>0?(t.ex-t.en)*s/risk:NaN};
+function jU(){const rs=J.map(rOf).filter(isFinite),n=rs.length,w=rs.filter(x=>x>0).length,avg=n?rs.reduce((a,b)=>a+b,0)/n:0;const first=J.length?J.map(t=>t.date).sort()[0]:null;const days=first?Math.floor((new Date()-new Date(first))/864e5)+1:0;
+ $('#j-stats').innerHTML=[['Trades',n+' / 50'],['Days',days+' / 30'],['Win rate',n?Math.round(w/n*100)+'%':'–'],['Expectancy (R)',n?(avg>=0?'+':'')+f2(avg):'–']].map(([a,b])=>`<div class="card" style="margin:0"><div class="small mute">${a}</div><div class="big">${b}</div></div>`).join('');
+ $('#j-table tbody').innerHTML=J.map((t,i)=>{const r=rOf(t);return `<tr><td>${t.date}</td><td>${t.dir}</td><td>${t.en}</td><td>${t.sl}</td><td>${t.ex}</td><td><span class="pill p-${r>0?'good':'bad'}">${isFinite(r)?(r>0?'+':'')+f2(r):'?'}</span></td><td>${t.gr}</td><td>${(t.note||'').replace(/</g,'&lt;')}</td><td><button class="btn ghost" data-del="${i}">✕</button></td></tr>`}).reverse().join('')||'<tr><td colspan="9" class="mute">No trades yet.</td></tr>'}
+$('#j-add').onclick=()=>{const t={date:$('#j-date').value,dir:$('#j-dir').value,en:+$('#j-en').value,sl:+$('#j-sl').value,ex:+$('#j-ex').value,gr:$('#j-gr').value,note:$('#j-note').value};if(!t.en||!t.sl||!t.ex){alert('Enter entry, stop and exit.');return}if(!(rOf(t)||rOf(t)===0)&&!isFinite(rOf(t))){alert('Stop must be on the losing side of entry.');return}J.push(t);store.set('journal',J);['#j-en','#j-sl','#j-ex','#j-note'].forEach(s=>$(s).value='');jU()};
+$('#j-table').onclick=e=>{const d=e.target.closest('[data-del]');if(d&&confirm('Delete this trade?')){J.splice(+d.dataset.del,1);store.set('journal',J);jU()}};
+$('#j-csv').onclick=()=>{const csv='date,dir,entry,stop,exit,R,grade,note\n'+J.map(t=>[t.date,t.dir,t.en,t.sl,t.ex,f2(rOf(t)),t.gr,'"'+(t.note||'').replace(/"/g,'""')+'"'].join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='vol100_journal.csv';a.click()};jU();
+/* teach */
+const EX=['Open H4. Mark the swing high and swing low of the last month.','Mark five levels price touched at least twice.','Is the slow line rising, falling or flat? Is price above or below it?','Which side has more room, up or down? Count the points.','Fill in: “The big picture says ___, so I prefer ___.”','Only then open M30 and look for the trigger. Grade the trade A, B or C before pressing the button.'];
+let exs=store.get('ex.'+today(),EX.map(()=>0));$('#ex-list').innerHTML=EX.map((q,i)=>`<label class="chk" style="text-transform:none;font-size:14px;color:inherit;margin:0"><input type="checkbox" data-i="${i}" ${exs[i]?'checked':''}><span>${i+1}. ${q}</span></label>`).join('');$('#ex-list').onchange=e=>{exs[+e.target.dataset.i]=e.target.checked?1:0;store.set('ex.'+today(),exs)};
+let dd=store.get('exdays',Array(10).fill(0));function ddU(){$('#ex-days').innerHTML=dd.map((v,i)=>`<button class="btn ${v?'':'ghost'}" data-d="${i}">Day ${i+1}</button>`).join('')}ddU();$('#ex-days').onclick=e=>{const b=e.target.closest('[data-d]');if(b){dd[+b.dataset.d]^=1;store.set('exdays',dd);ddU()}};
+const gsec=chaps.find(c=>c.dataset.title==='Glossary');const grows=gsec?[...gsec.querySelectorAll('tbody tr')].map(r=>r.innerHTML):[];
+function gU(){const q=$('#g-search').value.toLowerCase();$('#g-table tbody').innerHTML=grows.filter(r=>r.toLowerCase().includes(q)).map(r=>'<tr>'+r+'</tr>').join('')}$('#g-search').oninput=gU;gU();
+/* about */
+$('#theme').onclick=()=>{const d=document.documentElement,cur=d.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');d.dataset.theme=cur==='dark'?'light':'dark';store.set('theme',d.dataset.theme)};if(store.get('theme',null))document.documentElement.dataset.theme=store.get('theme');if(/[?&]theme=dark/.test(location.search))document.documentElement.dataset.theme='dark';
+$('#wipe').onclick=()=>{if(confirm('Clear journal, checklists and settings on this device?')){try{Object.keys(localStorage).filter(k=>k.startsWith('v100.')).forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}};
+show(store.get('view','today'));
+</script>
+</body></html>
