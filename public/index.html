@@ -20,6 +20,8 @@
     <button class="tab" data-tab="inst">Institutional</button>
     <button class="tab" data-tab="confluence">Confluence</button>
     <button class="tab" data-tab="vol100">Vol 100</button>
+    <button class="tab" data-tab="goldstudy">Gold Study</button>
+    <button class="tab" data-tab="headlines">Headlines</button>
   </aside>
 
   <main>
@@ -690,9 +692,15 @@
     <section id="vol100" class="panel">
       <iframe id="v100-frame" title="Volatility 100 desk" data-src="vol100.html?theme=dark" style="width:100%;height:calc(100vh - 150px);min-height:620px;border:1px solid var(--line);border-radius:14px;background:var(--bg2)"></iframe>
     </section>
+    <section id="goldstudy" class="panel">
+      <iframe id="gold-frame" title="Gold study desk" data-src="gold.html?theme=dark" style="width:100%;height:calc(100vh - 150px);min-height:620px;border:1px solid var(--line);border-radius:14px;background:var(--bg2)"></iframe>
+    </section>
+    <section id="headlines" class="panel">
+      <iframe id="hl-frame" title="Headlines" data-src="headlines.html" style="width:100%;height:calc(100vh - 150px);min-height:620px;border:1px solid var(--line);border-radius:14px;background:var(--bg2)"></iframe>
+    </section>
   </main>
   <script src="app.js"></script>
   <script src="institutional.js"></script>
-  <script>document.querySelector('[data-tab="vol100"]').addEventListener("click",function(){var f=document.getElementById("v100-frame");if(!f.src)f.src=f.dataset.src;});</script>
+  <script>document.querySelector('[data-tab="vol100"]').addEventListener("click",function(){var f=document.getElementById("v100-frame");if(!f.src)f.src=f.dataset.src;});document.querySelector('[data-tab="goldstudy"]').addEventListener("click",function(){var g=document.getElementById("gold-frame");if(!g.src)g.src=g.dataset.src;});document.querySelector('[data-tab="headlines"]').addEventListener("click",function(){var h=document.getElementById("hl-frame");if(!h.src)h.src=h.dataset.src;});</script>
 </body>
 </html>

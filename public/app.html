@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060a10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Forex Desk App</title>
+<style>
+:root{--bg:#060a10;--card:#0e1520;--card2:#121c2a;--line:#1d2b3d;--ink:#e9eef5;--mute:#8a9bb0;--gold:#f0c24a;--blue:#6cc8ff;--buy:#2fc59b;--sell:#ff6b63;--warn:#f0c24a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+.wrap{max-width:520px;margin:0 auto;padding:16px 16px 80px}
+h1{font-size:26px;margin:18px 0 6px}h2{font-size:22px;margin:22px 0 6px}h3{font-size:16px;margin:0 0 6px}
+.mute{color:var(--mute)}.small{font-size:13px}
+.hdr{position:sticky;top:0;z-index:10;background:rgba(6,10,16,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+.hdr b{font-size:17px;letter-spacing:.3px}.hdr b i{font-style:normal;color:var(--gold)}
+.icon{background:none;border:1px solid var(--line);color:var(--ink);border-radius:10px;width:42px;height:42px;font-size:20px;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
+.card.gold{border-color:#5a4a1c;background:#14120b}
+label{display:block;font-size:12px;font-weight:700;color:var(--mute);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.5px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:#09101a;border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:700;background:var(--blue);color:#06121c;cursor:pointer;margin-top:14px}
+.btn.gold{background:var(--gold)}.btn.ghost{background:transparent;color:var(--blue);border:1px solid var(--line)}.btn.sm{display:inline-block;width:auto;padding:8px 12px;font-size:14px;margin:6px 6px 0 0}
+.btn:disabled{opacity:.5}
+.link{color:var(--blue);background:none;border:0;font:inherit;cursor:pointer;padding:6px 0}
+.err{background:#2a1214;border:1px solid #6a2a2e;color:#ffb4ae;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:14px}
+.ok{background:#0f2a22;border:1px solid #1f5a47;color:#9be7cd;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:14px}
+.note{background:#1d1808;border:1px solid #4a3b12;color:#e8d08a;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:13px}
+.plan{border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0;background:var(--card)}
+.plan.ult{border-color:#5a4a1c;background:#14120b}.plan .top{display:flex;justify-content:space-between;align-items:baseline}
+.plan .price{font-size:26px;font-weight:800;color:var(--blue)}.plan.ult .price{color:var(--gold)}.plan .price small{font-size:13px;color:var(--mute);font-weight:500}
+.plan ul{list-style:none;padding:0;margin:10px 0 0}.plan li{padding:4px 0 4px 24px;position:relative;color:#c3cfdd}.plan li:before{content:"✓";position:absolute;left:0;color:var(--mute)}
+.ev{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.ev:last-child{border:0}
+.ev .t{font-weight:700}.ev .cd{font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.pill{display:inline-block;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:800;letter-spacing:.4px}
+.pill.buy{background:#0f2a22;color:var(--buy)}.pill.sell{background:#2a1214;color:var(--sell)}.pill.flat{background:#1d2b3d;color:var(--mute)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.grid3 div{background:#09101a;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.grid3 small{display:block;color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.4px}.grid3 b{font-size:18px}
+.menu{position:fixed;inset:0;z-index:30;display:none}.menu.on{display:block}.menu .bg{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+.menu nav{position:absolute;left:0;top:0;bottom:0;width:78%;max-width:320px;background:var(--card);border-right:1px solid var(--line);padding:18px 12px;overflow:auto}
+.menu nav a{display:block;padding:14px 12px;border-radius:12px;color:var(--ink);text-decoration:none;font-weight:600;cursor:pointer}.menu nav a:hover,.menu nav a.on{background:var(--card2)}
+.hist{border-bottom:1px solid var(--line);padding:12px 0}.hist:last-child{border:0}
+.res-win{color:var(--buy);font-weight:800}.res-loss{color:var(--sell);font-weight:800}.res-open{color:var(--mute);font-weight:700}
+details{border-bottom:1px solid var(--line);padding:12px 0}summary{font-weight:700;cursor:pointer}details p{color:#c3cfdd;margin:8px 0 0}
+.tabs2{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.disc{color:var(--mute);font-size:12px;text-align:center;margin:26px 0 8px}
+.hide{display:none!important}
+.splash{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;color:var(--mute)}
+.spin{width:30px;height:30px;border:3px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:s 1s linear infinite;margin-bottom:12px}@keyframes s{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="menu" id="menu"><div class="bg" id="menuBg"></div><nav id="menuNav">
+ <h3 style="padding:6px 12px 14px;font-size:18px">Forex <span style="color:var(--gold)">Desk</span></h3>
+ <a data-go="dash">Dashboard</a><a data-go="headlines">Headlines</a><a data-go="hist-daily">Daily signal history</a><a data-go="hist-swing">Swing signal history</a><a data-go="faq">Help &amp; FAQ</a><a data-go="admin" id="mAdmin" class="hide">Admin</a><a data-go="logout">Log out</a>
+</nav></div>
+<div class="hdr hide" id="hdr"><button class="icon" id="burger" aria-label="Menu">☰</button><b>FOREX <i>DESK</i></b><span style="width:42px"></span></div>
+<div class="wrap" id="app"><div class="splash"><div class="spin"></div>Loading…</div></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let token=null;try{token=localStorage.getItem('fd.token')}catch(e){}
+const st={user:null,plans:null,payment:'',view:'dash',dash:null,timer:null};
+const DISC='<p class="disc">Educational tool. Signals and bias come from fixed rules, are not guaranteed and are not financial advice. You can lose money. Practise on a demo account first.</p>';
+async function api(path,opt={}){
+ const h={'Content-Type':'application/json'};if(token)h.Authorization='Bearer '+token;if(opt.admin)h['X-Admin-Key']=opt.admin;
+ const r=await fetch(path,{method:opt.method||'GET',headers:h,body:opt.body?JSON.stringify(opt.body):undefined});
+ let j={};try{j=await r.json()}catch(e){}
+ if(r.status===401&&token&&!opt.noLogout){logout(true)}
+ if(!r.ok){const e=new Error(j.error||('Error '+r.status));e.status=r.status;e.data=j;throw e}
+ return j}
+function setToken(t){token=t;try{t?localStorage.setItem('fd.token',t):localStorage.removeItem('fd.token')}catch(e){}}
+function logout(silent){setToken(null);st.user=null;clearInterval(st.timer);$('#hdr').classList.add('hide');if(!silent||true)render()}
+function page(html){clearInterval(st.timer);$('#app').innerHTML=html}
+// ---------- screens
+function authScreen(mode){
+ const su=mode==='signup';
+ page('<h1>'+(su?'Create account':'Log in')+'</h1><p class="mute">'+(su?'Create an account to see the calendar and gold bias.':'Log in to see the calendar and gold bias.')+'</p>'
+ +'<div class="card"><label>Email</label><input id="em" type="email" autocomplete="email" inputmode="email">'
+ +'<label>Password</label><input id="pw" type="password" autocomplete="'+(su?'new-password':'current-password')+'" placeholder="'+(su?'At least 8 characters':'')+'">'
+ +'<div id="msg"></div><button class="btn gold" id="go">'+(su?'Sign up':'Log in')+'</button>'
+ +(su?'':'<button class="link" id="forgot">Forgot password?</button><br>')
+ +'<button class="link" id="sw">'+(su?'Already have an account? Log in':'No account yet? Sign up')+'</button></div>'+DISC);
+ $('#sw').onclick=()=>authScreen(su?'login':'signup');
+ if($('#forgot'))$('#forgot').onclick=()=>{$('#msg').innerHTML='<div class="note">Password reset by email is not set up yet. Contact the admin with your account email and they will reset it.</div>'};
+ $('#go').onclick=async()=>{const b=$('#go');b.disabled=true;$('#msg').innerHTML='';
+  try{const j=await api(su?'/api/app/signup':'/api/app/login',{method:'POST',body:{email:$('#em').value,password:$('#pw').value},noLogout:true});setToken(j.token);st.user=j.user;await boot()}
+  catch(e){$('#msg').innerHTML='<div class="err">'+esc(e.message)+'</div>';b.disabled=false}}}
+function planScreen(){
+ const P=st.plans;const li=a=>a.map(x=>'<li>'+x+'</li>').join('');
+ page('<h2>Choose your plan</h2><p class="mute">Pick a plan to see the calendar, bias and gold signals.</p><div id="msg"></div>'
+ +'<div class="plan"><div class="top"><h3>Standard</h3><div class="price">$15<small>/mo</small></div></div><ul>'+li(['NFP, CPI and FOMC calendar with alerts','Bias and gold read for those 3 major releases'])+'</ul><button class="btn" data-p="standard">Choose Standard</button></div>'
+ +'<div class="plan"><div class="top"><h3>Pro</h3><div class="price">$25<small>/mo</small></div></div><ul>'+li(['All high-impact USD releases (NFP, CPI, PPI, PCE, FOMC)','Bias and gold read for every release'])+'</ul><button class="btn" data-p="pro">Choose Pro</button></div>'
+ +'<div class="plan ult"><div class="top"><h3>Ultimate</h3><div class="price">$50<small>/mo</small></div></div><ul>'+li(['Everything in Pro','Gold direction today (rule-based lean)','Swing signal with entry, stop and target, posted only when a setup passes the rules (not daily)','Alerts and new features'])+'</ul><button class="btn gold" data-p="ultimate">Choose Ultimate</button></div>'
+ +'<button class="link" id="lo" style="display:block;margin:10px auto">Log out</button>'+DISC);
+ document.querySelectorAll('[data-p]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const j=await api('/api/app/plan',{method:'POST',body:{plan:b.dataset.p}});st.user=j.user;st.payment=j.payment;render()}catch(e){$('#msg').innerHTML='<div class="err">'+esc(e.message)+'</div>';b.disabled=false}});
+ $('#lo').onclick=()=>logout()}
+function pendingScreen(){
+ page('<h2>Almost there</h2><div class="card gold"><h3>'+esc((st.plans[st.user.plan]||{}).name||'')+' plan requested</h3><p>Your plan switches on after payment is confirmed by the admin.</p><div class="note">'+esc(st.payment||'Contact the admin with your account email ('+st.user.email+') to pay and activate.')+'</div><button class="btn ghost" id="chk">I have paid: check again</button><button class="btn ghost" id="chg">Change plan</button></div><button class="link" id="lo" style="display:block;margin:10px auto">Log out</button>'+DISC);
+ $('#chk').onclick=async()=>{try{const j=await api('/api/app/me');st.user=j.user;render()}catch(e){}};
+ $('#chg').onclick=()=>{st.user.status='none';render()};$('#lo').onclick=()=>logout()}
+function cd(ms){if(ms<=0)return'now';const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),sec=s%60;return(d?d+'d ':'')+(h||d?h+'h ':'')+m+'m'+(d?'':' '+String(sec).padStart(2,'0')+'s')}
+const p2=n=>String(n).padStart(2,'0');
+function fmt(iso){const d=new Date(iso),c=new Date(d.getTime()+2*3600e3);return d.toUTCString().slice(5,11)+' · '+p2(d.getUTCHours())+':'+p2(d.getUTCMinutes())+' UTC · '+p2(c.getUTCHours())+':'+p2(c.getUTCMinutes())+' CAT'}
+function sideOf(s){return s==='BUY'?'buy':s==='SELL'?'sell':'flat'}
+function levels(s){const f=v=>v==null?'—':v;return '<div class="grid3"><div><small>Entry</small><b>'+f(s.entry)+'</b></div><div><small>Stop</small><b>'+f(s.sl)+'</b></div><div><small>Target</small><b>'+f(s.tp)+'</b></div></div>'}
+async function dashScreen(){
+ page('<div class="splash"><div class="spin"></div>Loading…</div>');
+ let d;try{d=await api('/api/app/dashboard')}catch(e){if(e.status===402){st.user=(e.data&&e.data.user)||st.user;return render()}page('<div class="err">'+esc(e.message)+'</div><button class="btn ghost" onclick="render()">Retry</button>');return}
+ st.dash=d;
+ const alertOn=('Notification' in window)&&Notification.permission==='granted';
+ let h='<h1>Dashboard</h1>';
+ if(d.notice)h+='<div class="note">'+esc(d.notice)+'</div>';
+ h+='<div class="card"><h3>Turn on alerts</h3><p class="mute small" style="margin:0 0 6px">A reminder 60 and 15 minutes before each release. Alerts fire while this page is open on your phone; they are not server push messages.</p><button class="btn sm '+(alertOn?'ghost':'')+'" id="alOn">'+(alertOn?'Alerts are on':'Enable')+'</button></div>';
+ h+='<div class="card"><h3>Your plan</h3><p style="margin:0">'+esc(d.plan.name)+' · active until '+(d.user.expires?esc(d.user.expires.slice(0,10)):'—')+'</p><button class="btn ghost sm" id="mng">Manage subscription</button></div>';
+ h+='<h2>Upcoming economic events</h2><div class="card" id="evs">'+(d.events.length?d.events.map((e,i)=>'<div class="ev"><div><div class="t">'+esc(e.title)+'</div><div class="mute small">'+esc(fmt(e.date))+'</div>'+((e.forecast||e.previous)?'<div class="mute small">Forecast '+esc(e.forecast||'—')+' · Previous '+esc(e.previous||'—')+'</div>':'')+'</div><div class="cd" data-t="'+esc(e.date)+'"></div></div>').join(''):'<span class="mute">No upcoming events on your plan right now.</span>')+'</div>';
+ // daily signal
+ h+='<h2>Daily signal · intraday</h2><div class="card">';
+ if(d.biasLocked)h+='<p class="mute">'+esc(d.biasLocked)+'</p>';
+ else if(d.bias){const b=d.bias;const lean=b.lockPreEvent?'flat':(b.macroLean==='sell_gold'?'sell':b.macroLean==='buy_gold'?'buy':'flat');
+  h+='<div class="small mute">Next focus: '+esc(b.focusTitle)+(b.focusWhen?' · '+esc(fmt(b.focusWhen)):'')+'</div>'
+  +'<p style="margin:8px 0"><span class="pill '+lean+'">'+(lean==='flat'?'FLAT':lean.toUpperCase()+' GOLD LEAN')+'</span></p>'
+  +'<p style="margin:6px 0"><b>'+esc(b.call)+'</b></p><p style="margin:6px 0" class="mute">'+esc(b.gold)+'</p>'
+  +(b.blockedByPrice?'<div class="note">The news lean is blocked because gold, the dollar and yields do not agree. The rule is: no trade without agreement.</div>':'')
+  +'<p class="mute small" style="margin:8px 0 0">What matters: '+esc(b.whatMatters||'')+'</p>'}
+ else h+='<span class="mute">No bias available right now.</span>';
+ if(d.daily){h+='<hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><div class="small mute">Published today</div><p style="margin:6px 0"><span class="pill '+sideOf(d.daily.side)+'">'+esc(d.daily.side)+'</span> '+esc(d.daily.event||'')+'</p>'+(d.daily.side==='FLAT'?'':levels(d.daily))+(d.daily.note?'<p class="mute small">'+esc(d.daily.note)+'</p>':'')}
+ else h+='<p class="mute small" style="margin:12px 0 0">No entry, stop and target published today. The rule is that no published level means no signal, not a hidden one.</p>';
+ h+='</div>';
+ if(d.plan.direction&&d.direction){h+='<div class="card gold"><h3>Priority · gold direction today</h3><p style="margin:6px 0"><span class="pill '+(d.direction.lean==='sell_gold'?'sell':d.direction.lean==='buy_gold'?'buy':'flat')+'">'+(d.direction.lean==='sell_gold'?'SELL LEAN':d.direction.lean==='buy_gold'?'BUY LEAN':'FLAT')+'</span></p><p class="mute small" style="margin:0">'+esc(d.direction.text||'')+'</p></div>'}
+ if(d.plan.swing){h+='<h2>Priority signal · swing</h2><div class="card gold">';
+  if(d.swing)h+='<p style="margin:0 0 6px"><span class="pill '+sideOf(d.swing.side)+'">'+esc(d.swing.side)+'</span> '+esc(d.swing.event||'XAUUSD')+'</p>'+levels(d.swing)+(d.swing.note?'<p class="mute small">'+esc(d.swing.note)+'</p>':'')+'<p class="mute small">Open since '+esc(d.swing.date)+'.</p>';
+  else h+='<span class="mute">No open swing signal. Swing signals are posted only when a setup passes the rules, not every day.</span>';
+  h+='</div>'}
+ h+=DISC;page(h);
+ $('#mng').onclick=()=>{st.user.status='none';render()};
+ $('#alOn').onclick=async()=>{if(!('Notification' in window)){alert('This browser does not support notifications.');return}const p=await Notification.requestPermission();if(p==='granted'){try{new Notification('Alerts on',{body:'You will get a reminder before each release while this page is open.'})}catch(e){}}dashScreen()};
+ const tick=()=>{document.querySelectorAll('.cd').forEach(e=>{e.textContent=cd(new Date(e.dataset.t)-Date.now())});
+  if('Notification' in window&&Notification.permission==='granted'&&st.dash){for(const ev of st.dash.events){const left=new Date(ev.date)-Date.now();for(const m of[60,15]){const key='fd.n.'+ev.date+'.'+m;if(left<=m*60000&&left>(m-2)*60000){let seen=null;try{seen=localStorage.getItem(key)}catch(e){}if(!seen){try{localStorage.setItem(key,'1')}catch(e){}try{new Notification(ev.title+' in '+m+' min',{body:'Flat into the print. Wait for the release and for price to agree.'})}catch(e){}}}}}}};
+ tick();st.timer=setInterval(tick,1000)}
+async function histScreen(type){
+ page('<div class="splash"><div class="spin"></div>Loading…</div>');
+ let j;try{j=await api('/api/app/history?type='+type)}catch(e){page('<h1>'+(type==='swing'?'Swing':'Daily')+' signal history</h1><div class="card"><span class="mute">'+esc(e.message)+'</span></div>'+DISC);return}
+ const rate=j.winRate==null?'—':Math.round(j.winRate*100)+'%';
+ page('<h1>'+(type==='swing'?'Swing':'Daily')+' signal history</h1><div class="grid3"><div><small>Wins</small><b>'+j.wins+'</b></div><div><small>Losses</small><b>'+j.losses+'</b></div><div><small>Win rate</small><b>'+rate+'</b></div></div><div class="card">'+(j.rows.length?j.rows.map(r=>'<div class="hist"><div><span class="pill '+sideOf(r.side)+'">'+esc(r.side)+'</span> '+esc(r.event||'')+' <span class="mute small">'+esc(r.date)+'</span></div>'+(r.side==='FLAT'?'':'<div class="small mute">Entry '+(r.entry==null?'—':r.entry)+' · Stop '+(r.sl==null?'—':r.sl)+' · Target '+(r.tp==null?'—':r.tp)+'</div>')+'<div class="'+(r.result==='win'?'res-win':r.result==='loss'?'res-loss':'res-open')+'">'+(r.result?esc(r.result.toUpperCase()):'OPEN')+'</div></div>').join(''):'<span class="mute">No records in the last two months.</span>')+'</div><p class="mute small">'+esc(j.note)+'</p>'+DISC)}
+async function headScreen(){
+ page('<div class="splash"><div class="spin"></div>Loading…</div>');
+ let j;try{const r=await fetch('/api/headlines');if(!r.ok)throw new Error('HTTP '+r.status);j=await r.json()}catch(e){page('<h1>Headlines</h1><div class="card"><span class="mute">Could not load headlines: '+esc(e.message)+'</span></div>');return}
+ const G=[['all','All'],['trump','Trump'],['official','Fed &amp; gov'],['markets','Markets'],['gold','Gold']];let g=st.hg||'all';
+ const draw=()=>{const rows=j.items.filter(i=>g==='all'||i.group===g).slice(0,60);
+  page('<h1>Headlines</h1><p class="mute small">Topics that often move the dollar. Tags are not buy or sell calls.</p><div class="tabs2">'+G.map(x=>'<button class="btn sm '+(x[0]===g?'gold':'ghost')+'" data-g="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'
+  +(rows.length?rows.map(i=>'<div class="card'+(i.high?' gold':'')+'"><div class="small mute">'+esc(i.sourceName)+' · '+esc(i.date?fmt(i.date):'')+'</div><p style="margin:6px 0;font-weight:700">'+(i.link?'<a style="color:var(--ink);text-decoration:none" target="_blank" rel="noopener noreferrer" href="'+esc(i.link)+'">'+esc(i.title)+'</a>':esc(i.title))+'</p>'+(i.snippet&&i.snippet!==i.title?'<p class="mute small" style="margin:4px 0;white-space:pre-wrap">'+esc(i.snippet.slice(0,300))+'</p>':'')+(i.high?'<span class="pill buy" style="background:#3a2a0a;color:var(--gold)">HIGH ATTENTION</span> ':'')+i.tags.map(t=>'<span class="pill flat">'+esc(t)+'</span> ').join('')+'</div>').join(''):'<div class="card"><span class="mute">Nothing here yet.</span></div>')+DISC);
+  document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{g=b.dataset.g;st.hg=g;draw()})};
+ draw()}
+function faqScreen(){
+ const q=[['Where do the signals come from?','From fixed rules in the Forex Desk: the next big USD release, the leading prints before it, and whether gold, the dollar and yields agree. Nothing is hidden or guessed.'],['Why is it so often FLAT?','The rules say stay flat into every big release, and when the news and price disagree. Most of the time the honest answer is no trade.'],['Are signals guaranteed?','No. They can be wrong, and a short win-rate record says little about the future. Use the history screens to judge them yourself.'],['How are alerts sent?','Reminders appear 60 and 15 minutes before each release while this page is open on your phone. They are not server push messages.'],['How do I pay and switch my plan on?','Choose a plan, pay as the admin instructs, and the admin switches it on after confirming. Press "I have paid: check again".'],['How are entry, stop and target set?','Every published level is set by a person using the rules and written down before the trade, so the history can be checked afterwards.'],['I forgot my password.','Contact the admin with your account email; email reset is not set up yet.']];
+ page('<h1>Help &amp; FAQ</h1><p class="mute">Tap a question to see the answer.</p><div class="card">'+q.map(x=>'<details><summary>'+esc(x[0])+'</summary><p>'+esc(x[1])+'</p></details>').join('')+'</div>'+DISC)}
+// ---------- admin
+function adminScreen(){
+ let key='';try{key=sessionStorage.getItem('fd.ak')||''}catch(e){}
+ page('<h1>Admin</h1><div class="card"><label>Admin key</label><input id="ak" type="password" value="'+esc(key)+'"><button class="btn ghost" id="al">Load</button><div id="amsg"></div></div><div id="abody"></div>');
+ $('#al').onclick=async()=>{const k=$('#ak').value;try{sessionStorage.setItem('fd.ak',k)}catch(e){}$('#amsg').innerHTML='';
+  try{const [u,s]=await Promise.all([api('/api/app/admin/users',{admin:k,noLogout:true}),api('/api/app/admin/signals',{admin:k,noLogout:true})]);
+   const today=new Date().toISOString().slice(0,10);
+   $('#abody').innerHTML='<div class="card"><h3>Users</h3>'+u.users.map(x=>'<div class="hist"><b>'+esc(x.email)+'</b><div class="small mute">'+esc(x.plan||'no plan')+' · '+esc(x.status)+(x.expires?' · until '+esc(x.expires.slice(0,10)):'')+'</div><button class="btn sm" data-act="1" data-e="'+esc(x.email)+'" data-p="'+esc(x.plan||'standard')+'">Activate 30 days</button><button class="btn sm ghost" data-act="0" data-e="'+esc(x.email)+'">Switch off</button></div>').join('')+'</div>'
+   +'<div class="card"><h3>Publish a signal</h3><label>Type</label><select id="sT"><option value="daily">Daily intraday</option><option value="swing">Swing</option></select><label>Side</label><select id="sS"><option>BUY</option><option>SELL</option><option>FLAT</option></select><label>Event / note title</label><input id="sE" placeholder="e.g. Core CPI"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><div><label>Entry</label><input id="sEn" inputmode="decimal"></div><div><label>Stop</label><input id="sSl" inputmode="decimal"></div><div><label>Target</label><input id="sTp" inputmode="decimal"></div></div><label>Note (optional)</label><input id="sN"><button class="btn gold" id="sGo">Publish</button></div>'
+   +'<div class="card"><h3>Record results</h3>'+s.signals.map(x=>'<div class="hist"><span class="pill '+sideOf(x.side)+'">'+esc(x.side)+'</span> '+esc(x.type)+' '+esc(x.event||'')+' <span class="small mute">'+esc(x.date)+' · '+(x.result?esc(x.result):'open')+'</span><div><button class="btn sm ghost" data-r="win" data-id="'+esc(x.id)+'">Win</button><button class="btn sm ghost" data-r="loss" data-id="'+esc(x.id)+'">Loss</button><button class="btn sm ghost" data-r="scratch" data-id="'+esc(x.id)+'">Scratch</button></div></div>').join('')+'</div>';
+   document.querySelectorAll('[data-act]').forEach(b=>b.onclick=async()=>{try{await api('/api/app/admin/'+(b.dataset.act==='1'?'activate':'deactivate'),{method:'POST',admin:k,body:{email:b.dataset.e,plan:b.dataset.p,days:30},noLogout:true});adminScreen();setTimeout(()=>$('#al').click(),50)}catch(e){$('#amsg').innerHTML='<div class="err">'+esc(e.message)+'</div>'}});
+   document.querySelectorAll('[data-r]').forEach(b=>b.onclick=async()=>{try{await api('/api/app/admin/result',{method:'POST',admin:k,body:{id:b.dataset.id,result:b.dataset.r},noLogout:true});adminScreen();setTimeout(()=>$('#al').click(),50)}catch(e){$('#amsg').innerHTML='<div class="err">'+esc(e.message)+'</div>'}});
+   $('#sGo').onclick=async()=>{try{await api('/api/app/admin/signal',{method:'POST',admin:k,noLogout:true,body:{type:$('#sT').value,side:$('#sS').value,event:$('#sE').value,entry:$('#sEn').value,sl:$('#sSl').value,tp:$('#sTp').value,note:$('#sN').value,date:today}});adminScreen();setTimeout(()=>$('#al').click(),50)}catch(e){$('#amsg').innerHTML='<div class="err">'+esc(e.message)+'</div>'}};
+  }catch(e){$('#amsg').innerHTML='<div class="err">'+esc(e.message)+'</div>'}};
+ if(key)setTimeout(()=>$('#al').click(),50)}
+// ---------- router
+function render(){
+ if(!token||!st.user){$('#hdr').classList.add('hide');return authScreen('login')}
+ $('#hdr').classList.remove('hide');
+ if(st.view==='admin')return adminScreen();
+ if(st.user.status==='pending')return pendingScreen();
+ if(st.user.status!=='active')return planScreen();
+ if(st.view==='hist-daily')return histScreen('daily');
+ if(st.view==='hist-swing')return histScreen('swing');
+ if(st.view==='faq')return faqScreen();
+ if(st.view==='headlines')return headScreen();
+ return dashScreen()}
+async function boot(){
+ if(!token){return render()}
+ try{const j=await api('/api/app/me');st.user=j.user;st.plans=j.plans;st.payment=j.payment}catch(e){setToken(null);st.user=null}
+ if(location.hash==='#admin')st.view='admin';
+ render()}
+$('#burger').onclick=()=>$('#menu').classList.add('on');$('#menuBg').onclick=()=>$('#menu').classList.remove('on');
+document.querySelectorAll('#menuNav a').forEach(a=>a.onclick=()=>{$('#menu').classList.remove('on');const g=a.dataset.go;if(g==='logout')return logout();st.view=g;render()});
+if(location.hash==='#admin')$('#mAdmin').classList.remove('hide');
+boot();
+</script>
+</body>
+</html>

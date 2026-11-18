@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gold Desk</title>
+<style>
+:root{--bg:#f4f6f5;--card:#fff;--ink:#14201c;--ink2:#35463f;--mute:#6a7a73;--line:#dfe5e2;--accent:#0f8a6a;--accent-d:#0a6a52;--accent-f:#e1f4ee;--side:#12201b;--buy:#0f8a6a;--sell:#d6453a;--warn:#e08a00;--warn-f:#fdf1dc;--bad-f:#fbe4e1;--good-f:#e1f4ee}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1512;--card:#16211c;--ink:#e8f0ec;--ink2:#bccbc4;--mute:#8aa097;--line:#25362f;--accent:#2fc59b;--accent-d:#58d8b4;--accent-f:#143329;--side:#0a100e;--warn-f:#3a2e12;--bad-f:#3b1c19;--good-f:#143329}}
+:root[data-theme=dark]{--bg:#0e1512;--card:#16211c;--ink:#e8f0ec;--ink2:#bccbc4;--mute:#8aa097;--line:#25362f;--accent:#2fc59b;--accent-d:#58d8b4;--accent-f:#143329;--side:#0a100e;--warn-f:#3a2e12;--bad-f:#3b1c19;--good-f:#143329}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.app{display:flex;min-height:100vh}
+.side{width:230px;background:var(--side);color:#cfe0d9;padding:16px 10px;position:sticky;top:0;height:100vh;overflow:auto;flex:none}
+.brand{font-weight:800;font-size:17px;color:#fff;padding:6px 10px 14px;letter-spacing:.2px}.brand small{display:block;font-weight:500;font-size:11px;color:#7fa093}
+.nav a{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;color:#cfe0d9;text-decoration:none;font-weight:600;cursor:pointer;margin-bottom:2px}
+.nav a:hover{background:#1b2f27}.nav a.on{background:var(--accent);color:#fff}
+.nav .sec{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#6f8b80;padding:14px 12px 4px}
+.main{flex:1;min-width:0;padding:22px 26px 60px;max-width:1180px}
+.top{display:none}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:21px;margin:26px 0 8px}h3{font-size:16.5px;margin:20px 0 6px;color:var(--accent-d)}
+.sub{color:var(--mute);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.tw{overflow-x:auto;margin:10px 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}th{background:var(--accent-f);color:var(--ink)}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700}.p-good{background:var(--good-f);color:var(--accent-d)}.p-warn{background:var(--warn-f);color:#a86400}.p-bad{background:var(--bad-f);color:var(--sell)}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:14px}.btn.ghost{background:transparent;color:var(--accent-d);border:1px solid var(--accent)}.btn.red{background:var(--sell)}.btn:disabled{opacity:.5}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 10px;width:100%}
+label{display:block;font-size:12px;font-weight:700;color:var(--mute);margin:8px 0 3px;text-transform:uppercase;letter-spacing:.4px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.row>*{flex:1 1 130px}
+.big{font-size:28px;font-weight:800}.mute{color:var(--mute)}.small{font-size:13px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line)}.chk input{width:20px;height:20px;margin-top:2px;flex:none}
+.chap{display:block}
+.chap p,.chap li{max-width:80ch}.chap figure{margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+.chap figure img,.gal img{width:100%;height:auto;border-radius:8px;display:block;cursor:zoom-in;background:#000}
+.chap figure img[data-img^=fig1_],.chap figure img[data-img^=fig2_],.chap figure img[data-img^=fig3_],.chap figure img[data-img^=fig4_]{max-width:430px;margin:0 auto}
+figcaption{font-size:13px;color:var(--mute);margin-top:6px;text-align:center}
+.formula{background:var(--accent-f);border-left:4px solid var(--accent);padding:10px 14px;border-radius:8px;font-weight:600;margin:10px 0}
+.tool-slot{border:2px dashed var(--accent);border-radius:12px;padding:12px;margin:12px 0;background:var(--accent-f)}.tag{background:var(--accent);color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;margin-right:6px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}.toc a{font-size:13px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;color:var(--ink2);text-decoration:none;background:var(--card)}.toc a.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.view{display:none}.view.on{display:block}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}.gal figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:99;padding:10px}#lb img{max-width:100%;max-height:100%;border-radius:8px}#lb.on{display:flex}
+.note{background:var(--warn-f);border-left:4px solid var(--warn);padding:10px 14px;border-radius:8px;font-size:14px}
+.res{border-radius:12px;padding:12px 14px;font-weight:700;margin-top:10px}.res.good{background:var(--good-f);color:var(--accent-d)}.res.warn{background:var(--warn-f);color:#a86400}.res.bad{background:var(--bad-f);color:var(--sell)}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+svg text{font-family:system-ui,sans-serif}
+@media(max-width:860px){.side{position:fixed;left:-250px;z-index:50;transition:left .2s;width:240px}.side.open{left:0;box-shadow:0 0 0 100vmax rgba(0,0,0,.5)}.top{display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20;background:var(--side);color:#fff;padding:10px 14px;font-weight:800}.top button{background:none;border:0;color:#fff;font-size:22px}.main{padding:16px 16px 60px}.g2,.g3,.g4{grid-template-columns:1fr}h1{font-size:21px}}
+@media print{.side,.top,.toc,.noprint{display:none!important}.chap{display:block!important;page-break-before:always}.view{display:none}#v-book{display:block}.main{max-width:none;padding:0}}
+
+:root{--accent:#b8860b;--accent-d:#8a6508;--accent-f:#f8f0d8;--side:#1f1a0e;--buy:#2e8b57;--sell:#d6453a}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--accent:#e0b13a;--accent-d:#f0c95a;--accent-f:#352c12;--side:#14100a}}
+:root[data-theme=dark]{--accent:#e0b13a;--accent-d:#f0c95a;--accent-f:#352c12;--side:#14100a}
+.nav a:hover{background:#2e2712}.brand small{color:#b59a58}.nav .sec{color:#9b8647}
+.clock{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums}.bar{height:10px;border-radius:6px;background:var(--accent-f);overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}
+tr.now td{background:var(--accent-f);font-weight:700}
+</style>
+</head>
+<body>
+<div class="top"><button id="burger" aria-label="Menu">☰</button><span>Gold Desk</span></div>
+<div class="app">
+<aside class="side" id="side">
+ <div class="brand">GOLD DESK (XAUUSD)<small>Separate from Vol 100</small></div>
+ <nav class="nav" id="nav">
+  <div class="sec">Daily</div>
+  <a data-v="clock" class="on">◷ Session clock</a><a data-v="hours">▤ Hour map</a><a data-v="calc">⚖ Lot calculator</a><a data-v="check">✓ Pre-trade checks</a>
+  <div class="sec">Measure</div>
+  <a data-v="log">✎ Hourly range log</a><a data-v="stats">▥ My busiest hours</a>
+  <div class="sec">Learn</div>
+  <a data-v="case">🖼 Case study 16 Nov</a><a data-v="book">📖 The Gold guide</a><a data-v="about">ⓘ About</a>
+ </nav>
+</aside>
+<main class="main">
+
+<!-- CLOCK -->
+<section class="view on" id="v-clock">
+ <h1>Gold session clock</h1>
+ <p class="sub">MT5 server time on your charts is UTC. Zambia (CAT) is UTC+2. Gold is a real market: it closes at the weekend.</p>
+ <div class="grid g3">
+  <div class="card"><label>UTC (chart time)</label><div class="clock" id="cUTC">--:--:--</div></div>
+  <div class="card"><label>Zambia (CAT)</label><div class="clock" id="cCAT">--:--:--</div></div>
+  <div class="card"><label>Session now</label><div class="big" id="cSess">--</div><div class="small mute" id="cSessNote"></div></div>
+ </div>
+ <div class="card"><label>Next scheduled moment</label><div class="big" id="cNext">--</div><div class="small mute" id="cNextNote"></div><div class="bar" style="margin-top:10px"><i id="cBar" style="width:0"></i></div></div>
+ <div class="card" id="cNote"></div>
+ <p class="note">These session times are general market knowledge and use November clocks (UK on GMT, US on EST). When the UK and US switch to summer time the London and New York windows move one hour earlier in UTC. Check your broker's hours.</p>
+</section>
+
+<!-- HOURS -->
+<section class="view" id="v-hours">
+ <h1>Hour-by-hour map</h1>
+ <p class="sub">The highlighted row is the current UTC hour. The last column fills in from your own range log.</p>
+ <div class="tw"><table><thead><tr><th>UTC</th><th>CAT</th><th>Session</th><th>What usually matters</th><th>My avg range ($)</th></tr></thead><tbody id="hoursBody"></tbody></table></div>
+ <h3>Key times (CAT)</h3>
+ <div class="tw"><table><thead><tr><th>CAT</th><th>UTC</th><th>Event</th><th>Why it matters</th></tr></thead><tbody>
+ <tr><td>Sun 01:00</td><td>Sat 23:00</td><td>Weekly open</td><td>First prices after the weekend; compare with Friday's close for a gap</td></tr>
+ <tr><td>10:00</td><td>08:00</td><td>London open</td><td>Volume jumps; early moves can reverse</td></tr>
+ <tr><td>12:30</td><td>10:30</td><td>London gold price auction (AM)</td><td>A benchmark set by the London market</td></tr>
+ <tr><td>15:00 to 18:30</td><td>13:00 to 16:30</td><td>London / New York overlap</td><td>Highest activity of the day</td></tr>
+ <tr><td>15:30</td><td>13:30</td><td>US data (8:30 New York)</td><td>Jobs, CPI, retail sales; common source of sharp spikes. Check the calendar.</td></tr>
+ <tr><td>17:00</td><td>15:00</td><td>London gold price auction (PM)</td><td>Second benchmark; inside the overlap</td></tr>
+ <tr><td>21:00</td><td>19:00</td><td>FOMC statement (decision days only)</td><td>Can move gold sharply for hours</td></tr>
+ <tr><td>23:00</td><td>21:00</td><td>NY close and rollover</td><td>Spreads widen; avoid new entries</td></tr>
+ <tr><td>Fri ~00:00 Sat</td><td>Fri ~22:00</td><td>Weekend close</td><td>Close or protect trades; Monday may gap</td></tr>
+ </tbody></table></div>
+</section>
+
+<!-- CALC -->
+<section class="view" id="v-calc">
+ <h1>Gold lot calculator</h1>
+ <p class="sub">Lot size comes from the stop, not from a feeling. Check the contract size in MT5 (symbol specification) before you trust the default.</p>
+ <div class="card">
+  <div class="row">
+   <div><label>Balance ($)</label><input id="kBal" type="number" step="any" value="100"></div>
+   <div><label>Risk per trade (%)</label><input id="kRisk" type="number" step="any" value="1"></div>
+   <div><label>Dollars per 1.00 move per 1 lot</label><input id="kCs" type="number" step="any" value="100"></div>
+  </div>
+  <div class="row">
+   <div><label>Entry price</label><input id="kEntry" type="number" step="any" placeholder="e.g. 3850"></div>
+   <div><label>Stop price</label><input id="kStop" type="number" step="any" placeholder="e.g. 3855"></div>
+   <div><label>Target price</label><input id="kTp" type="number" step="any" placeholder="e.g. 3830"></div>
+  </div>
+  <div id="kOut"></div>
+ </div>
+ <p class="small mute">Lot = (balance x risk%) / (stop distance in dollars x dollars per 1.00 move per lot). Rounded down to 0.01. If the lot comes out below your broker's minimum, the stop is too wide for the account: skip the trade or use a smaller risk only on demo.</p>
+</section>
+
+<!-- CHECKS -->
+<section class="view" id="v-check">
+ <h1>Pre-trade checks</h1>
+ <p class="sub">Tick all of these before an entry. They reset when you press Reset.</p>
+ <div class="card" id="checks"></div>
+ <div class="row"><button class="btn ghost" id="chkReset">Reset</button></div>
+ <div id="chkRes"></div>
+</section>
+
+<!-- LOG -->
+<section class="view" id="v-log">
+ <h1>Hourly range log</h1>
+ <p class="sub">Open H1, tap a candle, copy its high and low. Hour is the candle's UTC hour (the time on your chart). Range = high minus low.</p>
+ <div class="card">
+  <div class="row">
+   <div><label>Date</label><input id="lDate" type="date"></div>
+   <div><label>UTC hour (0 to 23)</label><input id="lHour" type="number" min="0" max="23" step="1"></div>
+   <div><label>High</label><input id="lHigh" type="number" step="any"></div>
+   <div><label>Low</label><input id="lLow" type="number" step="any"></div>
+   <div><button class="btn" id="lAdd">Add</button></div>
+  </div>
+  <div id="lMsg" class="small mute" style="margin-top:6px"></div>
+ </div>
+ <div class="row noprint" style="margin-bottom:10px"><button class="btn ghost" id="lCsv">Download CSV</button><button class="btn ghost" id="lSeed">Add the 16 Nov example (06:00 UTC)</button></div>
+ <div class="tw"><table><thead><tr><th>Date</th><th>UTC hour</th><th>High</th><th>Low</th><th>Range ($)</th><th></th></tr></thead><tbody id="lBody"></tbody></table></div>
+</section>
+
+<!-- STATS -->
+<section class="view" id="v-stats">
+ <h1>My busiest hours</h1>
+ <p class="sub">Built only from the entries in your range log on this device. Fewer than 10 days per hour is a weak sample; treat it as a hint.</p>
+ <div id="sBody"></div>
+</section>
+
+<!-- CASE -->
+<section class="view" id="v-case">
+ <h1>Case study: Monday 16 Nov morning drop</h1>
+ <p class="sub">Charts taken at 08:53 CAT (06:53 UTC). The cause of the move was not found in reliable sources, so none is claimed here. The point is how the chart looked.</p>
+ <div class="card">
+  <figure style="margin:0"><img src="gold/img/gold_h1.jpg" alt="XAUUSD H1 annotated" style="max-width:430px;width:100%;margin:0 auto;display:block;cursor:zoom-in"><figcaption>XAUUSD H1: big red candle around 06:00 UTC broke 3854.63; the slow line is falling</figcaption></figure>
+ </div>
+ <div class="card">
+  <figure style="margin:0"><img src="gold/img/gold_m15.jpg" alt="XAUUSD M15 annotated" style="max-width:430px;width:100%;margin:0 auto;display:block;cursor:zoom-in"><figcaption>XAUUSD M15: choppy before, then one large sell candle from about 3870 to about 3834</figcaption></figure>
+ </div>
+ <div class="card">
+  <h3>What the charts show</h3>
+  <ul>
+   <li><strong>Trend:</strong> on H1 the purple slow line is falling and price is far below it. Gold fell from about 4050 at the left edge of the chart to about 3840.</li>
+   <li><strong>Before the drop:</strong> on M15 price was choppy and slowly falling in the 3860 to 3900 range through the weekend close and Asia hours.</li>
+   <li><strong>The move:</strong> one large red candle around 06:00 to 06:30 UTC (08:00 to 08:30 CAT) went through 3854.63 and as low as about 3834. Last price 3841.65.</li>
+   <li><strong>Timing:</strong> it happened in the quiet Asia window. Quiet sessions can still produce sharp moves.</li>
+  </ul>
+  <h3>What a rule-based trader does (practice, not advice)</h3>
+  <ul>
+   <li>Direction bias is down while price stays below the slow line.</li>
+   <li>Chasing a sell after a candle this size means a wide stop and poor reward-to-risk.</li>
+   <li>A retest of 3854.63 from below is a setup to watch, needing a rejection candle and a stop above the level. It may never happen.</li>
+   <li>No clear setup means no trade.</li>
+  </ul>
+ </div>
+</section>
+
+<!-- BOOK -->
+<section class="view" id="v-book">
+ <h1>The Gold guide</h1>
+ <p class="sub">Sessions, hours and the top-down routine. <a href="gold/Gold_Sessions_Hours_Guide.pdf" target="_blank">Open the PDF</a></p>
+ <div class="chap">
+ <h2>1. Why study gold by session and hour</h2>
+ <p>Gold does not move evenly through the day: most of its range tends to arrive in a few windows, and learning those windows tells you when to trade and when to sit still. The session and hour patterns here are widely taught general patterns, not guarantees, and not measured from your own account.</p>
+ <ul><li>It gives you the session clock in UTC and in Zambia time (CAT, UTC+2), because MT5 server time on your charts is UTC.</li><li>It lists the scheduled events that often move gold.</li><li>It does not predict direction. The cause of Monday 16 Nov's morning drop was not found in reliable sources.</li><li>Hourly averages need many days of data; the Hourly range log builds your own.</li></ul>
+ <p>Gold is unlike Volatility 100. Vol 100 is a random synthetic index that trades 24/7 with no news. Gold closes for the weekend, gaps on Monday and reacts to news, so clock time matters.</p>
+ <h2>2. The sessions: UTC and Zambia time</h2>
+ <div class="tw"><table><thead><tr><th>Session</th><th>UTC</th><th>Zambia (CAT)</th><th>What it tends to do</th></tr></thead><tbody>
+ <tr><td>Asia (Sydney, Tokyo)</td><td>00:00 - 08:00</td><td>02:00 - 10:00</td><td>Quieter, narrower range; often drifts or builds a range</td></tr>
+ <tr><td>London</td><td>08:00 - 16:30</td><td>10:00 - 18:30</td><td>Volume arrives; often sets early direction or a fake-out</td></tr>
+ <tr><td>London and New York overlap</td><td>13:00 - 16:30</td><td>15:00 - 18:30</td><td>Usually the widest range; US data lands here</td></tr>
+ <tr><td>New York</td><td>13:00 - 21:00</td><td>15:00 - 23:00</td><td>Strong first hours, then slows into the close</td></tr>
+ <tr><td>Late NY and rollover</td><td>21:00 - 24:00</td><td>23:00 - 02:00</td><td>Thin; spreads widen, so avoid entries</td></tr>
+ <tr><td>Weekend</td><td>Fri ~22:00 to Sun ~23:00</td><td>Sat 00:00 to Mon 01:00</td><td>Market closed; Monday can open with a gap</td></tr></tbody></table></div>
+ <p>One focused window, such as the overlap (15:00 to 18:30 CAT), may be all you need if you work a day shift.</p>
+ <h2>3. Hour-by-hour key times</h2>
+ <p>See the Hour map tab for the full table. Monday 16 Nov: a weekend break is visible on M15 between Friday's last candles (13 Nov, 19:00) and Monday's first (16 Nov, 01:30). A gap is not a signal on its own.</p>
+ <h2>4. Case study</h2>
+ <p>See the Case study tab: H1 and M15 annotated, with the rules a trader would apply.</p>
+ <h2>5. Top-down routine for gold and risk math</h2>
+ <ol>
+ <li><strong>H4 and D1 map:</strong> mark levels price has reacted to at least twice, and note whether price is above or below the slow line.</li>
+ <li><strong>H1 direction:</strong> trade only with the slow line. Below it, look for sells only; above it, buys only.</li>
+ <li><strong>M15 or M30 trigger:</strong> wait for a break and retest or a rejection candle at a level, then put the stop beyond the level.</li>
+ <li><strong>Clock check:</strong> skip entries in the 30 minutes before and after US data (15:30 CAT) and FOMC (21:00 CAT on decision days). Skip the late NY rollover (23:00 to 02:00 CAT).</li>
+ <li><strong>Weekend:</strong> close or protect trades before Friday's close; a Monday gap can jump over a stop.</li></ol>
+ <div class="formula"><div>Lot size = risk in dollars / (stop distance in dollars x dollars per 1.00 move per 1 lot)</div></div>
+ <p>Example with an assumed 100 dollars of risk and a 5.00 dollar stop, at 100 dollars per 1.00 move per lot: 100 / (5 x 100) = 0.20 lot. Confirm the contract size in MT5 before using this. Gold moved about 30 dollars in one hour on 16 Nov, so a 5 dollar stop is only reasonable once a real level supports it, and a fast spike can still jump past it.</p>
+ <h2>6. Measure it yourself</h2>
+ <p>Record each hour's range (high minus low, in dollars) on H1 for 20 or more trading days, then average each hour. Your own numbers beat any general claim. Use the Hourly range log and My busiest hours tabs.</p>
+ </div>
+</section>
+
+<section class="view" id="v-about">
+ <h1>About this module</h1>
+ <div class="card">
+  <p>This Gold desk is separate from the Vol 100 desk. Entries you save here stay on this device only (browser storage), so clear-site-data erases them. Use Download CSV in the Hourly range log to keep a copy.</p>
+  <p>Educational practice material, not financial advice. Keep trading on a demo account until you are an adult and have a proven record.</p>
+  <div class="row"><button class="btn ghost" id="theme">Toggle dark / light</button><button class="btn red" id="wipe">Clear saved Gold data on this device</button></div>
+ </div>
+</section>
+
+</main>
+</div>
+<div id="lb"><img alt=""></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem('gold.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('gold.'+k,JSON.stringify(v))}catch(e){}}};
+const mem={};const sget=(k,d)=>{const v=store.get(k,undefined);return v===undefined?(k in mem?mem[k]:d):v};const sset=(k,v)=>{mem[k]=v;store.set(k,v)};
+// nav
+function show(v){$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));$$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));$('#side').classList.remove('open');if(v==='hours')renderHours();if(v==='stats')renderStats();if(v==='log')renderLog();window.scrollTo(0,0)}
+$$('#nav a').forEach(a=>a.onclick=()=>show(a.dataset.v));
+$('#burger').onclick=()=>$('#side').classList.toggle('open');
+// images
+$$('.view img').forEach(i=>i.onclick=()=>{$('#lb img').src=i.src;$('#lb').classList.add('on')});$('#lb').onclick=()=>$('#lb').classList.remove('on');
+// clock
+const p2=n=>String(n).padStart(2,'0');
+const EV=[[8*60,'London open','Volume jumps; early moves can reverse'],[10*60+30,'London gold price auction (AM)','Benchmark set by the London market'],[13*60,'London / New York overlap starts','Usually the widest range of the day'],[13*60+30,'US data window (8:30 New York)','Only on data days: check the calendar'],[15*60,'London gold price auction (PM)','Second benchmark, inside the overlap'],[16*60+30,'London close','Overlap ends'],[21*60,'New York close and rollover','Thin; spreads widen']];
+function sessionOf(h){if(h<8)return['Asia','Usually the quietest stretch'];if(h<13)return['London','Volume arrives; early direction or a fake-out'];if(h<16.5)return['London + NY overlap','Usually the widest range'];if(h<21)return['New York','Strong early, slows into the close'];return['Late NY','Thin; spreads widen; avoid entries']}
+function marketClosed(d){const day=d.getUTCDay(),m=d.getUTCHours()*60+d.getUTCMinutes();if(day===6)return true;if(day===5&&m>=22*60)return true;if(day===0&&m<23*60)return true;return false}
+function tick(){
+ const d=new Date(),h=d.getUTCHours(),m=d.getUTCMinutes(),s=d.getUTCSeconds();
+ const c=new Date(d.getTime()+2*3600e3);
+ $('#cUTC').textContent=p2(h)+':'+p2(m)+':'+p2(s);$('#cCAT').textContent=p2(c.getUTCHours())+':'+p2(c.getUTCMinutes())+':'+p2(c.getUTCSeconds());
+ const closed=marketClosed(d),ss=sessionOf(h+m/60);
+ $('#cSess').textContent=closed?'Weekend: closed':ss[0];$('#cSessNote').textContent=closed?'Gold reopens Sunday about 23:00 UTC (Monday 01:00 CAT)':ss[1];
+ const now=h*60+m+s/60;let nxt=null;
+ if(!closed&&d.getUTCDay()>=1&&d.getUTCDay()<=5){for(const e of EV){if(e[0]>now){nxt=e;break}}}
+ if(nxt){const diff=nxt[0]-now,hh=Math.floor(diff/60),mm=Math.floor(diff%60);$('#cNext').textContent=nxt[1]+' in '+(hh?hh+'h ':'')+mm+'m';$('#cNextNote').textContent='At '+p2(Math.floor(nxt[0]/60))+':'+p2(nxt[0]%60)+' UTC = '+p2((Math.floor(nxt[0]/60)+2)%24)+':'+p2(nxt[0]%60)+' CAT. '+nxt[2];const prev=EV.filter(e=>e[0]<=now).pop();const start=prev?prev[0]:0;$('#cBar').style.width=Math.min(100,100*(now-start)/(nxt[0]-start))+'%'}
+ else{$('#cNext').textContent=closed?'Market closed':'No more scheduled moments today';$('#cNextNote').textContent=closed?'Plan the week; mark levels on D1 and H4.':'After 21:00 UTC: thin, avoid entries.';$('#cBar').style.width='0'}
+ const quiet=!closed&&(h<8||h>=21);
+ $('#cNote').innerHTML=closed?'<strong>Market closed.</strong> Use the time to mark levels on D1 and H4 and review your journal.':quiet?'<strong>Quiet window.</strong> Moves can still be sharp (see the 16 Nov case study), so size by the stop, not by how calm it looks.':'<strong>Active window.</strong> Check the economic calendar for US data and FOMC before any entry.';
+}
+tick();setInterval(tick,1000);
+// hours
+const HN=['Usually quiet','Usually quiet','Usually quiet','Usually quiet','Usually quiet','Usually quiet','Usually quiet','Asia ending; London pre-positioning','London open','London morning','London AM auction at 10:30','London midday','London midday','Overlap starts','US data at 13:30 on data days','London PM auction at 15:00','London closes 16:30; NY continues','New York afternoon','New York afternoon','FOMC at 19:00 on decision days','Slowing into the close','NY close and rollover','Thin; spreads widen','Thin; spreads widen'];
+function rows(){return sget('log',[])}
+function hourStats(){const st=Array.from({length:24},()=>({n:0,sum:0,max:0}));for(const r of rows()){const s=st[r.h];s.n++;s.sum+=r.range;if(r.range>s.max)s.max=r.range}return st}
+function renderHours(){const nowH=new Date().getUTCHours(),st=hourStats();let b='';for(let h=0;h<24;h++){const s=sessionOf(h)[0];b+='<tr'+(h===nowH?' class="now"':'')+'><td>'+p2(h)+':00</td><td>'+p2((h+2)%24)+':00</td><td>'+s+'</td><td>'+HN[h]+'</td><td>'+(st[h].n?(st[h].sum/st[h].n).toFixed(2)+' ('+st[h].n+' d)':'<span class="mute">no data</span>')+'</td></tr>'}$('#hoursBody').innerHTML=b}
+// calc
+function calc(){const bal=+$('#kBal').value,rk=+$('#kRisk').value,cs=+$('#kCs').value,e=+$('#kEntry').value,sl=+$('#kStop').value,tp=+$('#kTp').value;const out=$('#kOut');
+ if(!(bal>0&&rk>0&&cs>0)){out.innerHTML='';return}
+ const risk=bal*rk/100;if(!e||!sl){out.innerHTML='<div class="res warn">Risk amount: $'+risk.toFixed(2)+'. Enter entry and stop to get the lot size.</div>';return}
+ const dist=Math.abs(e-sl);if(!dist){out.innerHTML='<div class="res bad">Stop equals entry.</div>';return}
+ const raw=risk/(dist*cs),lot=Math.floor(raw*100)/100;const dir=sl<e?'Buy':'Sell';let h='';
+ let cls='good';let msgs=[];
+ if(lot<0.01){cls='bad';msgs.push('Lot is below 0.01: the stop is too wide for this balance and risk. Skip, or practise on demo.')}
+ const actual=lot*dist*cs;
+ h+='<div class="big">'+lot.toFixed(2)+' lot</div><div class="small">'+dir+' | stop distance $'+dist.toFixed(2)+' | risk if stopped $'+actual.toFixed(2)+' of $'+risk.toFixed(2)+' allowed</div>';
+ if(tp){const okdir=dir==='Buy'?tp>e:tp<e;if(!okdir){cls='bad';msgs.push('Target is on the wrong side of entry.')}else{const rr=Math.abs(tp-e)/dist;h+='<div class="small">Reward : risk = '+rr.toFixed(2)+' : 1 (target $'+Math.abs(tp-e).toFixed(2)+')</div>';if(rr<2){if(cls==='good')cls='warn';msgs.push('Below 2 : 1. Our rule is at least 2 : 1, otherwise skip.')}}}
+ if(dist<1&&cls==='good'){cls='warn';msgs.push('A stop under $1 on gold is easily hit by normal movement.')}
+ out.innerHTML='<div class="res '+cls+'">'+h+(msgs.length?'<ul style="margin:8px 0 0">'+msgs.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'')+'</div>'}
+['kBal','kRisk','kCs','kEntry','kStop','kTp'].forEach(id=>{const el=$('#'+id);const sv=sget('c_'+id,null);if(sv!==null&&id!=='kEntry'&&id!=='kStop'&&id!=='kTp')el.value=sv;el.oninput=()=>{sset('c_'+id,el.value);calc()}});calc();
+// checks
+const CK=['H4 / D1 map done: levels marked and price vs slow line known','H1 direction matches my trade (below the slow line = sells only)','M15 / M30 has a real trigger: break and retest, or a rejection candle at a level','Room to the next level is at least 2 x my stop','Stop is beyond the level, not inside it; lot sized from the stop','Not within 30 minutes of US data or FOMC; not in the late NY rollover','Not carrying the trade over the weekend without a plan','Daily loss limit not reached (2 to 3 losers = stop for the day)'];
+function renderChecks(){const st=sget('ck',{});$('#checks').innerHTML=CK.map((t,i)=>'<label class="chk" style="text-transform:none;font-size:14px;color:var(--ink);margin:0"><input type="checkbox" data-i="'+i+'"'+(st[i]?' checked':'')+'><span>'+t+'</span></label>').join('');$$('#checks input').forEach(c=>c.onchange=()=>{const s=sget('ck',{});s[c.dataset.i]=c.checked;sset('ck',s);res()});res()}
+function res(){const s=sget('ck',{});const n=CK.filter((_,i)=>s[i]).length;$('#chkRes').innerHTML='<div class="res '+(n===CK.length?'good':n>=6?'warn':'bad')+'">'+n+' of '+CK.length+' ticked. '+(n===CK.length?'All checks passed. Write down entry, stop and target before you enter.':'Not ready. Wait.')+'</div>'}
+$('#chkReset').onclick=()=>{sset('ck',{});renderChecks()};renderChecks();
+// log
+$('#lDate').valueAsDate=new Date();
+function renderLog(){const r=rows().slice().sort((a,b)=>(b.d+p2(b.h)).localeCompare(a.d+p2(a.h)));$('#lBody').innerHTML=r.length?r.map(x=>'<tr><td>'+x.d+'</td><td>'+p2(x.h)+':00</td><td>'+x.hi+'</td><td>'+x.lo+'</td><td>'+x.range.toFixed(2)+'</td><td><button class="btn ghost" data-id="'+x.id+'">Delete</button></td></tr>').join(''):'<tr><td colspan="6" class="mute">No entries yet.</td></tr>';$$('#lBody button').forEach(b=>b.onclick=()=>{sset('log',rows().filter(x=>String(x.id)!==b.dataset.id));renderLog()})}
+function addRow(d,h,hi,lo){const L=rows();if(L.some(x=>x.d===d&&x.h===h)){return'That date and hour is already logged.'}L.push({id:Date.now()+Math.random(),d,h,hi,lo,range:hi-lo});sset('log',L);return''}
+$('#lAdd').onclick=()=>{const d=$('#lDate').value,h=parseInt($('#lHour').value,10),hi=parseFloat($('#lHigh').value),lo=parseFloat($('#lLow').value);let m='';
+ if(!d)m='Pick a date.';else if(!(h>=0&&h<=23))m='Hour must be 0 to 23.';else if(isNaN(hi)||isNaN(lo))m='Enter high and low.';else if(hi<lo)m='High must be at least the low.';else m=addRow(d,h,hi,lo);
+ $('#lMsg').textContent=m||'Added.';if(!m){$('#lHigh').value='';$('#lLow').value='';$('#lHour').value=''}renderLog()};
+$('#lSeed').onclick=()=>{const m=addRow('2026-11-16',6,3870,3834);$('#lMsg').textContent=m||'Example added: 16 Nov 06:00 UTC, range about 36 (read from the M15 chart, approximate).';renderLog()};
+$('#lCsv').onclick=()=>{const csv='date,utc_hour,high,low,range\n'+rows().map(x=>[x.d,x.h,x.hi,x.lo,x.range.toFixed(2)].join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='gold_hourly_ranges.csv';a.click()};
+// stats
+function renderStats(){const st=hourStats();const tot=st.reduce((a,s)=>a+s.n,0);if(!tot){$('#sBody').innerHTML='<div class="card">No data yet. Add H1 candles in the Hourly range log.</div>';return}
+ const avgs=st.map((s,h)=>({h,n:s.n,avg:s.n?s.sum/s.n:0,max:s.max})).filter(x=>x.n);const mx=Math.max(...avgs.map(x=>x.avg));const rank=avgs.slice().sort((a,b)=>b.avg-a.avg);
+ let h='<div class="card"><h3>Average range by UTC hour</h3>';for(let i=0;i<24;i++){const s=st[i];const a=s.n?s.sum/s.n:0;h+='<div style="display:flex;gap:8px;align-items:center;margin:3px 0"><span class="small" style="width:92px">'+p2(i)+':00 / '+p2((i+2)%24)+':00</span><div class="bar" style="flex:1"><i style="width:'+(mx?100*a/mx:0)+'%"></i></div><span class="small" style="width:120px;text-align:right">'+(s.n?a.toFixed(2)+' ('+s.n+' d)':'no data')+'</span></div>'}
+ h+='<p class="small mute">Bars are scaled to your largest average. CAT is UTC + 2.</p></div>';
+ const top=rank.slice(0,3),low=rank.slice(-3).reverse();
+ h+='<div class="grid g2"><div class="card"><h3>Busiest hours so far</h3>'+top.map(x=>'<div>'+p2(x.h)+':00 UTC ('+p2((x.h+2)%24)+':00 CAT): avg '+x.avg.toFixed(2)+', largest '+x.max.toFixed(2)+', '+x.n+' day(s)</div>').join('')+'</div><div class="card"><h3>Quietest hours so far</h3>'+low.map(x=>'<div>'+p2(x.h)+':00 UTC ('+p2((x.h+2)%24)+':00 CAT): avg '+x.avg.toFixed(2)+', '+x.n+' day(s)</div>').join('')+'</div></div>';
+ const weak=avgs.filter(x=>x.n<10).length;if(weak)h+='<p class="note">'+weak+' hour(s) have fewer than 10 days of data. Treat the ranking as a hint, not a rule.</p>';
+ $('#sBody').innerHTML=h}
+$('#theme').onclick=()=>{const d=document.documentElement,cur=d.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');d.dataset.theme=cur==='dark'?'light':'dark';store.set('theme',d.dataset.theme)};if(store.get('theme',null))document.documentElement.dataset.theme=store.get('theme');if(/[?&]theme=dark/.test(location.search))document.documentElement.dataset.theme='dark';
+$('#wipe').onclick=()=>{if(confirm('Clear all saved Gold data on this device?')){['log','ck','c_kBal','c_kRisk','c_kCs'].forEach(k=>{try{localStorage.removeItem('gold.'+k)}catch(e){}delete mem[k]});location.reload()}};
+renderHours();renderLog();
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Headlines</title>
+<style>
+:root{--bg:#0b1118;--card:#111b27;--line:#1f2d3f;--ink:#e9eef5;--mute:#8a9bb0;--gold:#f0c24a;--blue:#6cc8ff;--red:#ff6b63;--green:#2fc59b}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:14px 14px 50px}
+h1{font-size:22px;margin:4px 0 2px}.sub{color:var(--mute);margin:0 0 12px;font-size:14px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+.chip.on{background:var(--gold);color:#1a1405;border-color:var(--gold);font-weight:700}
+input[type=search]{flex:1 1 180px;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:8px 12px;font:inherit}
+.btn{background:var(--blue);color:#06121c;border:0;border-radius:10px;padding:8px 14px;font:inherit;font-weight:700;cursor:pointer}.btn.ghost{background:transparent;color:var(--blue);border:1px solid var(--line)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+.card.high{border-color:#7a5a12}.card.trump{border-left:4px solid var(--gold)}
+.meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--mute)}
+.title{font-weight:700;margin:5px 0 3px}.title a{color:var(--ink);text-decoration:none}.title a:hover{text-decoration:underline}
+.snip{color:#c3cfdd;white-space:pre-wrap;word-break:break-word;margin:4px 0}
+.tag{background:#16273a;color:var(--blue);border-radius:6px;padding:1px 8px;font-size:11px;font-weight:700}
+.hi{background:#3a2a0a;color:var(--gold);border-radius:6px;padding:1px 8px;font-size:11px;font-weight:800}
+.src{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.src span{font-size:12px;border-radius:8px;padding:2px 9px;border:1px solid var(--line)}
+.src .ok{color:var(--green)}.src .bad{color:var(--red);border-color:#5a2a2e}
+.note{background:#1d1808;border:1px solid #4a3b12;color:#e8d08a;border-radius:12px;padding:9px 12px;font-size:13px;margin:10px 0}
+.empty{color:var(--mute);text-align:center;padding:30px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <h1>Headlines that move the dollar</h1>
+ <p class="sub">Trump posts, Fed and government releases, market news and gold news in one list. Times are shown in Zambia time (CAT).</p>
+ <div class="bar" id="filters"></div>
+ <div class="bar"><input type="search" id="q" placeholder="Search headlines (tariff, Fed, oil...)"><button class="btn ghost" id="ref">Refresh</button><button class="btn ghost" id="notif">Alert me to new Trump posts</button></div>
+ <div class="src" id="src"></div>
+ <div class="note">Tags mark topics that often move the dollar. They are not buy or sell calls: wait for the print and for price to agree, as in the rules. Posts can be edited or deleted after they appear.</div>
+ <div id="list"><div class="empty">Loading headlines...</div></div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const GROUPS=[['all','All'],['trump','Trump'],['official','Fed and government'],['markets','Markets'],['gold','Gold']];
+let data=null,group='all',seenTrump=null;
+try{group=sessionStorage.getItem('hl.g')||'all'}catch(e){}
+const p2=n=>String(n).padStart(2,'0');
+function when(iso){if(!iso)return'';const d=new Date(iso),c=new Date(d.getTime()+2*3600e3),ago=Math.max(0,Math.floor((Date.now()-d)/60000));
+ const a=ago<1?'just now':ago<60?ago+' min ago':ago<1440?Math.floor(ago/60)+' h ago':Math.floor(ago/1440)+' d ago';
+ return a+' · '+p2(c.getUTCHours())+':'+p2(c.getUTCMinutes())+' CAT, '+c.getUTCDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][c.getUTCMonth()]}
+function filters(){$('#filters').innerHTML=GROUPS.map(g=>'<button class="chip'+(g[0]===group?' on':'')+'" data-g="'+g[0]+'">'+g[1]+'</button>').join('');
+ document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{group=b.dataset.g;try{sessionStorage.setItem('hl.g',group)}catch(e){}filters();render()})}
+function render(){
+ if(!data)return;
+ $('#src').innerHTML=data.sources.filter(s=>group==='all'||s.group===group).map(s=>'<span class="'+(s.ok?'ok':'bad')+'" title="'+esc(s.ok?s.count+' items':s.error)+'">'+(s.ok?'● ':'○ ')+esc(s.name)+(s.ok?'':' (unavailable)')+'</span>').join('');
+ const q=$('#q').value.trim().toLowerCase();
+ const rows=data.items.filter(i=>(group==='all'||i.group===group)&&(!q||(i.title+' '+i.snippet+' '+i.tags.join(' ')).toLowerCase().includes(q)));
+ $('#list').innerHTML=rows.length?rows.slice(0,120).map(i=>'<div class="card'+(i.high?' high':'')+(i.group==='trump'&&i.source==='truth'?' trump':'')+'"><div class="meta"><b>'+esc(i.sourceName)+'</b><span>'+esc(when(i.date))+'</span>'+(i.high?'<span class="hi">HIGH ATTENTION</span>':'')+'</div>'
+  +'<div class="title">'+(i.link?'<a href="'+esc(i.link)+'" target="_blank" rel="noopener noreferrer">'+esc(i.title)+'</a>':esc(i.title))+'</div>'
+  +(i.snippet&&i.snippet!==i.title?'<div class="snip">'+esc(i.snippet)+'</div>':'')
+  +'<div>'+i.tags.map(t=>'<span class="tag">'+esc(t)+'</span> ').join('')+'</div></div>').join(''):'<div class="empty">'+(data.sources.every(s=>!s.ok)?'No source answered. Check the server\'s internet access and try Refresh.':'Nothing matches this filter yet.')+'</div>'}
+async function load(force){
+ try{const r=await fetch('/api/headlines'+(force?'?refresh=1':''));if(!r.ok)throw new Error('HTTP '+r.status);data=await r.json();
+  const tr=data.items.filter(i=>i.source==='truth');
+  if(seenTrump!==null&&'Notification' in window&&Notification.permission==='granted'){for(const i of tr){if(!seenTrump.has(i.title)){try{new Notification('New Trump post',{body:(i.snippet||i.title).slice(0,140)})}catch(e){}}}}
+  seenTrump=new Set(tr.map(i=>i.title));render()}
+ catch(e){$('#list').innerHTML='<div class="empty">Could not load headlines: '+esc(e.message)+'</div>'}}
+$('#q').oninput=render;$('#ref').onclick=()=>load(true);
+$('#notif').onclick=async()=>{if(!('Notification' in window)){alert('This browser does not support notifications.');return}const p=await Notification.requestPermission();$('#notif').textContent=p==='granted'?'Trump post alerts on (while this page is open)':'Alerts blocked in browser settings'};
+if('Notification' in window&&Notification.permission==='granted')$('#notif').textContent='Trump post alerts on (while this page is open)';
+filters();load(false);setInterval(()=>load(false),120000);
+</script>
+</body>
+</html>
