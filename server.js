@@ -487,6 +487,8 @@ const CPI_LEADS = [
   { title: "CPI YoY", date: "2026-10-14T12:30:00Z", actual: "3.7", forecast: "3.6", previous: "3.4" }
 ];
 
+require("./appmodule")(app, express);
+require("./newsmodule")(app);
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/api/desk", async (req, res) => {
