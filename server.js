@@ -185,6 +185,22 @@ function step(title, actual, forecast, targetTitle) {
 }
 
 /** Live price-action filter: gold, DXY, 10Y day change + vs 20SMA */
+// Previous DAILY close from a Yahoo daily-bar chart. meta.chartPreviousClose is the close before the
+// whole requested range (e.g. 3 months ago), so it must not be used as "yesterday".
+function prevDailyClose(result) {
+  try {
+    const ts = result.timestamp || [];
+    const cl = (result.indicators.quote[0].close) || [];
+    const rows = [];
+    for (let i = 0; i < ts.length; i++) if (cl[i] != null) rows.push([ts[i], cl[i]]);
+    if (rows.length < 2) return null;
+    const mt = result.meta && result.meta.regularMarketTime;
+    const day = (t) => new Date(t * 1000).toISOString().slice(0, 10);
+    const last = rows[rows.length - 1];
+    return mt && day(last[0]) === day(mt) ? rows[rows.length - 2][1] : last[1];
+  } catch { return null; }
+}
+
 async function readPriceAction() {
   const out = {
     goldLast: null, goldChg: null, goldVsSma: null,
@@ -206,7 +222,7 @@ async function readPriceAction() {
     const q = g.chart.result[0].indicators.quote[0];
     const closes = q.close || [];
     out.goldLast = Number(meta.regularMarketPrice);
-    const prev = Number(meta.chartPreviousClose || meta.previousClose || out.goldLast);
+    const prev = Number(prevDailyClose(g.chart.result[0]) || out.goldLast);
     out.goldChg = out.goldLast - prev;
     const ma = sma(closes, 20);
     out.goldVsSma = ma != null ? (out.goldLast >= ma ? "above" : "below") : null;
@@ -216,7 +232,7 @@ async function readPriceAction() {
     const meta = d.chart.result[0].meta;
     const closes = d.chart.result[0].indicators.quote[0].close || [];
     out.dxyLast = Number(meta.regularMarketPrice);
-    const prev = Number(meta.chartPreviousClose || meta.previousClose || out.dxyLast);
+    const prev = Number(prevDailyClose(d.chart.result[0]) || out.dxyLast);
     out.dxyChg = out.dxyLast - prev;
     const ma = sma(closes, 20);
     out.dxyVsSma = ma != null ? (out.dxyLast >= ma ? "above" : "below") : null;
@@ -225,7 +241,7 @@ async function readPriceAction() {
     const y = await yahooChart("^TNX", "1d", "5d");
     const meta = y.chart.result[0].meta;
     out.y10 = Number(meta.regularMarketPrice);
-    const prev = Number(meta.chartPreviousClose || meta.previousClose || out.y10);
+    const prev = Number(prevDailyClose(y.chart.result[0]) || out.y10);
     out.yChg = out.y10 - prev;
   } catch (err) {}
 
@@ -1078,17 +1094,17 @@ app.get("/api/confluence", async (_req, res) => {
   try {
     const g = await yahooChart("GC=F", "1d", "5d");
     const meta = g.chart.result[0].meta;
-    goldChg = meta.regularMarketPrice - (meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice);
+    goldChg = meta.regularMarketPrice - (prevDailyClose(g.chart.result[0]) || meta.regularMarketPrice);
   } catch (err) {}
   try {
     const d = await yahooChart("DX-Y.NYB", "1d", "5d");
     const meta = d.chart.result[0].meta;
-    dxyChg = meta.regularMarketPrice - (meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice);
+    dxyChg = meta.regularMarketPrice - (prevDailyClose(d.chart.result[0]) || meta.regularMarketPrice);
   } catch (err) {}
   try {
     const y = await yahooChart("^TNX", "1d", "5d");
     const meta = y.chart.result[0].meta;
-    yieldChg = meta.regularMarketPrice - (meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice);
+    yieldChg = meta.regularMarketPrice - (prevDailyClose(y.chart.result[0]) || meta.regularMarketPrice);
   } catch (err) {}
 
   if (goldPx != null && atr != null) {

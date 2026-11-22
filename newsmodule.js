@@ -3,7 +3,7 @@
 // Each source is fetched on its own. A source that is down shows ok:false and never breaks the others.
 // Add or replace feeds with the FEEDS_EXTRA environment variable: a JSON array like
 //   [{"id":"x","name":"My feed","group":"markets","url":"https://example.com/rss"}]
-// Groups: trump | official | markets | gold
+// Groups: trump | official | markets | gold | oil
 
 const gnews = (q, loc) => "https://news.google.com/rss/search?q=" + encodeURIComponent(q) + (loc || "&hl=en-US&gl=US&ceid=US:en");
 
@@ -17,6 +17,11 @@ const SOURCES = [
   { id: "fxstreet", name: "FXStreet news", group: "markets", url: "https://www.fxstreet.com/rss/news" },
   { id: "cnbc", name: "CNBC finance", group: "markets", url: "https://www.cnbc.com/id/10000664/device/rss/rss.html" },
   { id: "marketwatch", name: "MarketWatch top stories", group: "markets", url: "https://feeds.content.dowjones.io/public/rss/mw_topstories" },
+  { id: "bbg-mkts", name: "Bloomberg Markets", group: "markets", url: "https://feeds.bloomberg.com/markets/news.rss" },
+  { id: "bbg-econ", name: "Bloomberg Economics", group: "markets", url: "https://feeds.bloomberg.com/economics/news.rss" },
+  { id: "bbg-pol", name: "Bloomberg Politics", group: "official", url: "https://feeds.bloomberg.com/politics/news.rss" },
+  { id: "oil-news", name: "Oil news: Google News", group: "oil", url: gnews("(oil prices OR crude OR Brent OR WTI OR OPEC) when:1d") },
+  { id: "oilprice", name: "OilPrice.com", group: "oil", url: "https://oilprice.com/rss/main" },
   { id: "dollar", name: "Dollar and yields: Google News", group: "markets", url: gnews("(US dollar OR Treasury yields OR DXY) when:1d") },
   { id: "gold", name: "Gold news: Google News", group: "gold", url: gnews("(gold price OR XAUUSD) when:1d") }
 ];
@@ -31,7 +36,8 @@ const TAGS = [
   ["Dollar", /dollar|\bdxy\b|greenback|usd\b/i],
   ["Yields", /treasury yield|10-year|bond yield|yields/i],
   ["Sanctions / war", /sanction|war\b|missile|ceasefire|strike on|invasion|tension/i],
-  ["Oil", /\boil\b|crude|opec/i],
+  ["Oil", /\boil\b|crude|opec|\bbrent\b|\bwti\b|barrel|refiner|oil inventor|\beia\b/i],
+  ["Middle East", /hormuz|iran|israel|saudi|red sea|gaza|houthi|strait of/i],
   ["Gold", /\bgold\b|xauusd|bullion/i],
   ["Shutdown / debt", /shutdown|debt ceiling|credit rating|downgrade/i]
 ];
@@ -67,7 +73,7 @@ function tagsFor(text) { return TAGS.filter(([, rx]) => rx.test(text)).map(([n])
 module.exports = function mount(app) {
   let extra = [];
   try { extra = JSON.parse(process.env.FEEDS_EXTRA || "[]").filter((s) => s && s.url && s.id); } catch {}
-  const sources = SOURCES.concat(extra.map((s) => ({ id: String(s.id).slice(0, 30), name: String(s.name || s.id).slice(0, 60), group: ["trump", "official", "markets", "gold"].includes(s.group) ? s.group : "markets", url: String(s.url) })));
+  const sources = SOURCES.concat(extra.map((s) => ({ id: String(s.id).slice(0, 30), name: String(s.name || s.id).slice(0, 60), group: ["trump", "official", "markets", "gold", "oil"].includes(s.group) ? s.group : "markets", url: String(s.url) })));
   let cache = { at: 0, body: null };
   let inflight = null;
 
@@ -110,6 +116,36 @@ module.exports = function mount(app) {
       note: "Tags mark topics that often move the dollar. They are not buy or sell calls."
     };
   }
+
+  // ---- live prices with a correct daily change (vs previous daily close) ----
+  const SYMS = [["GOLD", "Gold", "GC=F", 2], ["WTI", "WTI oil", "CL=F", 2], ["BRENT", "Brent oil", "BZ=F", 2], ["DXY", "Dollar index", "DX-Y.NYB", 3], ["US10Y", "US 10Y yield", "^TNX", 3], ["VIX", "VIX", "^VIX", 2]];
+  let mcache = { at: 0, body: null };
+  async function quote([key, name, sym, dp]) {
+    const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 8000);
+    try {
+      const r = await fetch("https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(sym) + "?interval=1d&range=10d", { signal: ctl.signal, headers: { "User-Agent": "Mozilla/5.0 forex-desk" } });
+      const text = await r.text();
+      if (!r.ok || text.startsWith("Too Many")) throw new Error("HTTP " + r.status);
+      const res = JSON.parse(text).chart.result[0];
+      const price = Number(res.meta.regularMarketPrice);
+      const ts = res.timestamp || [], cl = res.indicators.quote[0].close || [];
+      const rows = []; for (let i = 0; i < ts.length; i++) if (cl[i] != null) rows.push([ts[i], cl[i]]);
+      const day = (t) => new Date(t * 1000).toISOString().slice(0, 10);
+      const mt = res.meta.regularMarketTime;
+      let prev = null;
+      if (rows.length >= 2) prev = mt && day(rows[rows.length - 1][0]) === day(mt) ? rows[rows.length - 2][1] : rows[rows.length - 1][1];
+      const chg = prev ? price - prev : null;
+      return { key, name, symbol: sym, price: Number(price.toFixed(dp)), change: chg == null ? null : Number(chg.toFixed(dp)), changePct: prev ? Number(((chg / prev) * 100).toFixed(2)) : null, time: mt ? new Date(mt * 1000).toISOString() : null, ok: true };
+    } catch (e) { return { key, name, symbol: sym, ok: false, error: e.name === "AbortError" ? "timed out" : String(e.message || e).slice(0, 60) }; }
+    finally { clearTimeout(to); }
+  }
+  app.get("/api/markets", async (req, res) => {
+    if (mcache.body && Date.now() - mcache.at < 20000) return res.json(mcache.body);
+    const quotes = await Promise.all(SYMS.map(quote));
+    const body = { updated: new Date().toISOString(), quotes, source: "Yahoo Finance (delayed; futures: GC=F, CL=F, BZ=F)" };
+    if (quotes.some((q) => q.ok)) mcache = { at: Date.now(), body };
+    res.json(body);
+  });
 
   app.get("/api/headlines", async (req, res) => {
     try {
