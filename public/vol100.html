@@ -57,7 +57,7 @@ svg text{font-family:system-ui,sans-serif}
   <div class="sec">Daily</div>
   <a data-v="today" class="on">◎ Today</a><a data-v="zones">▤ Zone map</a><a data-v="planner">⚖ Trade planner</a><a data-v="entry">✓ Entry checks</a><a data-v="journal">✎ Journal</a>
   <div class="sec">Learn</div>
-  <a data-v="book">📖 The book</a><a data-v="teach">👨‍👦 Teach your son</a><a data-v="gallery">🖼 Diagram gallery</a>
+  <a data-v="book">📖 The book</a><a data-v="teach">👨‍👦 Teach your son</a><a data-v="gallery">🖼 Diagram gallery</a><a data-v="live">📈 Live chart</a>
   <div class="sec">System</div>
   <a data-v="about">ⓘ About &amp; data</a>
  </nav>
@@ -68,14 +68,16 @@ svg text{font-family:system-ui,sans-serif}
 <section class="view on" id="v-today">
  <h1>Today</h1><p class="sub" id="todaydate"></p>
  <div class="note noprint"><strong>Education, not advice.</strong> Vol 100 is random. Practise on a demo account until the account holder is an adult. The market snapshot below is a dated reading, not a prediction.</div>
- <div class="card" style="margin-top:14px"><h3 style="margin-top:0">Latest read · Sun 22 Nov, 21:19 CAT (D1 map)</h3>
-  <p><strong>Where it is.</strong> D1 price <strong>533.98</strong> (daily candle closes 02:00 CAT). Trend is down: price is under all three daily averages and the averages slope down. Today's candle is a big red one with a long lower wick that tested <strong>513.92</strong> and bounced. Judge that wick only after the candle closes. The M30 bounce reached about 548 under 549.05 (18:51 CAT shot, price 543), was rejected, and has given back about 9 points.</p>
-  <div class="tw"><table><thead><tr><th>If price...</th><th>Then</th><th>Stop</th><th>Target</th><th>R:R</th></tr></thead><tbody>
-  <tr><td>Bounces to 537 to 540 and an M30 candle closes back down</td><td>Sell the retest (with the daily trend)</td><td>above 541.5</td><td>524.5, then 514</td><td>2:1 to 5:1</td></tr>
-  <tr><td>H1 closes under 513.92 and the retest fails</td><td>Sell</td><td>above 518</td><td>495 to 503 zone, then 468.13</td><td>3:1 or better</td></tr>
-  <tr><td>Holds 513.92 or 495 to 503 with a bullish H1 close</td><td>Small, quick buy</td><td>below the low</td><td>537, then 549</td><td>about 2:1+</td></tr>
-  <tr><td>H1 closes above 549.05 and holds</td><td><span class="pill p-bad">Daily bias in doubt</span></td><td colspan="3">Stand aside and re-read</td></tr></tbody></table></div>
-  <p class="small mute">Daily levels: 549.05 and 577.94 above; 513.92, the 495 to 503 demand zone, 468.13 and 423.30 below. D1 gives the bias, M30/H1 give the entry. Write the exit plan before entry, size the lot from the stop, never widen a stop. Alerts: 537.5, 549.05, 513.92. Dated reading, not a prediction.</p></div>
+ <div class="card" style="margin-top:14px"><h3 style="margin-top:0">Latest read · Mon 23 Nov, 12:37 CAT (book Chapter 24)</h3>
+  <p><strong>Where it is.</strong> Price about <strong>537</strong>. D1 trend is still down; the 513.92 floor held twice (D1 wick to about 511). Price was rejected at <strong>549.05</strong> for the third time (high about 553) and the <strong>M30 closed below 540</strong> at 12:30. The better sell entry is the retest of 540 to 541, not 537.</p>
+  <div class="tw"><table><thead><tr><th>Check on your pending sell limit</th><th>Number</th><th>Result</th></tr></thead><tbody>
+  <tr><td>Entry / stop / target</td><td>541.54 / 544.85 / 527.59</td><td>risk 3.31, reward 13.95</td></tr>
+  <tr><td>Reward to risk</td><td>13.95 / 3.31</td><td><span class="pill p-ok">about 4.2 : 1</span></td></tr>
+  <tr><td>Lot</td><td>risk $ / 3.31</td><td>e.g. $10 gives about 3.0 lot</td></tr>
+  <tr><td>Break-even</td><td>halfway, 534.57</td><td>move stop to entry</td></tr>
+  <tr><td>Concern</td><td>stop sits near M5 averages (544 to 545)</td><td>a wick could take it out</td></tr>
+  <tr><td>Cancel if</td><td>M30 closes above 543 before fill</td><td>retest idea failed</td></tr></tbody></table></div>
+  <p class="small mute">Other plans: M30 closes above 553.5 and 549 retest holds, buy (stop below 545.5, target 556 to 560, about 2:1). All reads and plan tables since 22 Nov are in Chapter 24. Dated reading, not a prediction.</p></div>
  <div class="card" style="margin-top:14px"><h3 style="margin-top:0">Buy-trend plan: the mirror of today's sell trend (book Chapter 23)</h3>
   <p>Use it only when D1 and H4 are <strong>up</strong> (price above rising averages). Everything flips, nothing else changes. Template from our rules, not a seen trade; practise on demo.</p>
   <div class="tw"><table><thead><tr><th>Item</th><th>Sell trend</th><th>Buy trend</th></tr></thead><tbody>
@@ -154,7 +156,7 @@ svg text{font-family:system-ui,sans-serif}
 <!-- BOOK -->
 <section class="view" id="v-book">
  <div class="row noprint" style="align-items:center"><div><h1>Trading Volatility 100: illustrated guide</h1><p class="sub">21 chapters, every diagram from your charts, plus the full PDF. Tap a diagram to enlarge.</p></div><div style="flex:0 0 auto;display:flex;gap:8px"><input id="b-search" placeholder="Search the book…" style="width:200px"><a class="btn ghost" href="vol100/Trading_Volatility_100_Guide.pdf" download style="text-decoration:none">Download PDF</a><button class="btn ghost" onclick="window.print()">Print all</button></div></div>
- <div class="toc noprint" id="toc"><a href="#" data-chap="c0">Read this first</a><a href="#" data-chap="c1">Chapter 1: What Volatility 100 is</a><a href="#" data-chap="c2">Chapter 2: Reading the trend</a><a href="#" data-chap="c3">Chapter 3: Support and resistance</a><a href="#" data-chap="c4">Chapter 4: The three moving averages</a><a href="#" data-chap="c5">Chapter 5: Stop loss, target and risk-to-reward</a><a href="#" data-chap="c6">Chapter 6: Position sizing, the 1% rule</a><a href="#" data-chap="c7">Chapter 7: The step-by-step entry plan</a><a href="#" data-chap="c8">Chapter 8: Daily rules and mindset</a><a href="#" data-chap="c9">Chapter 9: Common mistakes and the pre-trade checklist</a><a href="#" data-chap="c10">Chapter 10: Journal and the demo-first plan</a><a href="#" data-chap="c11">Chapter 11: The three-timeframe routine</a><a href="#" data-chap="c12">Chapter 12: When to enter</a><a href="#" data-chap="c13">Chapter 13: When to exit and manage a trade</a><a href="#" data-chap="c14">Chapter 14: When to add another position</a><a href="#" data-chap="c15">Chapter 15: When to stay away from the chart</a><a href="#" data-chap="c16">Chapter 16: A live example, 14 to 15 November 2026</a><a href="#" data-chap="c17">Chapter 17: Our market approach to Volatility 100</a><a href="#" data-chap="c18">Chapter 18: The bigger picture and the top-down strategy</a><a href="#" data-chap="c19">Chapter 19: Teaching your son</a><a href="#" data-chap="c20">Chapter 20: Case study 1, the losing buy of 16 November</a><a href="#" data-chap="c21">Chapter 21: Case study 2, reading the turn after the loss (16 Nov, about 03:50)</a><a href="#" data-chap="c22">Chapter 22: Case study 3, the ceiling at 577.94 and the test of 549.05 (21 Nov)</a><a href="#" data-chap="c23">Chapter 23: The mirror image, a buy plan for an uptrend</a><a href="#" data-chap="c24">Glossary</a><a href="#" data-chap="c25">One-page cheat sheet</a></div>
+ <div class="toc noprint" id="toc"><a href="#" data-chap="c0">Read this first</a><a href="#" data-chap="c1">Chapter 1: What Volatility 100 is</a><a href="#" data-chap="c2">Chapter 2: Reading the trend</a><a href="#" data-chap="c3">Chapter 3: Support and resistance</a><a href="#" data-chap="c4">Chapter 4: The three moving averages</a><a href="#" data-chap="c5">Chapter 5: Stop loss, target and risk-to-reward</a><a href="#" data-chap="c6">Chapter 6: Position sizing, the 1% rule</a><a href="#" data-chap="c7">Chapter 7: The step-by-step entry plan</a><a href="#" data-chap="c8">Chapter 8: Daily rules and mindset</a><a href="#" data-chap="c9">Chapter 9: Common mistakes and the pre-trade checklist</a><a href="#" data-chap="c10">Chapter 10: Journal and the demo-first plan</a><a href="#" data-chap="c11">Chapter 11: The three-timeframe routine</a><a href="#" data-chap="c12">Chapter 12: When to enter</a><a href="#" data-chap="c13">Chapter 13: When to exit and manage a trade</a><a href="#" data-chap="c14">Chapter 14: When to add another position</a><a href="#" data-chap="c15">Chapter 15: When to stay away from the chart</a><a href="#" data-chap="c16">Chapter 16: A live example, 14 to 15 November 2026</a><a href="#" data-chap="c17">Chapter 17: Our market approach to Volatility 100</a><a href="#" data-chap="c18">Chapter 18: The bigger picture and the top-down strategy</a><a href="#" data-chap="c19">Chapter 19: Teaching your son</a><a href="#" data-chap="c20">Chapter 20: Case study 1, the losing buy of 16 November</a><a href="#" data-chap="c21">Chapter 21: Case study 2, reading the turn after the loss (16 Nov, about 03:50)</a><a href="#" data-chap="c22">Chapter 22: Case study 3, the ceiling at 577.94 and the test of 549.05 (21 Nov)</a><a href="#" data-chap="c23">Chapter 23: The mirror image, a buy plan for an uptrend</a><a href="#" data-chap="c24">Chapter 24: Learning log, every read and plan table, 22 to 23 Nov</a><a href="#" data-chap="c25">Glossary</a><a href="#" data-chap="c26">One-page cheat sheet</a></div>
  <div id="book"><section class="chap" id="c0" data-title="Read this first">
 <h2>Read this first</h2>
 <p>Volatility 100 is a computer-generated random price series, so no news or fundamentals give anyone a guaranteed edge, and most retail traders lose money on it. This guide teaches how to trade it with discipline: limit every loss, trade with the trend, and avoid the habits that wipe out accounts.</p>
@@ -974,7 +976,123 @@ svg text{font-family:system-ui,sans-serif}
 </ul>
 <p>No result is guaranteed on either side. A plan that is followed can be measured, and the demo goal of 50 trades is how it gets tested.</p>
 </section>
-<section class="chap" id="c24" data-title="Glossary">
+<section class="chap" id="c24" data-title="Chapter 24: Learning log, every read and plan table, 22 to 23 Nov">
+<h2>Chapter 24: Learning log, every read and plan table, 22 to 23 Nov</h2>
+<p>This chapter keeps each live read from the session, with its plan table, so you can come back later and check what was said before the market moved. Times are Zambia time (CAT). Every row is a plan with a trigger, not a prediction. Where the market has already answered, the "What happened" line is written with hindsight and is marked as such. Same rules throughout: stop beyond the zone, 2:1 or better, room of at least twice the stop, lot = risk in dollars divided by the stop in points, stop to break-even at halfway, never widen a stop.</p>
+<h3>24.1 Sun 22 Nov, 16:12, M30, price about 525.8</h3>
+<p>Decision: wait. The structure was down, the bounce from 513.92 had stalled on the averages, and both sides failed the 2:1 test.</p>
+<div class="tw"><table><thead><tr><th>If price...</th><th>Then</th><th>Stop</th><th>Target</th><th>R:R</th></tr></thead><tbody>
+<tr><td>Closes an M30 candle above about 528.5 and holds</td><td>Buy the retest of 528</td><td>below 524</td><td>537.39</td><td>about 2.4:1</td></tr>
+<tr><td>Pulls back to 519.5 to 521 and holds with a bullish M30 close</td><td>Buy</td><td>below 513</td><td>537.39</td><td>about 2.4:1 or better</td></tr>
+<tr><td>Rallies to 536 to 538 and is rejected</td><td>Sell</td><td>above 540</td><td>514</td><td>well above 2:1</td></tr>
+<tr><td>Closes below 524 with weak bounces</td><td>Sell the retest</td><td>above 529</td><td>514</td><td>about 1.8:1, skip</td></tr>
+</tbody></table></div>
+<p>What happened (hindsight): price later rose through 528.5 and 537.39 and reached about 548.</p>
+<h3>24.2 Sun 22 Nov, 18:51 chart (sent 21:20), M30, price 543</h3>
+<p>Decision: wait. The screenshot was about 2.5 hours old when sent, which is why the live chart must always be checked first. Price had passed the old target at 537.39 and was rejected under 549.05.</p>
+<div class="tw"><table><thead><tr><th>If price...</th><th>Then</th><th>Stop</th><th>Target</th><th>R:R</th></tr></thead><tbody>
+<tr><td>Pulls back to 537 to 538 and an M30 candle closes bullish</td><td>Buy, small</td><td>below 533</td><td>549.05</td><td>about 2.5:1</td></tr>
+<tr><td>Rallies to 548 to 549 and an M30 candle closes back below 549.05</td><td>Sell, with the bigger trend</td><td>above 551.5</td><td>537.4, then 524.5</td><td>about 3:1 or better</td></tr>
+<tr><td>Closes above 549.05 and holds on the retest</td><td>Buy the retest</td><td>below 545</td><td>556 to 560</td><td>about 2:1 or better</td></tr>
+<tr><td>Closes below 533 with the averages turning down</td><td>Sell the retest of 537</td><td>above 540</td><td>524.5</td><td>about 2:1</td></tr>
+</tbody></table></div>
+<p>What happened (hindsight): price was rejected at 549.05 and by 21:19 was back at about 534.</p>
+<h3>24.3 Sun 22 Nov, 21:19, D1 map, price 533.98</h3>
+<p>Daily bias down: price under all three daily averages with the averages sloping down. Levels: 549.05 and 577.94 above, 513.92, the 495 to 503 demand zone, 468.13 and 423.30 below.</p>
+<div class="tw"><table><thead><tr><th>If price...</th><th>Then</th><th>Stop</th><th>Target</th><th>R:R</th></tr></thead><tbody>
+<tr><td>Bounces to 537 to 540 and an M30 candle closes back down</td><td>Sell the retest</td><td>above 541.5</td><td>524.5, then 514</td><td>2:1 to 5:1</td></tr>
+<tr><td>H1 closes under 513.92 and the retest fails</td><td>Sell</td><td>above 518</td><td>495 to 503, then 468</td><td>3:1 or better</td></tr>
+<tr><td>Holds 513.92 or 495 to 503 with a bullish H1 close</td><td>Small, quick buy</td><td>below the low</td><td>537, then 549</td><td>about 2:1 or better</td></tr>
+<tr><td>H1 closes above 549.05 and holds</td><td>Daily bias in doubt, stand aside</td><td>n/a</td><td>n/a</td><td>n/a</td></tr>
+</tbody></table></div>
+<h3>24.4 Sun 22 Nov, 21:46, M5, M30, H1, H4, price about 532.3</h3>
+<p>All three of H4, H1 and M30 agreed on down, so a sell with the trend was valid on a retest.</p>
+<div class="tw"><table><thead><tr><th>If price...</th><th>Then</th><th>Stop</th><th>Target</th><th>R:R</th></tr></thead><tbody>
+<tr><td>Pulls back to 536 to 538 and an M5 or M15 candle closes back down</td><td>Sell the retest</td><td>above 541</td><td>524.5, then 513.92</td><td>about 2.7:1 to the first target</td></tr>
+<tr><td>M5 closes below about 529.5 and the retest fails</td><td>Sell</td><td>above 534.5</td><td>513.92</td><td>about 2.8:1</td></tr>
+<tr><td>M30 closes above 541</td><td>The sell idea is wrong</td><td>n/a</td><td>n/a</td><td>stand aside</td></tr>
+</tbody></table></div>
+<p>What happened: two sells were taken, 532.29 and 530.10, at 1.00 lot each.</p>
+<h3>24.5 Sun 22 Nov, 23:21 to 23:50, managing two sells</h3>
+<p>Price was about 527.7, then 526.0, then 523.8. Trade management uses the same rules as entries.</p>
+<div class="tw"><table><thead><tr><th>Item</th><th>Rule</th><th>Applied</th></tr></thead><tbody>
+<tr><td>First sell 532.29</td><td>Past halfway to 524.5 (about 528.4)</td><td>stop to break-even at 532.29</td></tr>
+<tr><td>Second sell 530.10</td><td>Halfway at about 527.3</td><td>stop to break-even at 530.10</td></tr>
+<tr><td>Partial profit</td><td>Near 524.5 to 525</td><td>half off at the first hurdle</td></tr>
+<tr><td>Runner</td><td>Target about 514, stop at break-even</td><td>can only give back unbanked profit</td></tr>
+<tr><td>Exposure</td><td>Two 1.00 lots is double the risk</td><td>no third position</td></tr>
+<tr><td>Exit both</td><td>M15 closes above 532.5</td><td>idea has failed</td></tr>
+</tbody></table></div>
+<p>What happened: by 23:50 only the first sell remained, with a stop moved down to about 526.5 and a target of about 523.6. The History tab holds the exact exits.</p>
+<h3>24.6 Mon 23 Nov, 00:07, M30, price about 518.6, no open trade</h3>
+<p>The target had been passed. Price was only about 5 points above 513.92 and far below the averages, so a bounce was likelier than a clean drop.</p>
+<div class="tw"><table><thead><tr><th>If price...</th><th>Then</th><th>Stop</th><th>Target</th><th>R:R</th></tr></thead><tbody>
+<tr><td>Sells now at 518.5</td><td>Skip</td><td>n/a</td><td>513.92, only about 4.6 points</td><td>too little room</td></tr>
+<tr><td>Bounces to 524 to 525 and an M15 candle closes back down</td><td>Sell the retest</td><td>above 528</td><td>514</td><td>about 2.7:1</td></tr>
+<tr><td>H1 closes below 513.92 and the retest fails</td><td>Sell</td><td>above 517.5</td><td>500 to 507 zone</td><td>about 2:1 or better</td></tr>
+<tr><td>Holds 510 to 514 with a bullish H1 close</td><td>Small, quick buy</td><td>below 509</td><td>524.5</td><td>about 2:1</td></tr>
+</tbody></table></div>
+<h3>24.7 Mon 23 Nov, 02:25, M15 and H1, price about 521.3</h3>
+<p>The 513.92 floor held a second time, with a second low (about 512) a little above the first (about 510.6). That is a possible double bottom, not a confirmed one. The sell trend was paused, not reversed.</p>
+<div class="tw"><table><thead><tr><th>If price...</th><th>Then</th><th>Stop</th><th>Target</th><th>R:R</th></tr></thead><tbody>
+<tr><td>Rallies to 526 to 530 and an M15 candle closes back down</td><td>Sell the retest</td><td>above 531.5</td><td>514</td><td>about 3:1</td></tr>
+<tr><td>H1 closes above about 528 and the retest holds</td><td>Buy</td><td>below 519</td><td>549.05</td><td>about 2.5:1 or better</td></tr>
+<tr><td>Pulls back to 517 to 518 and holds</td><td>Quick buy</td><td>below 510.5</td><td>526 to 527</td><td>about 1.2:1, skip</td></tr>
+<tr><td>H1 closes below 510 and the retest fails</td><td>Sell</td><td>above 514</td><td>500 to 507 zone</td><td>about 2:1 or better</td></tr>
+</tbody></table></div>
+<h3>24.8 Mon 23 Nov, 12:18, H1, price 545.28</h3>
+<p>The bounce from the floor was about 35 points. H1 price was above both H1 averages for the first time since the fall. Price reached about 551.5 and was rejected at 549.05 again. D1 was still down.</p>
+<div class="tw"><table><thead><tr><th>If price...</th><th>Then</th><th>Stop</th><th>Target</th><th>R:R</th></tr></thead><tbody>
+<tr><td>H1 closes above 552 and the retest of 549 holds</td><td>Buy</td><td>below 545</td><td>556 to 560, then 577.94</td><td>about 2.5:1 or better</td></tr>
+<tr><td>Rallies back to 549 to 552 and an M15 candle closes down</td><td>Sell the rejection</td><td>above 553.5</td><td>540, then 514</td><td>about 2:1 or better</td></tr>
+<tr><td>Pulls back to 540 to 541 and holds with a bullish close</td><td>Small buy</td><td>below 537</td><td>549</td><td>about 2:1</td></tr>
+</tbody></table></div>
+<h3>24.9 Mon 23 Nov, 12:20, M30, M15, M5, price about 544</h3>
+<p>A failed push above 549.05, rejected for the third time. The timeframes disagreed, so it was a wait.</p>
+<div class="tw"><table><thead><tr><th>If price...</th><th>Then</th><th>Stop</th><th>Target</th><th>R:R</th></tr></thead><tbody>
+<tr><td>M30 closes below about 540 and the retest of 540 to 541 fails</td><td>Sell</td><td>above 545</td><td>530, then 524.5</td><td>about 2.2:1 to 3:1</td></tr>
+<tr><td>M30 closes above 553.5 and the retest of 549 holds</td><td>Buy</td><td>below 545.5</td><td>556 to 560, then 577.94</td><td>about 2:1 or better</td></tr>
+<tr><td>Pulls back to 540 to 542 and holds</td><td>Buy, small</td><td>below 536.5</td><td>549</td><td>about 1.8:1, skip</td></tr>
+<tr><td>Sells now at 544</td><td>Skip</td><td>n/a</td><td>n/a</td><td>stop would have to go above 553.8 for about 7 points of room</td></tr>
+</tbody></table></div>
+<h3>24.10 Mon 23 Nov, 12:27, D1 and H4, price about 539</h3>
+<p>D1: the 22 Nov candle has a long lower wick to about 511 and closed near 520, above 513.92. Today's candle is a recovery, but price is still under all the daily averages, so the daily trend is down. H4: the 513.92 floor and the 497 to 507 demand zone held twice; the latest H4 candle is red with an upper wick to about 553, rejected at 549.05 and the 554 to 559 supply zone.</p>
+<h3>24.11 Mon 23 Nov, 12:31, the M30 closed below 540</h3>
+<p>The 540 trigger from 24.9 was met. Price was about 537.7, under all three M15 averages. Selling at 537.7 gives about 1:1 to the first target, so the better entry is the retest.</p>
+<div class="tw"><table><thead><tr><th>Item</th><th>Number</th><th>Why</th></tr></thead><tbody>
+<tr><td>Wait for</td><td>price back at 540 to 541</td><td>broken support becomes resistance</td></tr>
+<tr><td>Trigger</td><td>M5 or M15 candle closes back down there</td><td>confirms the retest failed</td></tr>
+<tr><td>Entry</td><td>about 540.5</td><td></td></tr>
+<tr><td>Stop</td><td>above 545 (4.5 points)</td><td>beyond the zone, not on the line</td></tr>
+<tr><td>First target</td><td>530 (about 2.3:1)</td><td>partial profit</td></tr>
+<tr><td>Runner</td><td>524.5, then 513.92</td><td>about 3.6:1 and more</td></tr>
+<tr><td>Break-even</td><td>535.3</td><td>halfway to 530</td></tr>
+<tr><td>Cancel if</td><td>M30 closes back above 543, or price falls to 530 with no retest</td><td>a missed trade costs nothing</td></tr>
+</tbody></table></div>
+<h3>24.12 Mon 23 Nov, 12:37, a pending sell limit</h3>
+<p>On the M5 chart you placed a sell limit at 541.54 with a stop at 544.85 and a take profit at 527.59. Price was 537.26, so the order had not been filled.</p>
+<div class="tw"><table><thead><tr><th>Check</th><th>Number</th><th>Result</th></tr></thead><tbody>
+<tr><td>Risk</td><td>541.54 to 544.85 = 3.31 points</td><td></td></tr>
+<tr><td>Reward</td><td>541.54 to 527.59 = 13.95 points</td><td></td></tr>
+<tr><td>Reward to risk</td><td>13.95 divided by 3.31</td><td>about 4.2 : 1, passes 2:1</td></tr>
+<tr><td>Room</td><td>13.95 divided by 3.31</td><td>about 4.2 times the stop, passes</td></tr>
+<tr><td>Lot</td><td>risk in dollars divided by 3.31</td><td>for example 10 dollars gives about 3.0 lot</td></tr>
+<tr><td>Break-even</td><td>halfway to the target, 534.57</td><td>move the stop to entry there</td></tr>
+<tr><td>Concern</td><td>stop is only 3.31 points and sits near the M5 averages (about 544 to 545)</td><td>a wick through the retest could take it out; check it is beyond the zone</td></tr>
+<tr><td>Concern</td><td>one target only</td><td>no partial at 530, so decide in advance whether to take half</td></tr>
+<tr><td>Cancel the order if</td><td>an M30 candle closes above 543 before it fills</td><td>the retest idea has failed</td></tr>
+</tbody></table></div>
+<p>A limit order has the advantage of a plan that is already written, so the exit is made by the order, not by feel.</p>
+<h3>24.13 What this log teaches</h3>
+<ul>
+<li>A read is only useful if its trigger is written down before the move. The 528.5 buy trigger (24.1) and the 540 sell trigger (24.9) were both published before price reached them.</li>
+<li>The wait calls (24.1, 24.2, 24.6, 24.9) were the right calls on the tables, because each side failed 2:1 until price came to a clear level.</li>
+<li>Stale charts mislead. Always take the live chart before any plan (24.2).</li>
+<li>The same plan can be a buy on one day and a sell on the next. Chapter 23 shows the mirror.</li>
+<li>No result is guaranteed, and these numbers are plans, not records of profit. The History tab is the record.</li>
+</ul>
+</section>
+<section class="chap" id="c25" data-title="Glossary">
 <h2>Glossary</h2>
 <div class="tw"><table><thead><tr><th>Word</th><th>Meaning</th></tr></thead><tbody>
 <tr><td>Point</td><td>The smallest unit price is measured in.</td></tr>
@@ -992,7 +1110,7 @@ svg text{font-family:system-ui,sans-serif}
 <tr><td>Demo account</td><td>A practice account with pretend money.</td></tr>
 </tbody></table></div>
 </section>
-<section class="chap" id="c25" data-title="One-page cheat sheet">
+<section class="chap" id="c26" data-title="One-page cheat sheet">
 <h2>One-page cheat sheet</h2>
 <p><strong>Before any trade, answer yes to all of these:</strong></p>
 <ol>
@@ -1020,6 +1138,12 @@ svg text{font-family:system-ui,sans-serif}
  <div class="card"><h3 style="margin-top:0">10-day practice tracker</h3><div id="ex-days" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px"></div><p class="small mute">If he can do steps 1–5 alone for ten days, he understands the top-down method. A rule-following loss is a good trade.</p></div></div>
  <div class="card"><h3 style="margin-top:0">Glossary</h3><input id="g-search" placeholder="Search a word…"><div class="tw"><table id="g-table"><tbody></tbody></table></div></div>
 </section>
+
+<!-- LIVE CHART -->
+<section class="view" id="v-live"><h1>Live chart (TradingView)</h1><p class="sub">Volatility 100 Index. Use it for a second look at structure. Our levels (513.92, 549.05, 577.94 and so on) come from your MT5 chart, and a TradingView price feed can differ by a few points, so always read entry and stop from MT5.</p>
+<div class="card"><div class="row" id="live-tf" style="gap:6px;flex-wrap:wrap"></div>
+<div id="live-box" style="height:70vh;min-height:420px;margin-top:10px;border-radius:10px;overflow:hidden;background:#000"></div>
+<p class="small mute" style="margin-top:8px">If the chart is blank, the symbol is not offered in the embed. Use the search box inside the chart to type "Volatility 100", or <a id="live-open" target="_blank" rel="noopener" href="https://www.tradingview.com/chart/?symbol=DERIV%3AR_100">open it on TradingView</a>. Private indicators cannot load in an embed.</p></div></section>
 
 <!-- GALLERY -->
 <section class="view" id="v-gallery"><h1>Diagram gallery</h1><p class="sub">All annotated charts and diagrams in one place.</p><div class="card"><h3 style="margin-top:0">Video: how the market moved (14–15 Nov)</h3><video controls preload="none" style="width:100%;max-width:420px;border-radius:10px" src="vol100/Vol100_market_move.mp4"></video><p class="small mute">82 seconds, built from your charts.</p></div><div class="gal" id="gal"></div></section>
@@ -1129,5 +1253,14 @@ function gU(){const q=$('#g-search').value.toLowerCase();$('#g-table tbody').inn
 $('#theme').onclick=()=>{const d=document.documentElement,cur=d.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');d.dataset.theme=cur==='dark'?'light':'dark';store.set('theme',d.dataset.theme)};if(store.get('theme',null))document.documentElement.dataset.theme=store.get('theme');if(/[?&]theme=dark/.test(location.search))document.documentElement.dataset.theme='dark';
 $('#wipe').onclick=()=>{if(confirm('Clear journal, checklists and settings on this device?')){try{Object.keys(localStorage).filter(k=>k.startsWith('v100.')).forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}};
 show(store.get('view','today'));
+
+/* live chart */
+(function(){const SYM='DERIV:R_100',TFS=[['5','M5'],['15','M15'],['30','M30'],['60','H1'],['240','H4'],['D','D1']];let cur=store.get('livetf','30');
+function draw(){const src='https://s.tradingview.com/widgetembed/?symbol='+encodeURIComponent(SYM)+'&interval='+cur+'&hidesidetoolbar=0&symboledit=1&saveimage=1&withdateranges=1&theme=dark&style=1&timezone=Africa%2FLusaka&hideideas=1';
+$('#live-box').innerHTML='<iframe title="Volatility 100 chart" src="'+src+'" style="width:100%;height:100%;border:0" allowfullscreen></iframe>';
+$('#live-tf').innerHTML=TFS.map(x=>'<button class="btn'+(x[0]===cur?'':' ghost')+'" data-tf="'+x[0]+'">'+x[1]+'</button>').join('');
+$$('#live-tf button').forEach(b=>b.onclick=()=>{cur=b.dataset.tf;store.set('livetf',cur);draw()})}
+let loaded=false;$$('#nav a').forEach(a=>{if(a.dataset.v==='live')a.addEventListener('click',()=>{if(!loaded){loaded=true;draw()}})});
+if($('#v-live').classList.contains('on')){loaded=true;draw()}})();
 </script>
 </body></html>
