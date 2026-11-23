@@ -1,348 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Forex Desk - Macro Trading Terminal</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    .desk-divergence-note {
-      margin: 0 0 12px;
-      padding: 11px 14px;
-      border-radius: 10px;
-      border-left: 4px solid #e08a00;
-      background: rgba(224, 138, 0, 0.12);
-      font-size: 13.5px;
-      line-height: 1.45;
-    }
-    .desk-top-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-      gap: 12px;
-      margin: 12px 0;
-    }
-    .desk-mini-card {
-      border: 1px solid var(--line, #2b313c);
-      border-radius: 12px;
-      padding: 12px 14px;
-      background: var(--bg2, #141820);
-    }
-    .desk-mini-card h4 {
-      margin: 2px 0 8px;
-      font-size: 15px;
-    }
-    .desk-kv-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      font-size: 12.5px;
-    }
-    .desk-kv {
-      padding: 7px 9px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    .desk-kv span {
-      display: block;
-      opacity: 0.72;
-      font-size: 11px;
-    }
-    .desk-kv strong {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 13px;
-    }
-    .desk-check-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: grid;
-      gap: 6px;
-      font-size: 12.5px;
-    }
-    .desk-check-list li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.03);
-    }
-    .chk-badge {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-    .chk-pass { background: rgba(34, 197, 94, 0.18); color: #4ade80; }
-    .chk-fail { background: rgba(239, 68, 68, 0.18); color: #f87171; }
-    .chk-wait { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
-    .tab-status {
-      margin-left: auto;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      font-family: "IBM Plex Mono", monospace;
-      opacity: 0.85;
-    }
-    aside button.tab {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
-    .tab-live { background: rgba(34, 197, 94, 0.16); color: #4ade80; }
-    .tab-wip { background: rgba(245, 158, 11, 0.16); color: #fbbf24; }
-    .desk-math-note {
-      margin-top: 8px;
-      font-size: 12px;
-      opacity: 0.85;
-      line-height: 1.4;
-    }
-  </style>
-</head>
-<body>
-  <aside>
-    <p class="kicker">Forex Desk</p>
-    <button class="tab on" data-tab="board"><span>Overview</span><span class="tab-status tab-live">LIVE</span></button>
-    <button class="tab" data-tab="charts"><span>Charts</span><span class="tab-status tab-live">LIVE</span></button>
-    <button class="tab" data-tab="sessions"><span>Sessions</span><span class="tab-status tab-live">LIVE</span></button>
-    <button class="tab" data-tab="setup"><span>Gold Setup</span><span class="tab-status tab-live">RULES</span></button>
-    <button class="tab" data-tab="calendar"><span>Calendar</span><span class="tab-status tab-live">LIVE</span></button>
-    <button class="tab" data-tab="inst"><span>Institutional</span><span class="tab-status tab-wip">FEED</span></button>
-    <button class="tab" data-tab="confluence"><span>Confluence</span><span class="tab-status tab-live">LIVE</span></button>
-    <button class="tab" data-tab="vol100"><span>Vol 100</span><span class="tab-status tab-live">DESK</span></button>
-    <button class="tab" data-tab="goldstudy"><span>Gold Study</span><span class="tab-status tab-live">DESK</span></button>
-    <button class="tab" data-tab="headlines"><span>Headlines</span><span class="tab-status tab-live">LIVE</span></button>
-  </aside>
+<script>
+  (function () {
+    var titles = {
+      board: "Market overview",
+      charts: "Market charts",
+      sessions: "Session drivers",
+      setup: "Gold Daily Setup",
+      calendar: "Market calendar",
+      inst: "Institutional desk",
+      confluence: "Macro–technical confluence",
+      vol100: "Volatility 100 desk",
+      goldstudy: "Gold study desk",
+      headlines: "Headlines"
+    };
 
-  <main>
-    <header>
-      <div>
-        <p class="kicker">Trading terminal · Active Cycle: Core PCE (Wed 25 Nov, 15:30)</p>
-        <h1 id="title">Market overview</h1>
-      </div>
-      <div class="meta">
-        <!-- Live Market Dynamics Ticker -->
-        <div id="macro-ticker" class="ticker-box">
-          <span id="us10y-yield">US10Y: 4.94% (+0.030)</span>
-          <span id="real-yield">Real Yield: 2.54%</span>
-          <span id="dxy-ticker">DXY: 104.48 (+0.673)</span>
-        </div>
-        <div id="gold-tape" class="gold-tape" title="Live gold">
-          <span class="dot"></span>
-          <strong>XAU</strong>
-          <span id="gold-px">3652.80</span>
-          <span id="gold-chg">+3.91%</span>
-          <span id="gold-src">Live / Stream</span>
-        </div>
-        <span id="updated">Syncing active cycle…</span>
-        <span id="event-cd" class="event-cd">Core PCE in — · CAT / Local sync</span>
-        <button id="refresh" type="button">Refresh</button>
-      </div>
-    </header>
+    document.querySelectorAll("aside .tab").forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        var tabBtn = e.currentTarget;
+        var tabId = tabBtn.getAttribute("data-tab");
+        if (!tabId) return;
 
-    <section id="board" class="panel on">
-      <div id="board-lockout" class="lockout-banner" hidden></div>
-      <div id="board-fakeout" class="fakeout-banner" hidden></div>
+        document.querySelectorAll("aside .tab").forEach(function (b) {
+          b.classList.remove("on");
+        });
+        document.querySelectorAll("main .panel").forEach(function (p) {
+          p.classList.remove("on");
+        });
 
-      <div id="desk-divergence-alert" class="desk-divergence-note">
-        <strong>Conflict / Divergence Alert:</strong> Gold (XAU) is rallying while DXY and US10Y / Real Yields are also firm, and price is trading relative to its moving average. When XAU rises alongside firm yields and a firm dollar, treat the move as safe-haven/flow- or breakout-driven rather than macro-yield tailwind—wait for price structure to confirm before risking size.
-      </div>
+        tabBtn.classList.add("on");
+        var panel = document.getElementById(tabId);
+        if (panel) panel.classList.add("on");
 
-      <!-- Event filter pills -->
-      <div class="signal-filters">
-        <button type="button" class="sig-filter on" data-filter="all">All</button>
-        <button type="button" class="sig-filter" data-filter="NFP">NFP</button>
-        <button type="button" class="sig-filter" data-filter="CPI">CPI</button>
-        <button type="button" class="sig-filter" data-filter="PPI">PPI</button>
-        <button type="button" class="sig-filter" data-filter="FOMC">FOMC</button>
-        <button type="button" class="sig-filter" data-filter="PCE">PCE</button>
-      </div>
+        var heading = document.getElementById("title");
+        if (heading) heading.textContent = titles[tabId] || tabBtn.textContent.trim();
 
-      <!-- MAIN SIGNAL CARD — clear call, no guessing -->
-      <article class="signal-card" id="signal-card">
-        <div class="sig-head">
-          <div class="sig-time-row">
-            <span class="sig-time" id="sig-time">Wed 25 Nov, 15:30</span>
-            <span class="sig-usd">USD</span>
-            <span class="sig-event" id="sig-event">Core PCE Price Index (Next Major Print)</span>
-            <span class="sig-side" id="sig-side">FLAT</span>
-          </div>
-          <div class="sig-meta">
-            <span class="sig-impact" id="sig-impact">HIGH</span>
-            <span class="sig-asset">XAUUSD</span>
-            <span class="sig-conf" id="sig-conf">25% Conviction (Low / No-Trade)</span>
-          </div>
-        </div>
-
-        <div class="sig-body">
-          <div class="sig-pair-row">
-            <strong>Gold (XAU/USD)</strong>
-            <span class="sig-side-sm" id="sig-side-sm">FLAT · 25% = low-conviction / stand-down cap (0%–25% = wait or probe only after confirmation)</span>
-          </div>
-          <div class="sig-bar-wrap">
-            <div class="sig-bar" id="sig-bar" style="width:25%"></div>
-            <span class="sig-bar-pct" id="sig-bar-pct">25%</span>
-          </div>
-          <p class="sig-reason" id="sig-reason">Stand down: DXY and US10Y are firm while XAU rallies—price gate and macro leads are not aligned ahead of Core PCE (Wed 25 Nov, 15:30). Conviction sits at 25% (low-conviction / stand-down zone, not trade probability).</p>
-
-          <div class="sig-levels">
-            <div class="lvl"><span>ENTRY</span><b id="sig-entry">Wait (3652.8)</b></div>
-            <div class="lvl stop"><span>STOP</span><b id="sig-stop">20 pts (3672.8 sell / 3632.8 buy)</b></div>
-            <div class="lvl tp"><span>TP 1</span><b id="sig-tp1">40 pts / 2R</b></div>
-            <div class="lvl tp"><span>TP 2</span><b id="sig-tp2">60 pts / 3R</b></div>
-          </div>
-        </div>
-
-        <!-- Hidden legacy targets for existing JS -->
-        <span id="usd" hidden>FLAT</span>
-        <span id="gold" hidden>Stand down</span>
-        <span id="score" hidden>0</span>
-        <span id="narrative" hidden></span>
-        <span id="pulse" hidden></span>
-        <span id="signal-action" hidden></span>
-        <span id="confluence-pointer" hidden></span>
-      </article>
-
-      <!-- Above-the-fold Trader Context: Countdown & Market Status, Key Price Levels, Pass/Fail Checklist -->
-      <div class="desk-top-grid">
-        <article class="desk-mini-card" id="desk-clock-card">
-          <p class="kicker">Live Countdown &amp; Session Status</p>
-          <h4 id="desk-market-status">Checking market &amp; rollover status…</h4>
-          <div class="desk-kv-grid">
-            <div class="desk-kv"><span>Next Major Release</span><strong id="desk-pce-cd">Core PCE · Wed 25 Nov, 15:30</strong></div>
-            <div class="desk-kv"><span>Current Session</span><strong id="desk-active-sess">Detecting…</strong></div>
-            <div class="desk-kv"><span>Next Session Shift</span><strong id="desk-next-sess">Calculating…</strong></div>
-            <div class="desk-kv"><span>Local / CAT Clock</span><strong id="desk-local-clock">—</strong></div>
-          </div>
-        </article>
-
-        <article class="desk-mini-card" id="desk-levels-card">
-          <p class="kicker">Key Price Levels &amp; Volatility (XAU)</p>
-          <h4 id="desk-spot-ref">Spot Ref: 3652.80 · Plan levels even when FLAT</h4>
-          <div class="desk-kv-grid">
-            <div class="desk-kv"><span>Prev Day H / L</span><strong id="lvl-pdhl">3668.0 / 3512.0</strong></div>
-            <div class="desk-kv"><span>Prev Week H / L</span><strong id="lvl-pwhl">3685.0 / 3480.0</strong></div>
-            <div class="desk-kv"><span>Asian / London Box</span><strong id="lvl-session-box">Mark H/L on M15</strong></div>
-            <div class="desk-kv"><span>ATR / Daily Range Ref</span><strong id="lvl-atr-ref">~140–160d / 20–35 pt stop</strong></div>
-          </div>
-        </article>
-
-        <article class="desk-mini-card" id="desk-checklist-card">
-          <p class="kicker">Actionable Trade Checklist (Pass / Fail)</p>
-          <h4>Price Gate &amp; Execution Rules</h4>
-          <ul class="desk-check-list" id="desk-checklist">
-            <li><span>1. Macro &amp; Event Alignment</span><span class="chk-badge chk-wait" id="chk-macro">WAIT · Core PCE 25 Nov</span></li>
-            <li><span>2. Yield / DXY vs. XAU Gate</span><span class="chk-badge chk-fail" id="chk-gate">FAIL · DXY &amp; 10Y firm</span></li>
-            <li><span>3. Session Liquidity Window</span><span class="chk-badge chk-wait" id="chk-sess">CHECK · Avoid thin rollover</span></li>
-            <li><span>4. Spread &amp; Stop Buffer</span><span class="chk-badge chk-pass" id="chk-risk">READY · Size by stop pts</span></li>
-          </ul>
-        </article>
-      </div>
-
-      <!-- How the call is built (transparency) -->
-      <div class="source-strip">
-        <div class="src-item">
-          <span class="src-label">Data</span>
-          <span>US calendar (actual vs forecast) · DXY · yields · gold price</span>
-        </div>
-        <div class="src-item">
-          <span class="src-label">Method</span>
-          <span>Weighted leads → macro lean → price gate must agree</span>
-        </div>
-        <div class="src-item">
-          <span class="src-label">Confidence %</span>
-          <span id="src-conf-note">Conviction score (0%–100%): measures alignment of leads + macro lean + price gate—not a win-probability guarantee. 25% = low conviction / stand-down.</span>
-        </div>
-      </div>
-
-      <!-- Compact session + price gate -->
-      <div class="board-secondary">
-        <div class="session-matrix" id="session-matrix">
-          <div class="sm-card" data-session="asia">
-            <span class="sm-dot"></span>
-            <div><strong>Asia</strong><p>00:00–08:00 CAT</p></div>
-          </div>
-          <div class="sm-card" data-session="london">
-            <span class="sm-dot"></span>
-            <div><strong>London</strong><p>09:00–15:00 CAT</p></div>
-          </div>
-          <div class="sm-card" data-session="ny">
-            <span class="sm-dot"></span>
-            <div><strong>New York</strong><p>14:00–22:00 CAT</p></div>
-          </div>
-        </div>
-
-        <div class="price-strip" id="price-strip">
-          <p class="kicker">Price gate checklist</p>
-          <div class="price-strip-grid">
-            <div class="pa-cell" id="pa-cell-gold"><span class="pa-label">Gold</span><strong id="pa-gold">3652.80 (+3.91%)</strong><span id="pa-gold-sma" class="pa-sub">Check vs 20SMA</span><span class="pa-badge" id="pa-badge-gold">FIRM</span></div>
-            <div class="pa-cell" id="pa-cell-dxy"><span class="pa-label">DXY</span><strong id="pa-dxy">104.48 (+0.673)</strong><span id="pa-dxy-sma" class="pa-sub">Firm USD</span><span class="pa-badge" id="pa-badge-dxy">FIRM USD</span></div>
-            <div class="pa-cell" id="pa-cell-y10"><span class="pa-label">US10Y</span><strong id="pa-y10">4.94% (+0.030)</strong><span id="pa-y-chg" class="pa-sub">Real Yield 2.54%</span><span class="pa-badge" id="pa-badge-y10">YIELDS UP</span></div>
-            <div class="pa-cell pa-gate" id="pa-cell-gate"><span class="pa-label">Gate</span><strong id="pa-gate">BLOCKED</strong><span id="pa-gate-note" class="pa-sub">XAU rally vs firm DXY/10Y</span><span class="pa-badge" id="pa-badge-gate">NO</span></div>
-          </div>
-        </div>
-
-        <!-- Risk calculator -->
-        <article class="card risk-card" id="risk-card">
-          <p class="kicker">Risk calculator</p>
-          <h3>Position size</h3>
-          <p class="section-desc">Formula: <code>Risk $ = Balance × (Risk \% / 100)</code> and <code>Size (lots) = Risk $ ÷ (Stop pts × \$/pt/lot)</code>.</p>
-          <div class="risk-form">
-            <label>Balance (\$)<input id="risk-balance" type="number" value="1000" min="1" step="100" /></label>
-            <label>Risk %<input id="risk-pct" type="number" value="1" min="0.1" max="5" step="0.1" /></label>
-            <label>Stop (pts)<input id="risk-stop" type="number" value="20" min="1" step="1" /></label>
-            <label>\$ / point / lot<input id="risk-pipval" type="number" value="1" min="0.01" step="0.1" title="Dollar value of a 1.00 point move on 1.00 lot (e.g., \$1/pt/lot = 0.50 lots for \$10 risk over 20 pts; if your broker quotes \$100/pt/1.00 lot, 0.50 lots = \$50/pt)" /></label>
-          </div>
-          <div class="risk-out">
-            <div><span>Risk \$</span><strong id="risk-dollars">\$10.00</strong></div>
-            <div><span>Lots</span><strong id="risk-lots">0.50 lots</strong></div>
-            <div><span>From signal stop</span><strong id="risk-from-sig">\$10.00 / 0.50 lots (20 pts)</strong></div>
-          </div>
-          <p class="desk-math-note" id="risk-math-expl">
-            At \$1,000 balance, 1% risk = \$10.00 max loss. Over a 20-point stop at \$1.00 per point per 1.00 lot (\$20 per 1.00 lot), position size = \$10.00 ÷ \$20 = <strong>0.50 lots</strong>. (Always verify your broker's exact contract/point value in symbol specs.)
-          </p>
-        </article>
-
-        <!-- Session overlap monitor -->
-        <article class="card session-overlap" id="session-overlap">
-          <p class="kicker">Liquidity window</p>
-          <h3>Session overlap monitor</h3>
-          <div class="overlap-bar">
-            <div class="ov-seg asia" id="ov-asia">Asia</div>
-            <div class="ov-seg london" id="ov-london">London</div>
-            <div class="ov-seg overlap" id="ov-overlap">L/NY</div>
-            <div class="ov-seg ny" id="ov-ny">New York</div>
-          </div>
-          <p id="ov-note" class="section-desc">Peak gold liquidity arrives during the London/NY overlap and scheduled US releases (Core PCE Wed 25 Nov, 15:30). Watch rollover/spreads near daily close.</p>
-        </article>
-      </div>
-
-      <!-- FOMC & Policy playbook (synced to active calendar cycle) -->
-      <article class="card fomc-playbook" id="fomc-playbook">
-        <p class="kicker">FOMC &amp; Policy Playbook · Active Cycle (Core PCE Wed 25 Nov, 15:30)</p>
-        <h3 id="fomc-title">Rates &amp; Inflation Playbook (Active Cycle)</h3>
-        <p class="section-desc" id="fomc-when">Next major print: <strong>Core PCE · Wed 25 Nov, 15:30</strong> · FOMC decision dates are synced dynamically from the <strong>Calendar</strong> tab rather than hardcoded to past Oct dates</p>
-        <div class="fomc-grid">
-          <div class="fomc-box">
-            <h4>What moves gold</h4>
-            <ul>
-              <li><strong>Core PCE &amp; Fed tone</strong> set rate/real-yield expectations</li>
-              <li><strong>Hot inflation / hawkish surprise</strong> → firmer USD &amp; yields / sell gold pressure</li>
-              <li><strong>Sticky/firm yields</strong> → test whether XAU rally holds or fades</li>
-              <li><strong>Soft inflation / dovish pivot</strong> → softer USD &amp; yields / buy gold path if price holds</li>
-              <li><strong>Initial spikes</strong> on Tier-1 prints often reverse—wait for confirmation</li>
-            </ul>
-          </div>
-          <div class="fomc-box">
-            <h4>Desk rules</h4>
-            <ul>
-              <li><strong>FLAT</strong> when macro leads and price gate conflict</li>
-              <li>Trade the <strong>surprise vs. forecast</strong>, not pre
+        if (tabId === "vol100") {
+          var f = document.getElementById("v100-frame");
+          if (f && !f.src && f.dataset.src) f.src = f.dataset.src;
+        } else if (tabId === "goldstudy") {
+          var g = document.getElementById("gold-frame");
+          if (g && !g.src && g.dataset.src) g.src = g.dataset.src;
+        } else if (tabId === "headlines") {
+          var h = document.getElementById("hl-frame");
+          if (h && !h.src && h.dataset.src) h.src = h.dataset.src;
+        } else if (tabId === "charts") {
+          var tv = document.getElementById("tv");
+          if (tv && !tv.querySelector("iframe")) {
+            tv.innerHTML = '<iframe title="chart" src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUUSD&interval=15&theme=dark&style=1&timezone=Africa%2FJohannesburg" style="width:100%;height:100%;border:0" allowfullscreen></iframe>';
+          }
+        }
+      });
+    });
+  })();
+</script>
