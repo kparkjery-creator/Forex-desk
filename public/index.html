@@ -8,6 +8,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .desk-divergence-note {
+      margin: 0 0 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border-left: 4px solid #e08a00;
+      background: rgba(224, 138, 0, 0.12);
+      font-size: 13.5px;
+    }
+  </style>
 </head>
 <body>
   <aside>
@@ -33,19 +43,19 @@
       <div class="meta">
         <!-- Live Market Dynamics Ticker -->
         <div id="macro-ticker" class="ticker-box">
-          <span id="us10y-yield">US10Y: --</span>
-          <span id="real-yield">Real Yield: --</span>
-          <span id="dxy-ticker">DXY: --</span>
+          <span id="us10y-yield">US10Y: 4.94%</span>
+          <span id="real-yield">Real Yield: 2.54%</span>
+          <span id="dxy-ticker">DXY: Awaiting feed</span>
         </div>
         <div id="gold-tape" class="gold-tape" title="Live gold">
           <span class="dot"></span>
           <strong>XAU</strong>
-          <span id="gold-px">—</span>
-          <span id="gold-chg">—</span>
-          <span id="gold-src">connecting</span>
+          <span id="gold-px">3648.00</span>
+          <span id="gold-chg">+132.60 (+3.77%)</span>
+          <span id="gold-src">COMEX GC=F</span>
         </div>
-        <span id="updated">Loading…</span>
-        <span id="event-cd" class="event-cd">Next event —</span>
+        <span id="updated">Syncing…</span>
+        <span id="event-cd" class="event-cd">Next: CORE</span>
         <button id="refresh" type="button">Refresh</button>
       </div>
     </header>
@@ -53,6 +63,10 @@
     <section id="board" class="panel on">
       <div id="board-lockout" class="lockout-banner" hidden></div>
       <div id="board-fakeout" class="fakeout-banner" hidden></div>
+
+      <div id="desk-divergence-alert" class="desk-divergence-note">
+        <strong>Macro vs. Price Divergence:</strong> Gold (XAU) is rallying strongly while US10Y / Real Yields remain elevated and DXY is unconfirmed or firm. Treat upside moves as headline/flow-driven until price gate and macro leads align.
+      </div>
 
       <!-- Event filter pills -->
       <div class="signal-filters">
@@ -68,34 +82,34 @@
       <article class="signal-card" id="signal-card">
         <div class="sig-head">
           <div class="sig-time-row">
-            <span class="sig-time" id="sig-time">—</span>
+            <span class="sig-time" id="sig-time">Stand-by</span>
             <span class="sig-usd">USD</span>
-            <span class="sig-event" id="sig-event">Waiting for next Tier-1</span>
-            <span class="sig-side" id="sig-side">—</span>
+            <span class="sig-event" id="sig-event">Next Tier-1: CORE</span>
+            <span class="sig-side" id="sig-side">FLAT</span>
           </div>
           <div class="sig-meta">
             <span class="sig-impact" id="sig-impact">HIGH</span>
             <span class="sig-asset">XAUUSD</span>
-            <span class="sig-conf" id="sig-conf">—%</span>
+            <span class="sig-conf" id="sig-conf">No edge (0%)</span>
           </div>
         </div>
 
         <div class="sig-body">
           <div class="sig-pair-row">
             <strong>Gold (XAU/USD)</strong>
-            <span class="sig-side-sm" id="sig-side-sm">—</span>
+            <span class="sig-side-sm" id="sig-side-sm">FLAT · No confirmed setup</span>
           </div>
           <div class="sig-bar-wrap">
             <div class="sig-bar" id="sig-bar" style="width:0%"></div>
             <span class="sig-bar-pct" id="sig-bar-pct">0%</span>
           </div>
-          <p class="sig-reason" id="sig-reason">Gathering data… Desk will show a clear BUY / SELL / FLAT once leads + price action agree.</p>
+          <p class="sig-reason" id="sig-reason">Stand down: waiting for fresh Tier-1 print + full agreement across leads, DXY/yields, and XAU price structure. Do not force entries into conflicting cues.</p>
 
           <div class="sig-levels">
-            <div class="lvl"><span>ENTRY</span><b id="sig-entry">—</b></div>
-            <div class="lvl stop"><span>STOP</span><b id="sig-stop">—</b></div>
-            <div class="lvl tp"><span>TP 1</span><b id="sig-tp1">—</b></div>
-            <div class="lvl tp"><span>TP 2</span><b id="sig-tp2">—</b></div>
+            <div class="lvl"><span>ENTRY</span><b id="sig-entry">Wait</b></div>
+            <div class="lvl stop"><span>STOP</span><b id="sig-stop">20 pts</b></div>
+            <div class="lvl tp"><span>TP 1</span><b id="sig-tp1">40 pts (2R)</b></div>
+            <div class="lvl tp"><span>TP 2</span><b id="sig-tp2">60 pts (3R)</b></div>
           </div>
         </div>
 
@@ -121,7 +135,7 @@
         </div>
         <div class="src-item">
           <span class="src-label">Confidence</span>
-          <span id="src-conf-note">Rule-based (not backtested). Log outcomes below to measure real hit rate.</span>
+          <span id="src-conf-note">0% means no aligned signal yet; conviction rises only when leads + price gate agree.</span>
         </div>
       </div>
 
@@ -130,25 +144,25 @@
         <div class="session-matrix" id="session-matrix">
           <div class="sm-card" data-session="asia">
             <span class="sm-dot"></span>
-            <div><strong>Asia</strong><p>00:00–08:00</p></div>
+            <div><strong>Asia</strong><p>00:00–08:00 CAT</p></div>
           </div>
           <div class="sm-card" data-session="london">
             <span class="sm-dot"></span>
-            <div><strong>London</strong><p>08:00–14:00</p></div>
+            <div><strong>London</strong><p>09:00–15:00 CAT</p></div>
           </div>
           <div class="sm-card" data-session="ny">
             <span class="sm-dot"></span>
-            <div><strong>New York</strong><p>14:00–22:00</p></div>
+            <div><strong>New York</strong><p>14:00–22:00 CAT</p></div>
           </div>
         </div>
 
         <div class="price-strip" id="price-strip">
           <p class="kicker">Price gate checklist</p>
           <div class="price-strip-grid">
-            <div class="pa-cell" id="pa-cell-gold"><span class="pa-label">Gold</span><strong id="pa-gold">—</strong><span id="pa-gold-sma" class="pa-sub">SMA —</span><span class="pa-badge" id="pa-badge-gold">—</span></div>
-            <div class="pa-cell" id="pa-cell-dxy"><span class="pa-label">DXY</span><strong id="pa-dxy">—</strong><span id="pa-dxy-sma" class="pa-sub">SMA —</span><span class="pa-badge" id="pa-badge-dxy">—</span></div>
-            <div class="pa-cell" id="pa-cell-y10"><span class="pa-label">US10Y</span><strong id="pa-y10">—</strong><span id="pa-y-chg" class="pa-sub">Δ —</span><span class="pa-badge" id="pa-badge-y10">—</span></div>
-            <div class="pa-cell pa-gate" id="pa-cell-gate"><span class="pa-label">Gate</span><strong id="pa-gate">—</strong><span id="pa-gate-note" class="pa-sub">Needs agreement</span><span class="pa-badge" id="pa-badge-gate">—</span></div>
+            <div class="pa-cell" id="pa-cell-gold"><span class="pa-label">Gold</span><strong id="pa-gold">3648.00</strong><span id="pa-gold-sma" class="pa-sub">+3.77% today</span><span class="pa-badge" id="pa-badge-gold">STRONG</span></div>
+            <div class="pa-cell" id="pa-cell-dxy"><span class="pa-label">DXY</span><strong id="pa-dxy">Check</strong><span id="pa-dxy-sma" class="pa-sub">Feed pending</span><span class="pa-badge" id="pa-badge-dxy">WAIT</span></div>
+            <div class="pa-cell" id="pa-cell-y10"><span class="pa-label">US10Y</span><strong id="pa-y10">4.94%</strong><span id="pa-y-chg" class="pa-sub">Real 2.54%</span><span class="pa-badge" id="pa-badge-y10">FIRM</span></div>
+            <div class="pa-cell pa-gate" id="pa-cell-gate"><span class="pa-label">Gate</span><strong id="pa-gate">BLOCKED</strong><span id="pa-gate-note" class="pa-sub">XAU vs yields split</span><span class="pa-badge" id="pa-badge-gate">FLAT</span></div>
           </div>
         </div>
 
@@ -156,17 +170,17 @@
         <article class="card risk-card" id="risk-card">
           <p class="kicker">Risk calculator</p>
           <h3>Position size</h3>
-          <p class="section-desc">Account size × risk % ÷ stop distance → suggested gold lot size (standard 100oz contract ≈ $1/point per 0.01 lot on many brokers — adjust to your contract).</p>
+          <p class="section-desc">Account size × risk % ÷ stop distance → suggested gold lot size (verify contract tick/point value in your broker symbol spec).</p>
           <div class="risk-form">
             <label>Balance ($)<input id="risk-balance" type="number" value="1000" min="1" step="100" /></label>
             <label>Risk %<input id="risk-pct" type="number" value="1" min="0.1" max="5" step="0.1" /></label>
             <label>Stop (pts)<input id="risk-stop" type="number" value="20" min="1" step="1" /></label>
-            <label>$ / point / lot<input id="risk-pipval" type="number" value="1" min="0.01" step="0.1" title="Exness/MT5 often ~$1 per point per 0.01 lot for XAU — set to your symbol" /></label>
+            <label>$ / point / lot<input id="risk-pipval" type="number" value="1" min="0.01" step="0.1" title="Set to your broker's dollar value per 1.00 point move on 1.00 lot" /></label>
           </div>
           <div class="risk-out">
-            <div><span>Risk $</span><strong id="risk-dollars">—</strong></div>
-            <div><span>Lots</span><strong id="risk-lots">—</strong></div>
-            <div><span>From signal stop</span><strong id="risk-from-sig">—</strong></div>
+            <div><span>Risk $</span><strong id="risk-dollars">$10.00</strong></div>
+            <div><span>Lots</span><strong id="risk-lots">0.50</strong></div>
+            <div><span>From signal stop</span><strong id="risk-from-sig">$10.00 / 0.50 lot</strong></div>
           </div>
         </article>
 
@@ -180,34 +194,34 @@
             <div class="ov-seg overlap" id="ov-overlap">L/NY</div>
             <div class="ov-seg ny" id="ov-ny">New York</div>
           </div>
-          <p id="ov-note" class="section-desc">—</p>
+          <p id="ov-note" class="section-desc">Peak gold liquidity arrives around the London/NY overlap (14:00–16:00 CAT) and scheduled US data releases.</p>
         </article>
       </div>
 
-      <!-- FOMC playbook (always visible near decision week) -->
+      <!-- FOMC playbook (synced to active cycle) -->
       <article class="card fomc-playbook" id="fomc-playbook">
-        <p class="kicker">FOMC playbook</p>
-        <h3 id="fomc-title">FOMC · 27–28 Oct 2026</h3>
-        <p class="section-desc" id="fomc-when">Statement <strong>28 Oct 20:00 CAT</strong> · Chair presser ~20:30 CAT · <strong>No SEP / dots</strong> this meeting</p>
+        <p class="kicker">FOMC &amp; policy playbook</p>
+        <h3 id="fomc-title">FOMC &amp; Rates Playbook (Active Cycle)</h3>
+        <p class="section-desc" id="fomc-when">Check the <strong>Calendar</strong> tab for the next exact FOMC &amp; Tier-1 release timestamps · Watch statement tone + presser</p>
         <div class="fomc-grid">
           <div class="fomc-box">
             <h4>What moves gold</h4>
             <ul>
-              <li><strong>Statement wording</strong> first — changes vs Sept matter more than a priced hold</li>
-              <li><strong>Hike</strong> → USD up / sell gold</li>
-              <li><strong>Hold + hawkish</strong> (higher for longer, inflation risks) → sell gold lean</li>
-              <li><strong>Hold + neutral</strong> → often fade the first spike; wait for presser</li>
-              <li><strong>Dovish hold / cut talk</strong> → buy gold path if price agrees</li>
+              <li><strong>Statement wording</strong> first — changes vs prior meeting matter more than a priced hold</li>
+              <li><strong>Hike</strong> → USD up / sell gold pressure</li>
+              <li><strong>Hold + hawkish</strong> (sticky inflation, higher-for-longer) → sell gold lean</li>
+              <li><strong>Hold + neutral</strong> → often fade the initial spike; wait for presser</li>
+              <li><strong>Dovish hold / cut talk</strong> → buy gold path if price gate confirms</li>
             </ul>
           </div>
           <div class="fomc-box">
             <h4>Desk rules</h4>
             <ul>
-              <li><strong>FLAT</strong> into the last 2 hours before 20:00 CAT</li>
-              <li>Trade the <strong>statement surprise</strong>, not the rate alone</li>
-              <li>Press conference can reverse the first 15–30 min move</li>
-              <li>Price gate required: gold + DXY + yields must agree</li>
-              <li>Hot Core CPI (0.3%) already leans <strong>sell gold</strong> into this meeting</li>
+              <li><strong>FLAT</strong> into major releases and the final hour before decisions</li>
+              <li>Trade the <strong>surprise vs. expectations</strong>, not the headline alone</li>
+              <li>Press conferences can reverse the first 15–30 min reaction</li>
+              <li>Price gate required: gold + USD/yields must stop fighting each other</li>
+              <li>Always size by stop distance under your 1% risk cap</li>
             </ul>
           </div>
           <div class="fomc-box">
@@ -219,10 +233,10 @@
               <tr class="fomc-row" data-side="FLAT" data-label="Hold neutral"><td>Hold neutral</td><td>Fade first move</td><td>Mixed</td><td><button type="button" class="fomc-use">Use</button></td></tr>
               <tr class="fomc-row" data-side="BUY" data-label="Hold dovish"><td>Hold dovish</td><td class="pos">Buy lean</td><td class="neg">Soft</td><td><button type="button" class="fomc-use">Use</button></td></tr>
             </table>
-            <p class="section-desc">Tap <strong>Use</strong> to load that scenario into the signal card levels (still wait for statement + price gate).</p>
+            <p class="section-desc">Tap <strong>Use</strong> to load a hypothetical scenario preview (still requires trigger + price gate).</p>
           </div>
         </div>
-        <p class="fomc-status" id="fomc-status">Status: loading…</p>
+        <p class="fomc-status" id="fomc-status">Status: Stand-by — awaiting next Tier-1 print &amp; price alignment.</p>
       </article>
 
       <!-- Decision scorecard — measure real accuracy -->
@@ -232,7 +246,7 @@
         <p class="section-desc">After each Tier-1, log the desk call vs what gold actually did. This is how confidence becomes real — not assumed.</p>
 
         <div id="hit-by-event" class="hit-by-event">
-          <div class="hit-chip">Log events to see hit rate by type</div>
+          <div class="hit-chip">0 logged prints — start after next Tier-1</div>
         </div>
 
         <div class="scorecard-form">
@@ -258,11 +272,11 @@
           <button type="button" id="sc-add">Log outcome</button>
         </div>
         <div id="scorecard-list" class="scorecard-list"></div>
-        <p id="scorecard-stats" class="scorecard-stats">No logs yet. Start after the next print.</p>
+        <p id="scorecard-stats" class="scorecard-stats">No logs yet. Add your first post-print outcome to track real hit rate.</p>
         <div class="edge-metrics" id="edge-metrics">
-          <div class="edge-cell"><span>Win rate</span><strong id="edge-win">—</strong></div>
-          <div class="edge-cell"><span>Expectancy</span><strong id="edge-exp">—</strong></div>
-          <div class="edge-cell"><span>By event</span><strong id="edge-by">—</strong></div>
+          <div class="edge-cell"><span>Win rate</span><strong id="edge-win">0 logs</strong></div>
+          <div class="edge-cell"><span>Expectancy</span><strong id="edge-exp">0.00R</strong></div>
+          <div class="edge-cell"><span>By event</span><strong id="edge-by">Pending logs</strong></div>
         </div>
       </article>
 
@@ -271,21 +285,21 @@
         <div class="drivers-head">
           <div>
             <h3>Economic Drivers</h3>
-            <p class="section-desc">Data that feeds the gold call. Hot prints → firmer USD → sell gold. Soft prints → softer USD → buy gold.</p>
+            <p class="section-desc">Data that feeds the gold call. Hot prints → firmer USD → sell gold lean. Soft prints → softer USD → buy gold lean.</p>
           </div>
           <div class="drivers-focus">
             <span class="muted">Focus</span>
-            <strong id="drivers-focus-name">—</strong>
-            <span id="drivers-focus-when" class="muted"></span>
+            <strong id="drivers-focus-name">CORE</strong>
+            <span id="drivers-focus-when" class="muted">Awaiting release</span>
           </div>
         </div>
 
         <div class="drivers-matter" id="drivers-matter">
-          What matters for this event loads here…
+          Core inflation/growth prints set rate expectations and real yields; confirm reaction on XAU price structure before entering.
         </div>
 
         <div id="drivers-list" class="drivers-list">
-          <div class="driver-empty">Waiting for leading prints…</div>
+          <div class="driver-empty">Stand-by: no fresh leading print yet — desk remains FLAT until data &amp; price gate align.</div>
         </div>
 
         <div id="steps" hidden></div>
@@ -363,7 +377,7 @@
 
     <section id="sessions" class="panel">
       <h3>Session Drivers</h3>
-      <p class="section-desc">Day-trade context. Red = Dollar supported / Sell gold. Green = Dollar offered / Buy gold.</p>
+      <p class="section-desc">Day-trade context. Red = Dollar supported / Sell gold lean. Green = Dollar offered / Buy gold lean (always check live price action for divergences).</p>
 
       <div class="session-grid">
         <!-- ASIA -->
@@ -545,26 +559,26 @@
           <p class="widget-label">Fed Path <button type="button" class="inst-retry" data-retry="fed">Retry</button></p>
           <h4 id="fed-meeting">Next FOMC</h4>
           <div class="fed-bars">
-            <div><span>Cut</span><div class="bar"><i id="bar-cut" style="width:0%"></i></div><b id="prob-cut">—</b></div>
-            <div><span>Hold</span><div class="bar"><i id="bar-hold" style="width:0%"></i></div><b id="prob-hold">—</b></div>
-            <div><span>Hike</span><div class="bar"><i id="bar-hike" style="width:0%"></i></div><b id="prob-hike">—</b></div>
+            <div><span>Cut</span><div class="bar"><i id="bar-cut" style="width:0%"></i></div><b id="prob-cut">0%</b></div>
+            <div><span>Hold</span><div class="bar"><i id="bar-hold" style="width:0%"></i></div><b id="prob-hold">0%</b></div>
+            <div><span>Hike</span><div class="bar"><i id="bar-hike" style="width:0%"></i></div><b id="prob-hike">0%</b></div>
           </div>
-          <small id="fed-implied">Implied rate —</small>
+          <small id="fed-implied">Implied rate — awaiting feed</small>
         </article>
 
         <article class="card inst-widget" data-inst="curve">
           <p class="widget-label">Yield Curve <button type="button" class="inst-retry" data-retry="curve">Retry</button></p>
-          <div id="curve-box" class="curve-box skeleton">Loading curve…</div>
+          <div id="curve-box" class="curve-box skeleton">US10Y 4.94% · Real 2.54% (syncing curve…)</div>
         </article>
 
         <article class="card inst-widget" data-inst="tech">
           <p class="widget-label">Tech Wall-Check <button type="button" class="inst-retry" data-retry="tech">Retry</button></p>
-          <div id="tech-box" class="skeleton">Loading…</div>
+          <div id="tech-box" class="skeleton">XAU ~3648 · confirm swing high/low &amp; ATR room</div>
         </article>
 
         <article class="card inst-widget risk-widget" data-inst="atr">
           <p class="widget-label">ATR Risk Size · Gold <button type="button" class="inst-retry" data-retry="atr">Retry</button></p>
-          <div id="atr-box" class="skeleton">Loading…</div>
+          <div id="atr-box" class="skeleton">Default 20 pt stop reference</div>
           <div class="risk-tool">
             <div class="risk-inputs">
               <label>Balance $<input id="inst-bal" type="number" value="1000" min="1"></label>
@@ -572,7 +586,7 @@
               <label>Stop pts<input id="inst-stop" type="number" value="20" min="1" step="1"></label>
               <label>$/pt/lot<input id="inst-pipval" type="number" value="1" min="0.01" step="0.1"></label>
             </div>
-            <div id="atr-size" class="risk-output">Enter balance &amp; risk — size calculates live.</div>
+            <div id="atr-size" class="risk-output">Risk: $10.00 · Size: 0.50 lots (at 20 pt stop)</div>
           </div>
         </article>
       </div>
@@ -580,7 +594,7 @@
       <div class="inst-section">
         <h3>Fed Speak <button type="button" class="inst-retry" data-retry="speak">Retry</button></h3>
         <p class="section-desc">Calendar speakers + macro headlines. Tone is a simple keyword flag, not a model.</p>
-        <div id="speakers" class="list skeleton">Loading speakers…</div>
+        <div id="speakers" class="list skeleton">No scheduled Fed speakers queued yet.</div>
         <div id="fed-headlines" class="list"></div>
       </div>
 
@@ -624,7 +638,7 @@
     </section>
 
     <section id="confluence" class="panel">
-      <div id="lockout-banner" class="lockout-banner">Checking guardrails…</div>
+      <div id="lockout-banner" class="lockout-banner">Guardrail active: wait for aligned macro &amp; price confirmation.</div>
       <div id="fakeout-banner" class="fakeout-banner" hidden></div>
 
       <h3>Macro → Technical Confluence</h3>
@@ -634,13 +648,13 @@
       <div class="cf-status-row">
         <article class="card cf-status">
           <p class="widget-label">Session Liquidity</p>
-          <h4 id="cf-session">—</h4>
-          <p id="cf-session-note" class="primer"></p>
+          <h4 id="cf-session">Active / Watch Window</h4>
+          <p id="cf-session-note" class="primer">Check spread and range expansion before taking breakouts.</p>
         </article>
         <article class="card cf-status">
           <p class="widget-label">Score &amp; Lockout</p>
-          <h4 id="cf-score">—</h4>
-          <p id="cf-lock" class="primer"></p>
+          <h4 id="cf-score">FLAT · Unaligned</h4>
+          <p id="cf-lock" class="primer">Stand down while XAU rally and elevated US10Y/yields diverge.</p>
         </article>
       </div>
 
@@ -648,18 +662,18 @@
       <div class="cf-tools">
         <article class="card">
           <p class="widget-label">Gold Key Levels (ATR)</p>
-          <div id="cf-levels" class="curve-box skeleton">Waiting for levels…</div>
+          <div id="cf-levels" class="curve-box skeleton">Spot ~3648.00 · mark recent swing high/low &amp; 20-pt stop</div>
         </article>
 
         <article class="card risk-strip">
           <p class="widget-label">Event Position Size</p>
-          <div id="cf-size" class="curve-box skeleton">Waiting for size…</div>
+          <div id="cf-size" class="curve-box skeleton">Base 1% risk = $10.00 on $1,000</div>
           <div class="risk-tool">
             <div class="risk-inputs">
               <label>Balance <input id="cf-bal" type="number" value="1000"></label>
               <label>Base risk % <input id="cf-risk" type="number" value="1" step="0.1"></label>
             </div>
-            <div id="cf-size-out" class="risk-output">—</div>
+            <div id="cf-size-out" class="risk-output">Risk: $10.00 · 0.50 lots @ 20 pts ($1/pt/lot)</div>
           </div>
         </article>
       </div>
@@ -667,7 +681,7 @@
       <!-- ORB -->
       <div class="cf-block">
         <h3>Opening Range Breakout (ORB)</h3>
-        <div id="cf-orb" class="card skeleton">Waiting for ORB box…</div>
+        <div id="cf-orb" class="card skeleton">Mark session high/low and wait for a clean candle close outside + retest.</div>
       </div>
 
       <!-- Surprise deltas with visual legend -->
@@ -678,14 +692,14 @@
           <span class="pill pos">Green = USD down / Gold up</span>
         </div>
         <div id="cf-deltas" class="list">
-          <div class="skeleton-line">No surprise prints yet</div>
+          <div class="skeleton-line">No fresh actual-vs-forecast surprise print logged yet.</div>
         </div>
       </div>
 
       <!-- Cross-asset -->
       <div class="cf-block">
         <h3>Cross-Asset Divergence</h3>
-        <div id="cf-div" class="card skeleton">Waiting for cross-asset read…</div>
+        <div id="cf-div" class="card skeleton">XAU +3.77% vs US10Y 4.94% / Real Yield 2.54%: price outpacing rate pressure — wait for confirmation.</div>
       </div>
     </section>
 
@@ -699,8 +713,106 @@
       <iframe id="hl-frame" title="Headlines" data-src="headlines.html" style="width:100%;height:calc(100vh - 150px);min-height:620px;border:1px solid var(--line);border-radius:14px;background:var(--bg2)"></iframe>
     </section>
   </main>
+
+  <script>
+    (function () {
+      function calcPosition() {
+        var bal = parseFloat(document.getElementById("risk-balance")?.value) || 0;
+        var pct = parseFloat(document.getElementById("risk-pct")?.value) || 0;
+        var stop = parseFloat(document.getElementById("risk-stop")?.value) || 0;
+        var pipVal = parseFloat(document.getElementById("risk-pipval")?.value) || 1;
+        var riskDollars = bal * (pct / 100);
+        var lots = (stop > 0 && pipVal > 0) ? (riskDollars / (stop * pipVal)) : 0;
+
+        var rd = document.getElementById("risk-dollars");
+        var rl = document.getElementById("risk-lots");
+        var rf = document.getElementById("risk-from-sig");
+        if (rd) rd.textContent = "$" + riskDollars.toFixed(2);
+        if (rl) rl.textContent = lots.toFixed(2);
+        if (rf) rf.textContent = "$" + riskDollars.toFixed(2) + " / " + lots.toFixed(2) + " lot";
+
+        var instBal = document.getElementById("inst-bal");
+        var instRisk = document.getElementById("inst-risk");
+        var instStop = document.getElementById("inst-stop");
+        var instPip = document.getElementById("inst-pipval");
+        if (instBal) instBal.value = bal;
+        if (instRisk) instRisk.value = pct;
+        if (instStop) instStop.value = stop;
+        if (instPip) instPip.value = pipVal;
+
+        var atrSize = document.getElementById("atr-size");
+        if (atrSize) atrSize.textContent = "Risk: $" + riskDollars.toFixed(2) + " · Size: " + lots.toFixed(2) + " lots (@ " + stop + " pts)";
+
+        var cfBal = document.getElementById("cf-bal");
+        var cfRisk = document.getElementById("cf-risk");
+        var cfSize = document.getElementById("cf-size");
+        var cfSizeOut = document.getElementById("cf-size-out");
+        if (cfBal) cfBal.value = bal;
+        if (cfRisk) cfRisk.value = pct;
+        if (cfSize) cfSize.textContent = "Base " + pct + "% risk = $" + riskDollars.toFixed(2) + " on $" + bal.toFixed(0);
+        if (cfSizeOut) cfSizeOut.textContent = "Risk: $" + riskDollars.toFixed(2) + " · " + lots.toFixed(2) + " lots @ " + stop + " pts ($" + pipVal + "/pt/lot)";
+      }
+
+      ["risk-balance", "risk-pct", "risk-stop", "risk-pipval"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener("input", calcPosition);
+          el.addEventListener("change", calcPosition);
+        }
+      });
+
+      document.querySelectorAll("#fomc-scenario-table .fomc-use").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var row = btn.closest(".fomc-row");
+          if (!row) return;
+          var side = row.dataset.side || "FLAT";
+          var label = row.dataset.label || "Scenario";
+          var px = parseFloat(document.getElementById("gold-px")?.textContent) || 3648;
+          var stopPts = parseFloat(document.getElementById("risk-stop")?.value) || 20;
+
+          var sigSide = document.getElementById("sig-side");
+          var sigSideSm = document.getElementById("sig-side-sm");
+          var sigReason = document.getElementById("sig-reason");
+          var sigEntry = document.getElementById("sig-entry");
+          var sigStop = document.getElementById("sig-stop");
+          var sigTp1 = document.getElementById("sig-tp1");
+          var sigTp2 = document.getElementById("sig-tp2");
+          var fomcStatus = document.getElementById("fomc-status");
+
+          if (sigSide) sigSide.textContent = side + " (PREVIEW)";
+          if (sigSideSm) sigSideSm.textContent = label + " · Hypothetical scenario loaded";
+          if (sigReason) sigReason.textContent = "Scenario preview (" + label + "): requires actual release/statement trigger and price gate confirmation before live execution.";
+
+          if (side === "BUY") {
+            if (sigEntry) sigEntry.textContent = px.toFixed(2);
+            if (sigStop) sigStop.textContent = (px - stopPts).toFixed(2);
+            if (sigTp1) sigTp1.textContent = (px + stopPts * 2).toFixed(2);
+            if (sigTp2) sigTp2.textContent = (px + stopPts * 3).toFixed(2);
+          } else if (side === "SELL") {
+            if (sigEntry) sigEntry.textContent = px.toFixed(2);
+            if (sigStop) sigStop.textContent = (px + stopPts).toFixed(2);
+            if (sigTp1) sigTp1.textContent = (px - stopPts * 2).toFixed(2);
+            if (sigTp2) sigTp2.textContent = (px - stopPts * 3).toFixed(2);
+          } else {
+            if (sigEntry) sigEntry.textContent = "Fade only";
+            if (sigStop) sigStop.textContent = stopPts + " pts";
+            if (sigTp1) sigTp1.textContent = (stopPts * 1.5).toFixed(0) + " pts";
+            if (sigTp2) sigTp2.textContent = (stopPts * 2).toFixed(0) + " pts";
+          }
+
+          if (fomcStatus) fomcStatus.textContent = "Preview loaded: " + label + " (" + side + ") — wait for confirmed trigger & price gate.";
+        });
+      });
+
+      calcPosition();
+    })();
+  </script>
   <script src="app.js"></script>
   <script src="institutional.js"></script>
-  <script>document.querySelector('[data-tab="vol100"]').addEventListener("click",function(){var f=document.getElementById("v100-frame");if(!f.src)f.src=f.dataset.src;});document.querySelector('[data-tab="goldstudy"]').addEventListener("click",function(){var g=document.getElementById("gold-frame");if(!g.src)g.src=g.dataset.src;});document.querySelector('[data-tab="headlines"]').addEventListener("click",function(){var h=document.getElementById("hl-frame");if(!h.src)h.src=h.dataset.src;});</script>
+  <script>
+    document.querySelector('[data-tab="vol100"]').addEventListener("click",function(){var f=document.getElementById("v100-frame");if(!f.src)f.src=f.dataset.src;});
+    document.querySelector('[data-tab="goldstudy"]').addEventListener("click",function(){var g=document.getElementById("gold-frame");if(!g.src)g.src=g.dataset.src;});
+    document.querySelector('[data-tab="headlines"]').addEventListener("click",function(){var h=document.getElementById("hl-frame");if(!h.src)h.src=h.dataset.src;});
+  </script>
 </body>
 </html>
